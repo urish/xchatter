@@ -5,25 +5,32 @@ namespace eval fsend {
 
     proc init {} {
 	onevent usercmd FSEND [namespace current]::ucmd_fsend \
-			FGET [namespace current]::ucmd_fget
+			FGET [namespace current]::ucmd_fget \
+			FLIST [namespace current]::ucmd_flist
 	onevent servercmd FSEND [namespace current]::scmd_fsend
 	register_msgs {
 	    xcplus_fsend_error_nonick "*** Error: no nick name specified."
 	    xcplus_fsend_error_nofile "*** Error: no file name specified."
-	    xcplus_fsend_error_openfile "*** Error: couldn't open %f."
+	    xcplus_fsend_error_openfile "*** Error: couldn't open '%f'."
 	    xcplus_fsend_error_init "*** Error: Failed initilaizing file transfer."
 	    xcplus_fsend_error_magickey "*** Error: Incoming magickey from %s is WORNG."
-	    xcplus_fsend_established "*** File transfer with %n of file %f established."
-	    xcplus_fsend_completed "*** File transfer with %n of file %f completed."
-	    xcplus_fsend_incoming "*** Incoming file transfer %f from %n. Write '/fget %x' to receive it."
+	    xcplus_fsend_established "*** File transfer with %n of file '%f' established."
+	    xcplus_fsend_completed "*** File transfer with %n of file '%f' completed."
+	    xcplus_fsend_incoming "*** Incoming file transfer '%f' from %n. Write '/fget %x' to receive it."
 	    xcplus_fsend_bigger "*** Warning: incoming file is larger than %n said. closing connection."
-	    xcplus_fsend_inform "*** Sending file %f to %n."
+	    xcplus_fsend_inform "*** Sending file '%f' to %n."
+	    xcplus_fsend_list_header "Transfer list:"
+	    xcplus_fsend_list_send "%x. Waiting for %n to accept '%f'"
+	    xcplus_fsend_list_send_e "%x. Sending '%f' to %n"
+	    xcplus_fsend_list_get "%x. Incoming transfer of '%f' from %n"
+	    xcplus_fsend_list_get_e "%x. Getting file '%f' from %n"
 	}
     }
     
     proc destroy {} {
 	unevent usercmd [list [namespace current]::ucmd_fsend \
-				[namespace current]::ucmd_fget]
+			      [namespace current]::ucmd_fget \
+			      [namespace current]::ucmd_flist]
 	unevent servercmd [namespace current]::scmd_fsend
 	namespace delete [namespace current]
     }
@@ -42,11 +49,29 @@ namespace eval fsend {
 	set file [strip_file [lindex $uargs 0]]
 	set num [allocate_dcc GET $nick $file]
 	putcmsg xcplus_fsend_incoming n $nick f $file x $num
-	set dcc(dcc,$num,filesize) [lindex $uargs 1]
-	set dcc(dcc,$num,nowsize) 0
-	set dcc(dcc,$num,ip) [lindex $uargs 2]
-	set dcc(dcc,$num,port) [lindex $uargs 3]
-	set dcc(dcc,$num,magickey) [lindex $uargs 4]
+	set dcc($num,filesize) [lindex $uargs 1]
+	set dcc($num,nowsize) 0
+	set dcc($num,ip) [lindex $uargs 2]
+	set dcc($num,port) [lindex $uargs 3]
+	set dcc($num,magickey) [lindex $uargs 4]
+    }
+    
+    proc ucmd_flist {uargs} {
+	variable dcc
+	putcmsg xcplus_fsend_list_header
+	foreach var [array names dcc *,type] {
+	    set num [lindex [split $var ,] 0]
+	    if {$dcc($var) == "SEND"} {
+		set type xcplus_fsend_list_send
+	    } else {
+		set type xcplus_fsend_list_get
+	    }
+	    if {$dcc($num,working)} {
+		set type ${type}_e
+	    }
+	    putcmsg $type x $num n $dcc($num,nick) f $dcc($num,file)
+	}
+	return 1
     }
     
     proc ucmd_fsend {uargs} {
@@ -79,10 +104,14 @@ namespace eval fsend {
 	} else {
 	    set num $arg
 	}
-	if {[array names dcc dcc,$num,type] == ""} {
+	if {[array names dcc $num,type] == "" || $dcc($num,working) == 1} {
 	    return 1
 	}
-	set file [tk_getSaveFile -initialfile $dcc(dcc,$num,file) -initialdir .]
+	if {$dcc($num,type) != "GET"} {
+	    putcmsg xcplus_fsend_error_worngtype
+	    return 1	
+	}
+	set file [tk_getSaveFile -initialfile $dcc($num,file) -initialdir .]
 	if {$file == ""} {
 	    putcmsg xcplus_fsend_error_nofile
 	    return 1
@@ -95,9 +124,9 @@ namespace eval fsend {
     
     proc dcc_search {nick} {
 	variable dcc
-	foreach var [array names dcc {dcc,*,nick}] {
+	foreach var [array names dcc *,nick] {
 	    if {$nick == $dcc($var)} {
-		return [lindex [split $var ,] 1]
+		return [lindex [split $var ,] 0]
 	    }
 	}
 	return -1
@@ -110,10 +139,10 @@ namespace eval fsend {
 	    return
 	}
 	set num [allocate_dcc SEND $nick [strip_file $file] $fd]
-	set dcc(dcc,$num,realfile) $file
+	set dcc($num,realfile) $file
 	if {![dcc_listen $num]} {
 	    free_dcc $num
-	    putchat xcplus_fsend_error_init
+	    putcmsg xcplus_fsend_error_init
 	    return
 	}
 	dcc_informuser $num [file size $file]
@@ -122,57 +151,59 @@ namespace eval fsend {
     proc dcc_get {num file} {
 	variable dcc
 	if {$file == ""} {
-	    set file $dcc(dcc,$num,file)
+	    set file $dcc($num,file)
 	}
-	if [catch {open $file w} dcc(dcc,$num,fd)] {
-	    unset dcc(dcc,$num,fd)
+	if [catch {open $file w} dcc($num,fd)] {
+	    unset dcc($num,fd)
 	    putcmsg xcplus_fsend_error_init
 	    free_dcc $num
 	    return 0
 	} 
-	putchat connecting
-	if [catch {socket $dcc(dcc,$num,ip) $dcc(dcc,$num,port)} dcc(dcc,$num,myfd)] {
-	    unset dcc(dcc,$num,myfd)
+	if [catch {socket $dcc($num,ip) $dcc($num,port)} dcc($num,myfd)] {
+	    unset dcc($num,myfd)
 	    putcmsg xcplus_fsend_error_init
 	    free_dcc $num
 	    return 0
 	}
-	fconfigure $dcc(dcc,$num,myfd) -blocking 0 -translation auto -buffering line
-	puts $dcc(dcc,$num,myfd) $dcc(dcc,$num,magickey)
-	flush $dcc(dcc,$num,myfd)
-	fconfigure $dcc(dcc,$num,myfd) -blocking 0 -translation binary -buffering none
-	putcmsg xcplus_fsend_established n $dcc(dcc,$num,nick) f $dcc(dcc,$num,file)
-	fcopy $dcc(dcc,$num,myfd) $dcc(dcc,$num,fd) -command [list [namespace current]::dcc_client_in $num $dcc(dcc,$num,myfd)] -size 1024
+	fconfigure $dcc($num,myfd) -blocking 0 -translation auto -buffering line
+	puts $dcc($num,myfd) $dcc($num,magickey)
+	unset dcc($num,magickey)
+	flush $dcc($num,myfd)
+	set dcc($num,working) 1
+	fconfigure $dcc($num,myfd) -blocking 0 -translation binary -buffering none
+	putcmsg xcplus_fsend_established n $dcc($num,nick) f $dcc($num,file)
+	fcopy $dcc($num,myfd) $dcc($num,fd) -command [list [namespace current]::dcc_client_in $num $dcc($num,myfd)] -size 1024
 	return 1
     }
     
     proc free_dcc {num} {
 	variable dcc
-	foreach var [array names dcc "dcc,$num,*fd"] {
+	foreach var [array names dcc "$num,*fd"] {
 	    if {$dcc($var) >= 0} { close $dcc($var) }
 	}
-	foreach var [array names dcc dcc,$num,*] {unset dcc($var)}
+	foreach var [array names dcc $num,*] {unset dcc($var)}
     }
     
     proc allocate_dcc {type nick file {fd -1}} {
 	variable dcc
 	set x 1
-	foreach var [array names dcc {dcc,*,type}] {incr x}
-	set dcc(dcc,$x,type) $type
-	set dcc(dcc,$x,nick) $nick
-	set dcc(dcc,$x,file) $file
-	if {$fd != -1} { set dcc(dcc,$x,fd) $fd }
+	foreach var [array names dcc {*,type}] {incr x}
+	set dcc($x,type) $type
+	set dcc($x,nick) $nick
+	set dcc($x,file) $file
+	set dcc($x,working) 0
+	if {$fd != -1} { set dcc($x,fd) $fd }
 	return $x
     }
     
     proc dcc_listen {num} {
 	variable dcc
-	set dcc(dcc,$num,magickey) "xc[clock clicks][clock seconds][clock clicks][expr rand()]"
-	if [catch {socket -server "[namespace current]::dcc_newconn $num" 0} dcc(dcc,$num,listenfd)] {
-	    unset dcc(dcc,$num,listenfd)
+	set dcc($num,magickey) "xc[clock clicks][clock seconds][clock clicks][expr rand()]"
+	if [catch {socket -server "[namespace current]::dcc_newconn $num" 0} dcc($num,listenfd)] {
+	    unset dcc($num,listenfd)
 	    return 0
 	}
-	set dcc(dcc,$num,port) [lindex [fconfigure $dcc(dcc,$num,listenfd) -sockname] 2]
+	set dcc($num,port) [lindex [fconfigure $dcc($num,listenfd) -sockname] 2]
 	return 1
     }
     
@@ -180,66 +211,68 @@ namespace eval fsend {
 	variable dcc
 	global sock
 	set ip [lindex [fconfigure $sock -sockname] 0]
-	putcmsg xcplus_fsend_inform f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
-	putsock "CMD $dcc(dcc,$num,nick) FSEND $dcc(dcc,$num,file) $size $ip $dcc(dcc,$num,port) $dcc(dcc,$num,magickey)"
+	putcmsg xcplus_fsend_inform f $dcc($num,file) n $dcc($num,nick)
+	putsock "CMD $dcc($num,nick) FSEND $dcc($num,file) $size $ip $dcc($num,port) $dcc($num,magickey)"
     }
     
     proc dcc_newconn {num idx host port} {
 	variable dcc
-	if {[array names dcc dcc,$num,type] == ""} {
+	if {[array names dcc $num,type] == ""} {
 	    close $idx
 	    return
 	}
-	close $dcc(dcc,$num,listenfd)
-	unset dcc(dcc,$num,listenfd)
-	set dcc(dcc,$num,clientfd) $idx
+	close $dcc($num,listenfd)
+	unset dcc($num,listenfd)
+	set dcc($num,clientfd) $idx
 	fconfigure $idx -blocking 0 -translation auto -buffering line
 	fileevent $idx readable "[namespace current]::dcc_server_in $num $idx"
-	putcmsg xcplus_fsend_established n $dcc(dcc,$num,nick) f $dcc(dcc,$num,file)
+	putcmsg xcplus_fsend_established n $dcc($num,nick) f $dcc($num,file)
     }
     
     proc dcc_server_in {num idx} {
 	variable dcc
-	if {[array names dcc dcc,$num,type] == ""} {
+	if {[array names dcc $num,type] == ""} {
 	    close $idx
 	    return
 	}
     	if [catch {set buf [gets $idx]}] {return}
 	if {$buf == ""} {return}
-	if {$buf != $dcc(dcc,$num,magickey)} {
+	if {$buf != $dcc($num,magickey)} {
 	    putcmsg xcplus_fsend_error_magickey s [lindex [fconfigure $idx -peername] 0]
 	    free_dcc $num
 	    return
 	}
+	unset dcc($num,magickey)
+	set dcc($num,working) 1
 	fconfigure $idx -blocking 0 -translation binary -buffering none
 	fileevent $idx readable ""
-	fcopy $dcc(dcc,$num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
+	fcopy $dcc($num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
     }
     
     proc dcc_server_out {num idx bytes {error {}}} {
 	variable dcc
 	flush $idx
-	if {[string length $error] != 0 || [eof $dcc(dcc,$num,fd)]} {
-	    putcmsg xcplus_fsend_completed f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
+	if {[string length $error] != 0 || [eof $dcc($num,fd)]} {
+	    putcmsg xcplus_fsend_completed f $dcc($num,file) n $dcc($num,nick)
 	    free_dcc $num
 	    return 1
 	} else {
-	    fcopy $dcc(dcc,$num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
+	    fcopy $dcc($num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
 	}
     }
     
     proc dcc_client_in {num idx bytes {error {}}} {
 	variable dcc
-	flush $dcc(dcc,$num,fd)
-	incr dcc(dcc,$num,nowsize) $bytes
-	if {[string length $error] != 0 || [eof $idx] || $dcc(dcc,$num,nowsize) == $dcc(dcc,$num,filesize)} {
-	    putcmsg xcplus_fsend_completed f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
+	flush $dcc($num,fd)
+	incr dcc($num,nowsize) $bytes
+	if {[string length $error] != 0 || [eof $idx] || $dcc($num,nowsize) == $dcc($num,filesize)} {
+	    putcmsg xcplus_fsend_completed f $dcc($num,file) n $dcc($num,nick)
 	    free_dcc $num
-	} elseif {$dcc(dcc,$num,nowsize) > $dcc(dcc,$num,filesize)} {
-	    putcmsg xcplus_fsend_bigger n $dcc(dcc,$num,nick)
+	} elseif {$dcc($num,nowsize) > $dcc($num,filesize)} {
+	    putcmsg xcplus_fsend_bigger n $dcc($num,nick)
 	    free_dcc $num
 	} else {
-	    fcopy $idx $dcc(dcc,$num,fd) -command [list [namespace current]::dcc_client_in $num $idx] -size 1024
+	    fcopy $idx $dcc($num,fd) -command [list [namespace current]::dcc_client_in $num $idx] -size 1024
 	}
     }
 }
