@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.10 2002-03-18 20:28:22 urish Exp $
+# $Id: server.tcl,v 1.11 2002-03-18 22:20:31 urish Exp $
 
 proc server_init {} {
     # register events
@@ -176,7 +176,7 @@ proc server_admin {sargs} {
 
 proc server_join {sargs} {
     putcmsg user_join -nick [lindex $sargs 0] -type server n [lindex $sargs 0]
-    userlist_add [lindex $args 0]
+    userlist_add [lindex $sargs 0]
     return 1
 }
 
@@ -184,7 +184,7 @@ proc server_quit {sargs} {
     set user [lindex $sargs 0]
     set reason [join [lrange $sargs 1 end]]
     putcmsg user_quit -nick $user -type server n $user t $reason
-    userlist_del [lindex $args 0]
+    userlist_del [lindex $sargs 0]
     return 1
 }
 
