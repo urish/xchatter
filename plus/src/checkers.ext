@@ -1,5 +1,5 @@
 EXTENTION checkers-0.9-6
-# $Id: checkers.ext,v 1.1 2001-07-25 15:32:14 uri Exp $
+# $Id: checkers.ext,v 1.2 2001-10-04 22:34:09 urish Exp $
 
 namespace eval checkers {
     variable colors
@@ -37,7 +37,7 @@ namespace eval checkers {
     
     proc destroy {} {
 	unevent servercmd [namespace current]::ucmd_checkers
-	unevent usersmc [namespace current]::server_cmd_ckrs
+	unevent usercmd [namespace current]::server_cmd_ckrs
 	unevent serverin [list [namespace current]::server_error \
 			 [namespace current]::server_nick]
 	destroy_widget .checkers
