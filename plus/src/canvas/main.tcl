@@ -1,7 +1,6 @@
-EXTENTION canvas-1.1-6
-# $Id: main.tcl,v 1.3 2001-08-29 21:09:17 urish Exp $
+EXTENTION canvas VERSION 1.1 BUILD 6
+# $Id: main.tcl,v 1.4 2002-03-16 11:00:02 urish Exp $
 
-namespace eval canvas {
     variable last_active_color
     variable linewidth 1 color
     variable tools
@@ -286,4 +285,3 @@ namespace eval canvas {
     
     <@INCLUDE rect.tcl>
     <@INCLUDE polygon.tcl>
-}
