@@ -1,4 +1,4 @@
-<!-- $Id: timers.hlp,v 1.2 2001-10-02 08:54:44 urish Exp $ -->
+<!-- $Id: timers.hlp,v 1.3 2001-10-02 09:47:14 urish Exp $ -->
 <XCHELP topic=cmd_timers aliases="timer,timers">
 <CENTER><FONT size=32 color=blue><B>/TIMERS</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -18,7 +18,6 @@ The execution interval is measured in seconds, unless is perfixed by a name of u
 If you don't set a execution count for the timer, or set it to 0, the timer will continue executing until deleted (that is, infinite number of times).
 To delete a timer, type /TIMER, followed by a minus sign prepended to the name of the timer you want to delete.
 If you want to change the interval/count of an existing timer, use the same method you'd use to readd the timer, but don't specify any command to execute. This will modify the timer's count/interval, leaving the command associated with it unmodified.
-There are some additional syntaxes of defining/deleting a timer, but since they are not commonly used, and longer to type, are not mentioned here.
 Note that XChatter itself uses some timers. Those timers also appear on the timer list, but can't be deleted or overwritten (though their intervals can be modified). Examples for XChatter internal timers are the <LINK topic="cmd_away">/AWAY</LINK> timer, and also the <LINK topic="styles">blinking text style</LINK>, which needs a timer to work (you can modify the blink_timer interval to make the text fade faster/slower).
 
 <B><U>Examples:</U></B>
