@@ -1,5 +1,5 @@
 EXTENTION canvas-1.1-6
-# $Id: main.tcl,v 1.1 2001-08-15 07:38:46 uri Exp $
+# $Id: main.tcl,v 1.2 2001-08-15 13:40:46 uri Exp $
 
 namespace eval canvas {
     variable last_active_color
@@ -131,8 +131,8 @@ namespace eval canvas {
 	variable tools
 	set procname [lindex $args 0]
 	set args [lrange $args 1 end]
-	set proc $tools($tools($tool).namespace)::$procname
-	if [llength [info commands $procprefix]] {
+	set proc $tools($tools(tool).namespace)::$procname
+	if [llength [info commands $proc]] {
 	    eval [list $proc] $args
 	}
     }
@@ -141,7 +141,7 @@ namespace eval canvas {
 	variable tools
 	if {$tool != $tools(tool)} {
 	    tool_call deselect
-	    $tools($prefix)$tools($tools(tool).id) configure -relief flat
+	    $tools(prefix)$tools($tools(tool).id) configure -relief flat
 	    set tools(tool) $tool
 	    $widget configure -relief raised
 	    tool_call select

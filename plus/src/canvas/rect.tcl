@@ -10,30 +10,27 @@ namespace eval recttool {
 	}
     }
     
-    proc getdef {} {
-	variable tool
-	variable start_coords
-	variable linewidth
-	variable colors
-	variable polycoords
-	set coords [canvas_getcoords $x $y]
-	set lnc [list $colors(line)]
-	set flc [list $colors(fill)]
-	switch $tool {
+    proc getdef {x y} {
+	variable coords
+	set dcoords [list $coords(x) $coords(y) $x $y]
+	set lnc [list [set [namespace parent]::colors(line)]]
+	set flc [list [set [namespace parent]::colors(fill)]]
+	set lnwidth [set [namespace parent]::linewidth]
+	switch [set [namespace parent]::tools(tool)] {
 	    line { 
-		return "line $coords -fill $lnc -width $linewidth"
+		return "line $dcoords -fill $lnc -width $lnwidth"
 	    }
 	    rectangle {
-		return "rectangle $coords -outline $lnc -width $linewidth"
+		return "rectangle $dcoords -outline $lnc -width $lnwidth"
 	    }
 	    frectangle {
-		return "rectangle $coords -fill $flc -outline $lnc -width $linewidth"
+		return "rectangle $dcoords -fill $flc -outline $lnc -width $lnwidth"
 	    }
 	    oval {
-		return "oval $coords -outline $lnc -width $linewidth"
+		return "oval $dcoords -outline $lnc -width $lnwidth"
 	    }
 	    foval {
-		return "oval $coords -fill $flc -outline $lnc -width $linewidth"
+		return "oval $dcoords -fill $flc -outline $lnc -width $lnwidth"
 	    }
 	}
     }
@@ -45,7 +42,7 @@ namespace eval recttool {
 	    return
 	}
 	if {$shift & 0x1} {
-	    set xy [align_line $start_coords(x) $start_coords(y) $x $y]
+	    set xy [align_line $coords(x) $coords(y) $x $y]
 	    set x [lindex $xy 0]
 	    set y [lindex $xy 1]
 	}
@@ -54,22 +51,22 @@ namespace eval recttool {
 	    set y [align_to_grid_y $y]
 	}
 	if [info exists tempitem] {
-	    eval .drawing_canvas.canvas coords $tempitem $coords(x) $coords(y) $x $y]
+	    .drawing_canvas.canvas coords $tempitem $coords(x) $coords(y) $x $y
 	} else {
-	    set tempitem [eval .drawing_canvas.canvas create [recttool_getdef $x $y]]
+	    set tempitem [eval .drawing_canvas.canvas create [getdef $x $y]]
 	}
     }
     
     proc release {x y shift} {
-	variable start_coords
+	variable coords
 	variable tempitem
-	if ![info exists start_coords] {
+	if ![info exists coords] {
 	    return
 	}
 	if [info exists tempitem] {
 	    unset tempitem
 	}
-	putsock "GCMD DRAW [recttool_getdef $x $y]" 0
-	unset start_coords
+	putsock "GCMD DRAW [getdef $x $y]" 0
+	unset coords
     }
 }
