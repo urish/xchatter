@@ -1,5 +1,5 @@
 EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
-# $Id: main.tcl,v 1.1 2002-03-14 20:37:10 urish Exp $
+# $Id: main.tcl,v 1.2 2002-03-19 10:12:55 urish Exp $
 
     variable stylemap
     variable nickmap
@@ -106,7 +106,7 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
 	}
     }
     
-    proc destroy {} {
+    proc unload {} {
 	rm_timer disappear_timer
 	unevent usercmd [list [namespace current]::ucmd_snick	\
 			[namespace current]::ucmd_action]
