@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.4 2002-03-16 11:00:02 urish Exp $
+# $Id: main.tcl,v 1.5 2002-03-19 11:55:26 urish Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -25,10 +25,9 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	toolbox_init
     }
     
-    proc destroy {} {
+    proc unload {} {
 	unevent servercmd [namespace current]::server_cmd_draw
-	destroy_widget .drawing_canvas
-	namespace delete [namespace current]
+	destroy .drawing_canvas
     }
 
     proc iface_init {} {
