@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.8 2001-11-20 21:35:49 urish Exp $
+# $Id: xchatter.tcl,v 1.9 2002-03-16 11:17:21 urish Exp $
 
 set version 0.5
 set numver 50.0
@@ -268,11 +268,17 @@ proc timer_info {name what} {
     global timers
     set name [string tolower $name]
     if ![info exists timers($name,timer)] {
+	if {$what == "exists"} {
+	    return 0
+	}
 	return ""
     }
     switch $what {
 	type - command - interval - count {
 	    return $timers($name,$what)
+	}
+	exists {
+	    return 1
 	}
 	default {
 	    return ""
@@ -426,6 +432,9 @@ catch {
 source server.tcl
 source usercmd.tcl
 source interface.tcl
+if [file exists plugin.tcl] {
+    source plugin.tcl
+}
 if [file exists help.tcl] {
     source help.tcl
     set helploaded 1
