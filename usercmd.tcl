@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.19 2002-03-26 21:42:38 urish Exp $
+# $Id: usercmd.tcl,v 1.20 2002-03-27 11:53:19 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -396,6 +396,7 @@ proc user_quit {uargs} {
 proc user_tcl {uargs} {
     if {[lindex $uargs 0] == "-q"} {
 	set quiet 1
+	set uargs [lrange $uargs 1 end]
     } 
     if {[lindex $uargs 0] == "-o"} {
 	set server_output 1
