@@ -1,8 +1,11 @@
 EXTENTION chess-0.9-1
-# $Id: chess.ext.beta,v 1.1 2001-07-25 15:32:14 uri Exp $
+# $Id: chess.ext.beta,v 1.2 2001-07-25 20:43:23 uri Exp $
 
 namespace eval chess {
     variable colors
+    variable pieces
+# chess piece definition
+    array set pieces {rook,coords {32 44} king {0 8 8 0 16 0 24 7 24 0 32 0 32 7 40 0 48 0 56 8 56 24 41 39 15 39 0 24 0 8 8 12 13 7 15 7 24 15 24 32 16 32 8 24 8 12 0 8 32 16 41 7 43 7 48 12 48 24 40 32 32 32 32 16 0 8} rook {0 0 6 0 6 7 13 7 13 0 19 0 19 7 26 7 26 0 32 0 32 13 26 19 26 34 32 40 32 44 0 44 0 38 6 32 6 18 0 13 0 0} bishop,coords {32 49} knight,coords {36 47} pawn,coords {24 37} queen,coords {55 44} bishop {0 49 32 49 32 44 19 37 19 30 22 30 22 24 19 24 19 21 23 19 24 18 25 18 20 18 25 12 25 11 16 0 7 11 6 11 6 18 9 21 12 21 12 22 12 24 9 24 10 30 13 30 13 37 0 44 0 49} knight {36 47 36 32 33 16 32 16 15 0 15 9 0 29 0 30 5 35 7 35 18 25 19 25 19 26 18 27 12 47 36 47} pawn {0 37 24 37 24 33 23 33 14 24 14 18 19 18 19 14 15 14 15 13 19 9 19 4 18 4 14 0 10 0 5 4 5 9 9 13 9 14 5 14 5 18 10 18 10 25 8 25 0 33 0 37} queen {8 44 48 44 48 36 55 6 42 20 37 0 28 19 19 0 13 20 0 6 8 36 8 44} king,coords {56 39}}
     set colors(p0) cyan
     set colors(p1) red
     set colors(s0) white
@@ -10,11 +13,13 @@ namespace eval chess {
     set colors(phi) yellow
 
     proc init {} {
+	onevent usercmd CHESS [namespace current]::ucmd_chess
 	iface_init
 	canvas_init
     }
     
     proc destroy {} {
+	unevent usercmd [namespace current]::ucmd_chess
 	destroy_widget .chess
 	namespace delete [namespace current]
     }
@@ -25,7 +30,7 @@ namespace eval chess {
 	wm protocol .chess WM_DELETE_WINDOW [namespace current]::window_close
 	wm withdraw .chess
     }
-        
+
     proc canvas_init {} {
 	canvas .chess.canvas -relief raised -border 2 -height [expr 32 * 8] -width [expr 32 * 8] -background gray
 	grid configure .chess.canvas -row 1 -column 1
@@ -63,12 +68,20 @@ namespace eval chess {
     }
 
     proc draw_piece {h v piece color} {
+	variable pieces
 	set ucoords [get_piece_coords $h $v]
-	set oval [eval .chess.canvas create oval $ucoords {-fill $color -outline $color -stipple gray50}]
-	set textx [expr ([lindex $ucoords 0] + [lindex $ucoords 2]) / 2]
-	set texty [expr ([lindex $ucoords 1] + [lindex $ucoords 3]) / 2]
-	set text [.chess.canvas create text $textx $texty [string range $piece 0 1]]
+	foreach {x y} $pieces($piece) {
+	    lappend polycoords [expr int($x * 0.5) + [lindex $ucoords 0]] \
+			       [expr int($y * 0.5) + [lindex $ucoords 1]]
+	}
+	eval .chess.canvas create polygon $polycoords -fill [list $color]
 	return 
+    }
+    
+    proc put_piece {h v player type} {
+	variable game
+	variable colors
+	draw_piece $h $v $type $colors(p$player)
     }
     
     proc draw_board {{hsize 0} {vsize 0} {hoffs 0} {voffs 0}} {
@@ -106,23 +119,26 @@ namespace eval chess {
 	variable colors
 	variable game
 	wm deiconify .chess
-	set game(p0) 12
-	set game(p1) 12
-	set game(pactive) [expr $game(network) && $game(isblack)]
-	foreach v {0 1 2 5 6 7} player {1 1 1 0 0 0} {
-	    for {set h [expr $v % 2]} {$h < 8} {incr h 2} {
-		if {$game(network) && $game(isblack)} {
-		    set piece [draw_piece $h $v $colors(p[expr !$player])]
-		} else {
-		    set piece [draw_piece $h $v $colors(p$player)]
-		}
-		set board(sq$h$v) $piece
-		set board(u$piece) $player
-		.chess.canvas addtag pieces withtag $piece
+	set game(player) 0
+	set game(castling0s) 1
+	set game(castling0l) 1
+	set game(castling1s) 1
+	set game(castling1l) 1
+	set game(enpassent) ""
+	set h 0
+	set v 0
+	foreach type {rook knight bishop king queen bishop knight rook
+		      pawn pawn pawn pawn pawn pawn pawn pawn} {
+	    put_piece $h $v 0 $type
+	    put_piece [expr 7 - $h] [expr 7 - $v] 1 $type
+	    lappend game(p0) $type
+	    lappend game(p1) $type
+	    incr h
+	    if {$h == 8} {
+		set h 0
+		incr v
 	    }
 	}
-	.chess.canvas bind pieces <Any-Enter> [namespace current]::piece_enter
-	.chess.canvas bind pieces <Any-Leave> [namespace current]::piece_leave
 	.chess.canvas bind pieces <ButtonPress-1> "[namespace current]::piece_bpress %x %y"
 	.chess.canvas bind pieces <ButtonRelease-1> "[namespace current]::piece_brelease %x %y %s"
 	.chess.canvas bind pieces <B1-Motion> "[namespace current]::piece_bmotion %x %y"
@@ -210,6 +226,52 @@ namespace eval chess {
 	set board(sq[join $target ""]) $piece
     }
     
+    proc can_move_line {sx sy tx ty} {
+	if {$tx == $sx} {
+	    set start [expr ($ty > $sy ? $sy : $ty) + 1]
+	    set end [expr $ty > $sy ? $ty : $sy]
+	    for {set y $start} {$y < end} {incr y} {
+		if [is_piece [list $sx $y]] {
+		    return 0
+		}
+	    }
+	} elseif {$ty == $sy} {
+	    set start [expr ($tx > $sx ? $sx : $tx) + 1]
+	    set end [expr $tx > $sx ? $tx : $sx]
+	    for {set x $start} {$x < end} {incr x} {
+		if [is_piece [list $x $sy]] {
+		    return 0
+		}
+	    }
+	} else {
+	    return 0
+	}
+    }
+    
+    proc can_move_diagonal {sx sy tx ty} {
+	if {abs($tx - $sx) != abs($ty - $sy)} {
+	    return 0
+	}
+	set sqcnt [expr abs($tx - $sx)]
+	if {$sx > $tx} {
+	    set x $tx
+	} else {
+	    set x $sx
+	}
+	if {$sy > $ty} {
+	    set y $yx
+	} else {
+	    set y $ty
+	}
+	for {set i 1} {$i < $sqcnt} {incr i} {
+	    incr x
+	    incr y
+	    if [is_piece [list $x $y]] {
+		return 0
+	    }
+	}
+    }
+    
     proc can_move {piece type source target player} {
 	if {$source == $target} {
 	    return 0
@@ -231,17 +293,18 @@ namespace eval chess {
 		}
 	    }
 	    bishop {
-		if {abs($tx - $sx) == abs($ty - $sy)} {
+		if [eval can_move_diagonal $source $target] {
 		    return 1
 		}
 	    }
 	    rook {
-		if {$tx == $sx || $ty == $sy} {
+		if [eval can_move_line $source $target] {
 		    return 1
 		}
 	    }
 	    queen {
-		if {abs($tx - $sx) == abs($ty - $sy) || $tx == $sx || $ty == $sy} {
+		if {[eval can_move_line $source $target] || 
+		    [eval can_move_diagonal $source $target]} {
 		    return 1
 		}
 	    }
