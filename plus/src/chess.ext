@@ -1,5 +1,5 @@
-EXTENTION chess-0.9-6
-# $Id: chess.ext,v 1.8 2001-08-10 09:54:07 uri Exp $
+EXTENTION chess-0.9-7
+# $Id: chess.ext,v 1.9 2001-10-05 23:37:57 urish Exp $
 
 # File structure:
 # * Variable initialization
@@ -608,6 +608,98 @@ namespace eval chess {
 	}
 	return 0
     }
+
+    proc is_move_legal {piece type source target player} {
+	if ![can_move $piece $type $source $target $player]} {
+	    return 0
+	}
+	piece_move $piece $source $target
+	set check [is_king_threatened $player]
+	piece_unmove $piece $source $target
+	return [expr !$check]
+    }
+
+    proc linear_move_available {piece h v type player} {
+	set source [list $h $v]
+	for {set i 0} {$i < 8} {incr i} {
+	    foreach j {0 1} {
+		if {$j} {
+		    set target [list $i $v]
+		} else {
+		    set target [list $h $i]
+		}
+	    	if [is_move_legal $piece $type $source $target $player] {
+		    return 1
+	    	}
+	    }
+	}
+	return 0
+    }
+
+    proc diagonal_move_available {piece h v type player} {
+	set source [list $h $v]
+	for {set i 1} {$i < 8} {incr i} {
+	    foreach hi {1 1 -1 -1} \
+	    	    vi {1 -1 1 -1} {
+	    	set target [list [expr $h + $i * $hi] [expr $v + $i * $vi]]
+		if [is_move_legal $piece $type $source $target $player] {
+		    return 1
+		}
+	    }
+	}
+	return 0
+    }
+    
+    proc moves_available {player} {
+	variable board
+	foreach i [array names board square*] {
+	    if {[get_piece_player $board($i)] != $player} {
+		continue
+	    }
+	    set h [string index $i 6]
+	    set v [string index $i 7]
+	    set type [get_piece_type $board($i)]
+	    switch $type {
+		rook {
+		    if [linear_move_available $board($i) $h $v $type $player] {
+			return 1
+		    }
+		}
+		bishop {
+		    if [diagonal_move_available $board($i) $h $v $type $player] {
+			return 1
+		    }
+		}
+		queen {
+		    if {[diagonal_move_available $board($i) $h $v $type $player]
+			|| [linear_move_available $board($i) $h $v $type $player]} {
+			return 1
+		    }
+		}
+		king - pawn {
+		    set source [list $h $v]
+		    foreach ho {-1 -1 -1 0  0  1 1 1}
+		    	    vo {-1  0  1 -1 1 -1 0 1} {
+			set target [list [expr $h + $ho] [expr $v + $vo]]
+			if [is_move_legal $board($i) $type $source $target $player] {
+			    return 1
+			}
+		    }
+		}
+		knight {
+		    set source [list $h $v]
+		    foreach ho {-2 -2 -1 -1 1  1 2  2} \
+		    	    vo {1  -1  2 -2 2 -2 1 -1} {
+			set target [list [expr $h + $ho] [expr $v + $vo]]
+			if [is_move_legal $board($i) $type $source $target $player] {
+			    return 1
+			}
+		    }
+		}
+	    }
+	}
+	return 0
+    }
     
     proc move_piece {piece source target player} {
 	variable board
@@ -655,6 +747,10 @@ namespace eval chess {
 	    piece_move $rpiece $rsource $rtarget
 	    move_piece_on_board $rpiece $rsource $rtarget
 	    unset game(castling_rook_move)
+	}
+	# chess for mate / stale mate
+	if ![moves_available [expr !$player]] {
+	    end_game $player [is_king_threatened [expr !$player]]
 	}
 	lappend game(movelist) "$source $target"
 	set game(active_player) [expr !$player]
