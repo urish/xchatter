@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.2 2001-07-26 17:08:27 uri Exp $
+# $Id: styles.ext,v 1.3 2001-08-11 15:54:15 uri Exp $
 
 namespace eval styles {
     variable stylemap
@@ -27,10 +27,13 @@ namespace eval styles {
 	g	groove
 	R	ridge
 	h	hidden
+	a	disappearing1
+	A	disappearing2
     }
     
     proc init {} {
 	global nick
+	variable disappearing_state 0
 	.chat tag configure black -foreground black
 	.chat tag configure blue -foreground blue
 	.chat tag configure green -foreground green
@@ -57,9 +60,12 @@ namespace eval styles {
 	.chat tag configure sunken -relief sunken
 	.chat tag configure groove -relief groove
 	.chat tag configure ridge -relief ridge
+	.chat tag configure disappearing1 -elide $disappearing_state
+	.chat tag configure disappearing2 -elide [expr !$disappearing_state]
 	for {set i 0} {$i < 8} {incr i} {
 	    .chat tag configure width$i -borderwidth $i
 	}
+	timer disappear_timer tcl 500 0 "[namespace current]::disappear_timer"
 	onevent usercmd SNICK [namespace current]::ucmd_snick \
 			ACTION [namespace current]::ucmd_action \
 			ME [namespace current]::ucmd_action
@@ -101,6 +107,13 @@ namespace eval styles {
 	unevent disconnected [namespace current]::disconnected
 	unhook [namespace current]::process_style
 	namespace delete [namespace current]
+    }
+    
+    proc disappear_timer {} {
+	variable disappearing_state
+	.chat tag configure disappearing2 -elide $disappearing_state
+	set disappearing_state [expr !$disappearing_state]
+	.chat tag configure disappearing1 -elide $disappearing_state
     }
 
     proc process_style {style} {
