@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.5 2001-08-13 11:43:59 uri Exp $
+# $Id: styles.ext,v 1.6 2001-08-25 11:56:34 urish Exp $
 
 namespace eval styles {
     variable stylemap
@@ -61,7 +61,7 @@ namespace eval styles {
 	.chat tag configure groove -relief groove
 	.chat tag configure ridge -relief ridge
 	# elide option is available only on patched versions of tcl8.0.5
-	if [catch {
+	if ![catch {
 	    .chat tag configure disappearing1 -elide $disappearing_state
 	    .chat tag configure disappearing2 -elide [expr !$disappearing_state]
 	    }] {
