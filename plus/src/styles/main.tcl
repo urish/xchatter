@@ -1,5 +1,5 @@
 EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
-# $Id: main.tcl,v 1.2 2002-03-19 10:12:55 urish Exp $
+# $Id: main.tcl,v 1.3 2002-03-19 11:56:49 urish Exp $
 
     variable stylemap
     variable nickmap
@@ -122,7 +122,6 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
 			 [namespace current]::server_error]
 	unevent disconnected [namespace current]::disconnected
 	unhook [namespace current]::process_style
-	namespace delete [namespace current]
     }
     
     proc disappear_timer {} {
