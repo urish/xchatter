@@ -1,5 +1,5 @@
 EXTENTION chess-0.9-5
-# $Id: chess.ext,v 1.6 2001-07-31 19:53:33 uri Exp $
+# $Id: chess.ext,v 1.7 2001-07-31 20:40:01 uri Exp $
 
 # File structure:
 # * Variable initialization
@@ -447,6 +447,15 @@ namespace eval chess {
 		y {-2 2 -2 2 -1 1 -1 1} {
 	    if [piece_match [expr $h + $x] [expr $v + $y] $oplayer knight] {
 		return 1
+	    }
+	}
+	
+	# check for a foreign king
+	foreach x {-1 0 1} {
+	    foreach y {-1 0 1} {
+		if [piece_match [expr $h + $x] [expr $v + $y] $oplayer king] {
+		    return 1
+		}
 	    }
 	}
 	return 0
