@@ -1,0 +1,8 @@
+<!-- $Id: xcplus.hlp,v 1.1 2001-07-31 11:04:03 uri Exp $ -->
+<XCHELP topic=xcplus>
+<CENTER><FONT size=32 color=blue><B>XChatter Plus</B></FONT></CENTER><BR><BR>
+If you see this help page, it means that you didn't load XChatter Plus.<BR>
+The XChatter plus as a collection of extentions for XChatter.<BR>
+Extentions include interface extentions, functionalitty extentions, and games.<BR>
+For more information, see the <LINK topic="cmd_plus">/PLUS</LINK> command.<BR>
+</XCHELP>
