@@ -1,5 +1,5 @@
 # XChatter's online help system
-# $Id: help.tcl,v 1.3 2001-08-25 11:36:23 urish Exp $
+# $Id: help.tcl,v 1.4 2001-08-25 12:09:43 urish Exp $
 
 proc init_help {} {
     global helptext helpfont
@@ -48,6 +48,7 @@ proc show_help {topic} {
     }
     wm deiconify .xchelp
     focus .xchelp
+    raise .xchelp
     .xchelp.help del 1.0 end
     if ![info exists helptext($topic)] {
 	if [info exists helptext(cmd_$topic)] {
