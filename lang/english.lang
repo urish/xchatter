@@ -1,5 +1,5 @@
 # English language messages for XChatter.
-# $Id: english.lang,v 1.8 2002-03-16 11:38:00 urish Exp $
+# $Id: english.lang,v 1.9 2002-03-18 20:31:27 urish Exp $
 norm_text_style		normal
 item inputbox		justify left
 # interface.tcl
@@ -56,7 +56,7 @@ text requested_version	*** Requesting version from %n...
 text server_ping	*** Pinging server... 
 text user_ping		*** Pinging %n... 
 text back_not_away	*** You didn't go away, so how can that be that you are back ? 
-text away_back		*** Welcome back ! you was away for %t. 
+text away_back		*** Welcome back ! you were away for %t. 
 text away_reason_changed *** Your away reason was changed. 
 text away_set		*** You are marked as being away. 
 text tcl_error		(tcl) Error: %t 
