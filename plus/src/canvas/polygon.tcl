@@ -1,3 +1,5 @@
+# $Id: polygon.tcl,v 1.4 2001-09-29 00:12:40 urish Exp $
+
 # polygons (multi-line based tools)
 namespace eval polygon {
     namespace import	[namespace parent]::align_to_grid_x	\

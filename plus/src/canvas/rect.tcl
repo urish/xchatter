@@ -1,3 +1,5 @@
+# $Id: rect.tcl,v 1.4 2001-09-29 00:12:40 urish Exp $
+
 namespace eval recttool {
     namespace import	[namespace parent]::align_to_grid_x	\
 			[namespace parent]::align_to_grid_y	\
