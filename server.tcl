@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.5 2001-08-14 13:48:12 amir Exp $
+# $Id: server.tcl,v 1.6 2001-08-14 13:54:59 amir Exp $
 
 proc server_init {} {
     # register events
@@ -128,10 +128,10 @@ proc server_pong {sargs} {
     set source [lindex $sargs 0]
     set data [join [lrange $sargs 1 end]]
     if [catch {set ptime [expr [clock seconds] - [lindex $data 0]]}] {
-	putcmsg invalid_ping_reply -nick $nick -type in n $source t $data
+	putcmsg invalid_ping_reply -nick $source -type in n $source t $data
 	return
     }
-    putcmsg ping_reply -nick $nick -type in n $source t $ptime
+    putcmsg ping_reply -nick $source -type in n $source t $ptime
     return 1
 }
 
