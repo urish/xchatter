@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.8 2001-09-02 08:49:23 amirs Exp $
+# $Id: usercmd.tcl,v 1.9 2001-09-02 09:06:12 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -334,7 +334,6 @@ proc user_away {uargs} {
     set away(reason) $uargs
     set away(since) [clock seconds]
     timer away tcl [expr 15 * 60000] 0 user_away_timer
-    timer away tcl 1000 0 user_away_timer
     user_act "is away ($uargs)"
     putcmsg away_set t $uargs
     return 1
