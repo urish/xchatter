@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: compiler.tcl,v 1.1 2001-07-25 15:32:13 uri Exp $
+# $Id: compiler.tcl,v 1.2 2001-07-30 16:53:17 uri Exp $
 
 proc openf {name} {
     global fd
@@ -45,7 +45,7 @@ foreach i [glob src/*.ext] {
     set extver [lindex $hdata 1]
     set extnumver [lindex $hdata 2]
     set extentions($extname,version) [list $extver $extnumver]
-    set extentions($extname,script) $data
+    set extentions($extname,script) [join [split $data \\] \xff]
     puts "$extname v$extver"
 }
 
