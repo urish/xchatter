@@ -1,0 +1,17 @@
+angry = angry.gif
+bigsmile = bigsmile.gif
+cry = cry.gif
+devil = devil.gif
+happy = happy.gif
+kiss = kiss.gif
+loveit = loveit.gif
+mazaltov = mazaltov.gif
+point = point.gif
+sad = sad.gif
+shocked = shocked.gif
+smart = smart.gif
+star = star.gif
+tongue = tongue.gif
+very_happy = vhappy.gif
+wink = wink.gif
+yum = yum.gif
