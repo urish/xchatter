@@ -1,0 +1,12 @@
+<!-- $Id: toomanyargs.hlp,v 1.1 2001-10-02 09:39:31 urish Exp $ -->
+<XCHELP topic=aicp.e_notenoughargs alias=102>
+<CENTER><FONT size=32 color=blue><B>'Not enough arguments' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This error occurs when you give one or more superfluous arguments to a AICP command you issue. Please consult the help for the specific command for more information about which arguments it needs.
+
+<B><U>Error code:</U></B>
+The AICP code for this error is 102.
+</PRE>
+</XCHELP>

@@ -1,0 +1,12 @@
+<!-- $Id: invalidcmd.hlp,v 1.1 2001-10-02 09:39:31 urish Exp $ -->
+<XCHELP topic=aicp.e_invalidcmd alias=103>
+<CENTER><FONT size=32 color=blue><B>'Invalid command' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This errors occurs when you issue an AICP command that the server can't understand. Consult the AICP protocol helppage for a complete listing of valid AICP command.
+
+<B><U>Error code:</U></B>
+The AICP code for this error is 103.
+</PRE>
+</XCHELP>

@@ -1,0 +1,12 @@
+<!-- $Id: permdenied.hlp,v 1.1 2001-10-02 09:39:31 urish Exp $ -->
+<XCHELP topic=aicp.e_permdenied alias=107>
+<CENTER><FONT size=32 color=blue><B>'Permission Denied' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This error occurs when you try to identify to administrator (using the <LINK topic="cmd_admin">/ADMIN</LINK> command) with an invalid password, or when you try to issue an administrator command (<LINK topic="cmd_kill">/KILL</LINK>, <LINK topic="cmd_die">/DIE</LINK>) without having the appropriate server administration privileges.
+
+<B><U>Error code:</U></B>
+The code for this error is 107.
+</PRE>
+</XCHELP>
