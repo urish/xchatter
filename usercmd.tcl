@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.20 2002-03-27 11:53:19 urish Exp $
+# $Id: usercmd.tcl,v 1.21 2002-04-02 15:23:41 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -572,7 +572,7 @@ proc get_interval {interval} {
     if [catch {expr int($interval*$timeunit)} interval] {
 	return ""
     }
-    if {$interval < 0} {
+    if {$interval <= 0} {
 	return ""
     }
     return $interval
