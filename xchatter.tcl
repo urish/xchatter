@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.7 2001-10-02 09:38:36 amirs Exp $
+# $Id: xchatter.tcl,v 1.8 2001-11-20 21:35:49 urish Exp $
 
 set version 0.5
 set numver 50.0
@@ -395,6 +395,13 @@ proc duration {time} {
 proc if_unix {script} {
     global tcl_platform
     if {$tcl_platform(platform) == "unix"} {
+	uplevel $script
+    }
+}
+
+proc if_not_unix {script} {
+    global tcl_platform
+    if {$tcl_platform(platform) != "unix"} {
 	uplevel $script
     }
 }
