@@ -1,5 +1,5 @@
 EXTENTION canvas-1.1-5
-# $Id: canvas.ext,v 1.5 2001-08-10 10:37:52 uri Exp $
+# $Id: canvas.ext,v 1.6 2001-08-13 23:36:12 uri Exp $
 
 namespace eval canvas {
     variable last_active_color
@@ -52,7 +52,7 @@ namespace eval canvas {
     
     proc colorbox_init {} {
 	variable last_active_color
-	variable color
+	variable colors
 	frame .drawing_canvas.colorbox -relief raised -border 1
 	grid configure .drawing_canvas.colorbox -in .drawing_canvas.bottomframe -row 1 -column 1 -sticky wn
 	set counter 0
@@ -64,12 +64,12 @@ namespace eval canvas {
 	    bind .drawing_canvas.colorbox.color#$counter <Double-Button-1> "[namespace current]::select_color %W"
 	    incr counter
 	}
-	set last_active_color(fg) .drawing_canvas.colorbox.color#0
-	set last_active_color(bg) .drawing_canvas.colorbox.color#1
-	set color(fg) black
-	set color(bg) white
-	$last_active_color(fg) configure -border 2 -relief raised -text "F" -foreground white
-	$last_active_color(bg) configure -border 2 -relief raised -text "B" -foreground black
+	set last_active_color(line) .drawing_canvas.colorbox.color#0
+	set last_active_color(fill) .drawing_canvas.colorbox.color#1
+	set colors(line) black
+	set colors(fill) white
+	$last_active_color(line) configure -border 2 -relief raised -text "L" -foreground white
+	$last_active_color(fill) configure -border 2 -relief raised -text "F" -foreground black
     }
     
     proc linewidth_init {} {
@@ -95,11 +95,9 @@ namespace eval canvas {
 	foreach {name create} {
 		line 		{line 3 25 25 3 -fill black} 
 		rectangle	{rectangle 25 25 4 4 -outline black}
-		frectangle	{rectangle 25 25 4 4 -outline black -fill gray}
-		ofrectangle	{rectangle 25 25 4 4 -fill gray -outline gray}
+		frectangle	{rectangle 25 25 4 4 -outline black -fill white}
 		oval		{oval 25 25 4 4 -outline black}
-		foval		{oval 25 25 4 4 -outline gray -outline black -fill gray}
-		ofoval 		{oval 25 25 4 4 -fill gray -outline gray}
+		foval		{oval 25 25 4 4 -outline gray -outline black -fill white}
 	} {
 	    canvas .drawing_canvas.toolbox.tool#$counter -height 25 -width 25 -border 2
 	    grid configure .drawing_canvas.toolbox.tool#$counter -column [expr $counter % 2] -row [expr $counter / 2] -sticky n
@@ -123,26 +121,26 @@ namespace eval canvas {
 	}
     }
     
-    proc set_color {widget isbg} {
-	variable color
+    proc set_color {widget isfill} {
+	variable colors
 	variable last_active_color
-	set kind [expr {$isbg ? "bg" : "fg"}]
-	set okind [expr {!$isbg ? "bg" : "fg"}]
-	set names {F B}
+	set kind [expr {$isfill ? "fill" : "line"}]
+	set okind [expr {!$isfill ? "fill" : "line"}]
+	set names {L F}
 	if {$widget != $last_active_color($kind)} {
 	    if {$last_active_color($kind) == $last_active_color($okind)} {
-		$last_active_color($kind) configure -relief flat -text [lindex $names [expr !$isbg]]
+		$last_active_color($kind) configure -relief flat -text [lindex $names [expr !$isfill]]
 	    } else {
 		$last_active_color($kind) configure -relief flat -text ""
 	    }
 	    set last_active_color($kind) $widget
-	    set color($kind) [$widget cget -background]
+	    set colors($kind) [$widget cget -background]
 	    if {$last_active_color($okind) == $widget} {
 		$widget configure -relief raised -text "*"
 	    } else {
-		$widget configure -relief raised -text [lindex $names $isbg]
+		$widget configure -relief raised -text [lindex $names $isfill]
 	    }
-	    set rgb [winfo rgb $widget $color($kind)]
+	    set rgb [winfo rgb $widget $colors($kind)]
 	    $widget configure -foreground [format "#%04x%04x%04x" [expr 65535 - [lindex $rgb 0]] [expr 65535 - [lindex $rgb 1]] [expr 65535 - [lindex $rgb 2]]]
 	}
     }
@@ -178,13 +176,13 @@ namespace eval canvas {
     }
 			
     proc select_color {widget} {
-	variable color
+	variable colors
 	variable last_active_color
 	set_color $widget 0
-	if {[set color(fg) [tk_chooseColor -parent .drawing_canvas -initialcolor $color(fg) -title "Edit color"]] != ""} {
-	    $last_active_color(fg) configure -background $color(fg)
+	if {[set colors(line) [tk_chooseColor -parent .drawing_canvas -initialcolor $colors(line) -title "Edit color"]] != ""} {
+	    $last_active_color(line) configure -background $colors(line)
 	} else {
-	    set color(fg) [$last_active_color(fg) cget -background]
+	    set colors(line) [$last_active_color(line) cget -background]
 	}
     }
     
@@ -210,30 +208,26 @@ namespace eval canvas {
 	variable tool
 	variable start_coords
 	variable linewidth
-	variable color
+	variable colors
 	variable polycoords
 	set coords [canvas_getcoords $x $y]
+	set lnc [list $colors(line)]
+	set flc [list $colors(fill)]
 	switch $tool {
 	    line { 
-		return "line $coords -fill \"$color(fg)\" -width $linewidth"
+		return "line $coords -fill $lnc -width $linewidth"
 	    }
 	    rectangle {
-		return "rectangle $coords -outline \"$color(fg)\" -width $linewidth"
-	    }
-	    ofrectangle {
-		return "rectangle $coords  -fill \"$color(fg)\" -outline \"$color(fg)\" -width $linewidth"
+		return "rectangle $coords -outline $lnc -width $linewidth"
 	    }
 	    frectangle {
-		return "rectangle $coords  -fill \"$color(bg)\" -outline \"$color(fg)\" -width $linewidth"
+		return "rectangle $coords -fill $flc -outline $lnc -width $linewidth"
 	    }
 	    oval {
-		return "oval $coords -outline \"$color(fg)\" -width $linewidth"
-	    }
-	    ofoval {
-		return "oval $coords  -fill \"$color(fg)\" -outline \"$color(fg)\" -width $linewidth"
+		return "oval $coords -outline $lnc -width $linewidth"
 	    }
 	    foval {
-		return "oval $coords  -fill \"$color(bg)\" -outline \"$color(fg)\" -width $linewidth"
+		return "oval $coords -fill $flc -outline $lnc -width $linewidth"
 	    }
 	}
     }
@@ -262,7 +256,7 @@ namespace eval canvas {
     
     proc canvas_release {x y shift} {
 	variable start_coords
-	variable color
+	variable colors
 	variable linewidth
 	variable tempitem
 	variable tool
