@@ -194,9 +194,8 @@ namespace eval fsend {
 	    close $idx
 	    return
 	}
-    	set buf [gets $idx]
+    	if [catch {set buf [gets $idx]}] {return}
 	if {$buf == ""} {return}
-	puts "$buf -> $dcc(dcc,$num,magickey)"
 	if {$buf != $dcc(dcc,$num,magickey)} {
 	    free_dcc $num
 	    putchat "HACKERIM!"
