@@ -1,5 +1,5 @@
 EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
-# $Id: main.tcl,v 1.4 2002-03-20 18:04:56 urish Exp $
+# $Id: main.tcl,v 1.5 2002-03-26 22:11:20 urish Exp $
 
     variable stylemap
     variable nickmap
@@ -203,6 +203,7 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
     }
     
     proc ucmd_textbox {uargs} {
+	set uargs [join $uargs]
 	user_glob "7W7RB1h  $uargs   "
 	user_glob "7W7RB1  $uargs   "
 	user_glob "7W7RB1h  $uargs   "
