@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.11 2002-03-18 22:20:31 urish Exp $
+# $Id: server.tcl,v 1.12 2002-03-19 12:08:11 urish Exp $
 
 proc server_init {} {
     # register events
@@ -23,7 +23,7 @@ proc server_init {} {
     }
     # command events
     onevent servercmd {
-    	ACTION	server_cmd_action
+	ACTION	server_cmd_action
 	VERSION? server_cmd_version
 	VERSION	server_cmd_version
 	!VERSION server_cmd_version_reply
@@ -33,6 +33,7 @@ proc server_init {} {
 	BEEP	server_cmd_beep
     }
     onevent connected "" userlist_connected
+    onevent registered "" userlist_connected
     onevent disconnected "" userlist_disconnected
 }
 
@@ -144,6 +145,8 @@ proc server_reg {sargs} {
     global nick
     set nick [lindex $sargs 0]
     putcmsg nick_registered n $nick
+    process_event registered "" $nick
+    process_alias onregistered "$nick"
     userlist_add $nick
     return 1
 }
@@ -336,12 +339,14 @@ proc server_cmd_beep {source cargs} {
     return 0
 }
 
-proc userlist_connected {sock server port} {
+proc userlist_connected {args} {
     global slist
     set slist hidden1
     putsock "LIST"
+    return 0
 }
 
 proc userlist_disconnected {server} {
     userlist_empty
+    return 0
 }
