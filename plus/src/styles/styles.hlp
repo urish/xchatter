@@ -1,4 +1,4 @@
-<!-- $Id: styles.hlp,v 1.1 2002-03-14 20:37:10 urish Exp $ -->
+<!-- $Id: styles.hlp,v 1.2 2002-03-16 11:03:10 urish Exp $ -->
 <XCHELP topic=xcplus_styles alias=styles>
 <CENTER><FONT size=32 color=blue><B>XCPLUS Styles extention</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -19,8 +19,7 @@ B<FONT color="red">n</FONT> - <FONT style="B1">Blue Background</FONT> - Text wit
 d - <FONT style="d">Example</FONT> - Disabled text.
 D - <FONT style="DB3">Example (Cyan background)</FONT> - Darken background.
 h - <FONT style="h">Example</FONT> - Hidden text (can be discovered by copying it, and pasting it somewhere else).
-i - <FONT style="i">Example</FONT> - Italic text.
-k - <FONT style="k">Example</FONT> - Blinking text.
+k - (no example) - Blinking text.
 g - <FONT style="gW3">Example</FONT> - Groove border.
 l - <FONT style="lW3">Example</FONT> - Lowered text.
 r - <FONT style="rW3">Example</FONT> - Raised text.
@@ -42,8 +41,8 @@ The following color codes are available:
 7 - <FONT style="7">example</FONT> - white
 
 <B><U>Examples:</U></B>
-4B2 - <FONT style="4B2">Example</FONT> - Red on cyan
-4B2D - <FONT style="4B2D">Example</FONT> - Dark red on cyan
+4B3 - <FONT style="4B2">Example</FONT> - Red on cyan
+4B3D - <FONT style="4B2D">Example</FONT> - Dark red on cyan
 uis - <FONT style="uis">Example</FONT> - Underline, Italic, and overStrike
 
 <B><U>History:</U></B>
