@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.9 2002-03-16 11:17:21 urish Exp $
+# $Id: xchatter.tcl,v 1.10 2002-03-24 13:36:44 amirs Exp $
 
 set version 0.5
 set numver 50.0
@@ -502,7 +502,7 @@ if [file readable ~/.xchatterrc] {
 if !$rcread {
     process_command [join [split {
 	/alias onbeep /bell
-	/alias onError106 /nick $0_
+	/alias onError106 /nick --nosave $0_
 	/alias +onError106 /echo *** Nick $0 is already in use; using $0_.
 	/;} \t] ""]
 }

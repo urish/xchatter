@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.16 2002-03-19 10:10:07 urish Exp $
+# $Id: usercmd.tcl,v 1.17 2002-03-24 13:36:44 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -242,9 +242,15 @@ proc user_server {uargs} {
 
 proc user_nick {uargs} {
     global user_last_nick
-    set user_last_nick [lindex $uargs 0]
-    if ![putsock "NICK [lindex $uargs 0]" 1] {
-	putcmsg nick_not_connected n [lindex $uargs 0]
+    if {[string tolower [lindex $uargs 0]] == "--nosave" ||
+	    [string tolower [lindex $uargs 0]] == "-n"} {
+	set nick [lindex $uargs 1]
+    } else {
+	set nick [lindex $uargs 0]
+	set user_last_nick $nick
+    }
+    if ![putsock "NICK $nick" 1] {
+	putcmsg nick_not_connected n $nick
     }
     return 1
 }
