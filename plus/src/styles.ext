@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.4 2001-08-11 17:13:50 uri Exp $
+# $Id: styles.ext,v 1.5 2001-08-13 11:43:59 uri Exp $
 
 namespace eval styles {
     variable stylemap
@@ -64,7 +64,7 @@ namespace eval styles {
 	if [catch {
 	    .chat tag configure disappearing1 -elide $disappearing_state
 	    .chat tag configure disappearing2 -elide [expr !$disappearing_state]
-	    ] {
+	    }] {
 	    timer disappear_timer tcl 500 0 "[namespace current]::disappear_timer"
 	}
 	for {set i 0} {$i < 8} {incr i} {
