@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.8 2002-03-31 19:15:39 amirs Exp $
+# $Id: main.tcl,v 1.9 2002-04-01 10:29:59 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -116,6 +116,8 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	register_tool cpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill "" -smooth 1}
 	register_tool cfpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white -smooth 1}
 	register_tool text 	texttool {text 6 2 -anchor nw -font {Helvetica 24} -justify left -text "A"}
+#	register_tool zoomin 	zoomtool {text 6 2 -anchor nw -font {Helvetica 24} -justify left -text "I"}
+#	register_tool zoomout 	zoomtool {text 6 2 -anchor nw -font {Helvetica 24} -justify left -text "O"}
 	# tool creation
 	frame .drawing_canvas.toolbox -relief raised -border 1 -width 200
 	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2 -sticky e
@@ -310,4 +312,5 @@ EXTENTION canvas VERSION 1.1 BUILD 6
     <@INCLUDE rect.tcl>
     <@INCLUDE polygon.tcl>
     <@INCLUDE text.tcl>
+    <@INCLUDE zoom.tcl>
 
