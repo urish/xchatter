@@ -1,0 +1,49 @@
+<!-- $Id: timers.hlp,v 1.1 2001-10-02 08:46:00 urish Exp $ -->
+<XCHELP topic=cmd_timers alias=timer,timers>
+<CENTER><FONT size=32 color=blue><B>/TIMERS</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /TIMER name interval[:count] [command]
+<B><U>Syntax:</U></B> /TIMER -name
+<B><U>Syntax:</U></B> /TIMERS
+
+<B><U>Description:</U></B>
+The /TIMERS command is used to manipulate timers.
+A timer is used to schedule the execution of a command, so it'll be executed once per a given period of time.
+XChatter gives each timer a name, so it'll be easy to identify it later, and remember what it's used for.
+To view the list of the timers defined, type /TIMERS without any arguments.
+To create a new timer, type /TIMER followed by timer name, timer interval (the time to wait between executions), optionally the count of the times that the command will be executed, and the command itself.
+If you don't want to give a name for a timer, simply use the special value 'auto', instead of writing a name to the timer, and XChatter will automatically assign the timer a name.
+If you give a name of timer that already exists, that timer will be overwritten by yours.
+The execution interval is measured in seconds, unless is perfixed by a name of unit. Valid units are: ms (miliseconds), s (seconds), m (minutes) and h (hours). The interval 10ms, for example, means that the timer will be executed once per 10 miliseconds (100 times in a single second).
+If you don't set a execution count for the timer, or set it to 0, the timer will continue executing until deleted (that is, infinite number of times).
+To delete a timer, type /TIMER, followed by a minus sign prepended to the name of the timer you want to delete.
+If you want to change the interval/count of an existing timer, use the same method you'd use to readd the timer, but don't specify any command to execute. This will modify the timer's count/interval, leaving the command associated with it unmodified.
+There are some additional syntaxes of defining/deleting a timer, but since they are not commonly used, and longer to type, are not mentioned here.
+Note that XChatter itself uses some timers. Those timers also appear on the timer list, but can't be deleted or overwritten (though their intervals can be modified). Examples for XChatter internal timers are the <LINK topic="cmd_away">/AWAY</LINK> timer, and also the <LINK topic="styles">blinking text style</LINK>, which needs a timer to work (you can modify the blink_timer interval to make the text fade faster/slower).
+
+<B><U>Examples:</U></B>
+Defining a timer that rings the bell every hour for the next day (that is, it has to be executed 24 times), and named 'ALARM' will look like:
+<FONT color=blue>/TIMER alarm 1h:24 /bell</FONT>
+
+Defining a timer pair that will change your nick every 30 minutes:
+<FONT color=blue>/TIMER <U>changenick1</U> 1h /nick coolnick
+/TIMER <U>crt_timer</U> 30m:1 /timer <U>changenick2</U> 1h /nick othernick</FONT>
+This will create two timers:
+1. <U>changenick1</U> that changes your nick to 'coolnick' once per hour
+2. <U>crt_timer</U> that will create another timer, 30 minutes later, called <U>changenick2</U>, which changes your nick to 'othernick' once per hour.
+Those timers will start changing your nick an hour after defined, and will change it each 30 minutes.
+Now, say that after two days you are tired of having your nick changed, you can delete the timers by typing:
+<FONT color=blue>/TIMER -<U>changenick1</U> <U>changenick2</U></FONT>
+
+Modifying the blinking timer to work faster:
+/TIMER blink_timer 100ms
+and to work slower:
+/TIMER blink_timer 500ms
+
+<B><U>History:</U></B>
+A /TIMER command first appeared in XChatter version 0.2. At that time, it was incomplete, had many bugs, was hard to use, and not commonly used.
+Because of the above reasons, it was removed starting from XChatter version 0.4.
+The new /TIMER command first was introduced in XChatter version 0.5b2, but was still incomplete.
+The final implementation only appeared in XChatter 0.5.
+</PRE>
+</XCHELP>
