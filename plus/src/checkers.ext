@@ -1,5 +1,5 @@
 EXTENTION checkers VERSION 0.9 BUILD 6
-# $Id: checkers.ext,v 1.3 2002-03-16 10:50:16 urish Exp $
+# $Id: checkers.ext,v 1.4 2002-03-30 13:48:02 amirs Exp $
 
     variable colors
     set colors(p0) cyan
@@ -34,13 +34,12 @@ EXTENTION checkers VERSION 0.9 BUILD 6
 	}
     }
     
-    proc destroy {} {
+    proc unload {} {
 	unevent servercmd [namespace current]::ucmd_checkers
 	unevent usercmd [namespace current]::server_cmd_ckrs
 	unevent serverin [list [namespace current]::server_error \
 			 [namespace current]::server_nick]
 	destroy_widget .checkers
-	namespace delete [namespace current]
     }
 
     proc iface_init {} {

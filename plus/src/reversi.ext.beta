@@ -1,5 +1,5 @@
 EXTENTION reversi VERSION 1.0 BUILD 1
-# $Id: reversi.ext.beta,v 1.2 2002-03-16 10:50:16 urish Exp $
+# $Id: reversi.ext.beta,v 1.3 2002-03-30 13:48:02 amirs Exp $
 
     variable colors
     set colors(board) white
@@ -33,12 +33,11 @@ EXTENTION reversi VERSION 1.0 BUILD 1
 	}
     }
     
-    proc destroy {} {
+    proc unload {} {
 	unevent servercmd [namespace current]::ucmd_reversi
 	unevent usersmc [namespace current]::server_cmd_ckrs
 	unevent serverin [namespace current]::server_error
 	destroy_widget .reversi
-	namespace delete [namespace current]
     }
 
     proc iface_init {} {
