@@ -1,6 +1,6 @@
-<!-- $Id: toomanyargs.hlp,v 1.1 2001-10-02 09:39:31 urish Exp $ -->
-<XCHELP topic=aicp.e_notenoughargs alias=102>
-<CENTER><FONT size=32 color=blue><B>'Not enough arguments' error</B></FONT></CENTER><BR><BR>
+<!-- $Id: toomanyargs.hlp,v 1.2 2002-03-14 20:56:31 urish Exp $ -->
+<XCHELP topic=aicp.e_toomanyargs alias=102>
+<CENTER><FONT size=32 color=blue><B>'Too enough arguments' error</B></FONT></CENTER><BR><BR>
 <PRE>
 
 <B><U>Description:</U></B>
