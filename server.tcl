@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.1 2001-07-25 15:32:07 uri Exp $
+# $Id: server.tcl,v 1.2 2001-07-27 15:40:54 uri Exp $
 
 proc server_init {} {
     # register events
@@ -37,14 +37,14 @@ proc incoming {} {
     global sock errorInfo
     set haderr [catch {
 	set line [split [gets $sock] " "]
-	if {$line == ""} {
-	    return
-	}
     }]
     if {[eof $sock] || $haderr} {
 	disconnect
 	putcmsg disconnected
 	return
+    }
+    if {$line == ""} {
+        return
     }
     set cmd [lindex $line 0]
     set args [lrange $line 1 end]
