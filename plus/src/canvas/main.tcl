@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.5 2002-03-19 11:55:26 urish Exp $
+# $Id: main.tcl,v 1.6 2002-03-23 15:36:47 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -113,6 +113,7 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	register_tool fpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white}
 	register_tool cpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill "" -smooth 1}
 	register_tool cfpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white -smooth 1}
+	register_tool text 	texttool {text 6 2 -anchor nw -font {Helvetica 24} -justify left -text "A"}
 	# tool creation
 	frame .drawing_canvas.toolbox -relief raised -border 1 -width 200
 	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2 -sticky e
@@ -264,9 +265,9 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	}
 	catch {
 	    foreach i $cargs {
-		lappend nargs $i
+	        lappend nargs $i
 	    }
-	    eval ".drawing_canvas.canvas create $nargs"
+	    eval ".drawing_canvas.canvas create [join $nargs]"
 	    return 1
 	}
 	return 0
@@ -284,3 +285,5 @@ EXTENTION canvas VERSION 1.1 BUILD 6
     
     <@INCLUDE rect.tcl>
     <@INCLUDE polygon.tcl>
+    <@INCLUDE text.tcl>
+
