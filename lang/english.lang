@@ -1,5 +1,5 @@
 # English language messages for XChatter.
-# $Id: english.lang,v 1.7 2001-10-02 10:04:22 amirs Exp $
+# $Id: english.lang,v 1.8 2002-03-16 11:38:00 urish Exp $
 norm_text_style		normal
 item inputbox		justify left
 # interface.tcl
@@ -38,7 +38,6 @@ text time_reply		*** Time reply from %n: %t
 text user_beep		*** %n beeps you %t 
 # usercmd.tcl:
 text alias_loop		*** Too many alias levels (probably alias loop). 
-text plugin_err		*** Error in plugin handler %p: %t
 text invalid_cmd	*** Invalid command '%t' ! 
 text sent_glob_msg	<%n> %t
 text sent_priv_msg	-> [%n] %t 
@@ -60,7 +59,6 @@ text back_not_away	*** You didn't go away, so how can that be that you are back 
 text away_back		*** Welcome back ! you was away for %t. 
 text away_reason_changed *** Your away reason was changed. 
 text away_set		*** You are marked as being away. 
-text plugin_error	*** Plugin error: %t 
 text tcl_error		(tcl) Error: %t 
 text tcl_result		(tcl) %t 
 text exec_result	(exec) %t 
@@ -72,7 +70,8 @@ text alias_removed	*** Alias %a was removed.
 text alias_not_exists	*** Unable to remove alias %a: no such alias. 
 text alias_modified	*** Alias %a was modified. 
 text alias_added	*** Alias %a was added. 
-text no_xchatter_plus	*** Error: No xchatter plus could be found.
+text no_plus		*** Error: This command does not exist anymore. Use /LOAD instead.
+text no_plugins_loader	*** Error: No plugin.tcl loaded.
 text xchatter_plus_badver *** Error: Incompatibe XChatter plus version.
 text bad_xchatter_plus	*** Error: Bad xchatter plus file '%f'.
 text xchatter_plus_tclerror *** Error: In xchatter plus init script: Tcl error: %t
@@ -102,3 +101,8 @@ text quit_no		Quit: No (good :-)
 text welcome		Welcome to XChatter %t, type /help for more info. 
 text xchatter_rc	XChatter.rc found, executing. 
 text home_xchatter_rc	.xchatterrc found in your home directory, executing. 
+# plugin.tcl
+text extension_already_exists Extension %n already loaded. Can't load twice.
+text extension_error_loading Error loading extension '%n'.
+text extension_no_match No such extension '%n'.
+				    
