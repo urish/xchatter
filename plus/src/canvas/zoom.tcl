@@ -1,4 +1,4 @@
-# $Id: zoom.tcl,v 1.4 2002-04-01 11:48:06 amirs Exp $
+# $Id: zoom.tcl,v 1.5 2002-04-01 12:11:36 amirs Exp $
 
 namespace eval zoomtool {
     namespace import    [namespace parent]::register_tool	\
@@ -18,35 +18,36 @@ namespace eval zoomtool {
 	    zoomin {
 		.drawing_canvas.canvas scale all 0 0 2 2
 		set zoom [expr $zoom * 0.5]
+		set x [expr $x * 2]
+		set y [expr $y * 2]
 	    }
 	    zoomout {
 		.drawing_canvas.canvas scale all 0 0 0.5 0.5
-		.drawing_canvas.canvas xview moveto 0
-		.drawing_canvas.canvas yview moveto 0
 		set zoom [expr $zoom * 2.0]
+		set x [expr $x * 0.5]
+		set y [expr $y * 0.5]
 	    }
 	    zoomnormal {
 		if {$zoom > 1.0} {
-		    set x 0.5
-		    set y 2.0
+		    set q 0.5
+		    set w 2.0
 		} elseif {$zoom < 1.0} {
-		    set x 2.0
-		    set y 0.5
+		    set q 2.0
+		    set w 0.5
 		} else {
 		    return
 		}
 		
-		for {set i $zoom} {$i != 1.0} {set i [expr $i * $x]} {
-		    .drawing_canvas.canvas scale all 0 0 $y $y
-		}
-		
-		if {$zoom < 1.0} {
-		    .drawing_canvas.canvas xview moveto 0
-		    .drawing_canvas.canvas yview moveto 0
-		}
+		for {set i $zoom} {$i != 1.0} {set i [expr $i * $q]} {
+		    .drawing_canvas.canvas scale all 0 0 $w $w
+		    set x [expr $x * $w]
+		    set y [expr $y * $w]
+		}	
 		set zoom $i
 	    }
 	}
+#	.drawing_canvas.canvas xview scroll $x units
+#	.drawing_canvas.canvas yview scroll $y units
     }
 
     proc putcmd {type coordinates options} {
