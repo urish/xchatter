@@ -1,6 +1,6 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.5 2001-10-07 12:16:45 urish Exp $
+# $Id: compile.tcl,v 1.6 2002-03-16 11:11:31 urish Exp $
 
 proc replace_entities {text} {
     set first 1
@@ -284,9 +284,8 @@ proc process_tag {tag} {
     }
 }
 
-proc process_file {fname} {
+proc process_helpfile_data {data} {
     global tags result
-    set data [read [open $fname]]
     set state 0
     foreach ch [split $data ""] {
 	switch $state {
@@ -371,7 +370,10 @@ find_help_files .
 foreach i $helpfiles {
     puts "* $i"
     init_tags
-    process_file $i
+    set fildes [open $fname]
+    set data [read $fildes]
+    close $fildes
+    process_helpfile_data $data
 }
 
 set output [open ../xchatter.hlp w+]
