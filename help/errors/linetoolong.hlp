@@ -1,0 +1,12 @@
+<!-- $Id: linetoolong.hlp,v 1.1 2001-09-29 13:39:38 urish Exp $ -->
+<XCHELP topic=error_linetoolong>
+<CENTER><FONT size=32 color=blue><B>'Line too Long' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This error occurs when you try to send the server a line which is longer than the compiled in default (usually 1024 characters).
+
+<B><U>Error code:</U></B>
+The code for this error is 108.
+</PRE>
+</XCHELP>

@@ -1,0 +1,14 @@
+<!-- $Id: aicperr.hlp,v 1.1 2001-09-29 13:39:37 urish Exp $ -->
+<XCHELP topic=aicp.errors>
+<CENTER><FONT size=32 color=blue><B>AICP Protocol error codes</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Listing of AICP error codes:</U></B>
+<B>Code</B> - <B>Description</B>
+<LINK topic="error_notregistered">100 - You are not registered</LINK>
+<LINK topic="error_nouser">104 - No such user</LINK>
+<LINK topic="error_nickinvalid">105 - Invalid Nickname</LINK>
+<LINK topic="error_nickalready">106 - Nick already in use</LINK>
+<LINK topic="error_linetoolong">108 - Line too long</LINK>
+</PRE>
+</XCHELP>
