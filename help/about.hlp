@@ -1,0 +1,15 @@
+<!-- $Id: about.hlp,v 1.1 2002-03-18 20:43:08 urish Exp $ -->
+<XCHELP topic=about>
+<CENTER><FONT size=32 color=blue><B>About XChatter</B></FONT></CENTER><BR><BR>
+XChatter was mainly written by <FONT color=red>Uri Shaked</FONT> &lt;uri@keves.org&gt;.<BR>
+Some portions of the code were written by <FONT color=red>Amir Shalem</FONT> &lt;amir@boom.org.il&gt;.<BR>
+Beta tested by:<BR>
+&nbsp;&nbsp;<FONT color=red>Oshri Adler</FONT> &lt;adlerfam@012.net.il&gt;<BR>
+&nbsp;&nbsp;<FONT color=red>Etai Levi</FONT> &lt;etai-l@inter.net.il&gt;<BR>
+And many others...<BR>
+<BR>
+Soureforge Homepage: http://www.sourceforge.net/projects/xchatter/<BR>
+<BR>
+Click <LINK topic=index>here</LINK> for help index.
+</PRE>
+</XCHELP>
