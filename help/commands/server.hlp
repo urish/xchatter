@@ -1,0 +1,16 @@
+<!-- $Id: server.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<XCHELP topic=cmd_server>
+<CENTER><FONT size=32 color=blue><B>/WHOIS, /INFO</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /SERVER host [port]
+
+<B><U>Description:</U></B>
+The /SERVER command connects to the AICP server at the specified host.<BR>
+If no port is specified, port 6970 is assumed.<BR>
+After you connect to the server, you'll probably want to register, using the 
+<LINK topic="cmd_nick">/NICK</LINK> command.<BR>
+
+<B><U>History:</U></B>
+The /SERVER command first appeared in XChatter version 0.1.<BR>
+</PRE>
+</XCHELP>

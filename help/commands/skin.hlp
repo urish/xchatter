@@ -1,0 +1,20 @@
+<!-- $Id: skin.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<XCHELP topic=cmd_skin>
+<CENTER><FONT size=32 color=blue><B>/WHOIS, /INFO</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /SKIN fname
+
+<B><U>Description:</U></B>
+The /SKIN command is used to load XChatter skins.<BR>
+It loads the skin found in the file given as its argument.<BR>
+Since XChatter version 0.5beta1, skins may also contain customized strings, 
+allowing XChatter to be translated to many language.<BR>
+Therefore, XChatter language files and XChatter skin files are identical,
+and are both loaded using the /SKIN command.<BR>
+
+<B><U>History:</U></B>
+The /SKIN command first appeared in XChatter version 0.3.<BR>
+The customized language file support first appeared in XChatter version 0.5beta1.<BR>
+The skin file format has changed a bit in XChatter version 0.5beta2.<BR>
+</PRE>
+</XCHELP>

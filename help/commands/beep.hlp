@@ -1,0 +1,29 @@
+<!-- $Id: beep.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<XCHELP topic=cmd_bell>
+<CENTER><FONT size=32 color=blue><B>/BELL</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /BEEP user [text]
+
+<B><U>Description:</U></B>
+The /BEEP command is used to beep a user.
+Note that some clients may not beep at all when reciving a beep command.
+This was XChatter's behaviour until version 0.4.07.
+Since this version, if someone beeps you, XChatter executes the alias 'onbeep', if exists.
+You can define this alias, using the <LINK topic="cmd_alias">/ALIAS</LINK> command, to call the /BELL command, which will actually cause a beep.
+
+
+<B><U>Examples:</U></B>
+For example, Say that someone named nemo beeps you with the text 'come back', you'll see:
+<I></I>
+This will display:
+<I>*** nemo beeps you come back</I>
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nouser">No such user.</LINK>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+<LINK topic="error_linetoolong">Line too long.</LINK>
+
+<B><U>History:</U></B>
+The /BEEP command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

@@ -1,0 +1,23 @@
+<!-- $Id: me.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<XCHELP topic=cmd_me>
+<CENTER><FONT size=32 color=blue><B>/MSG</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /ME action
+
+<B><U>Description:</U></B>
+The /ME command is used to describe user actions.
+
+<B><U>Examples:</U></B>
+For example, Say that your nick is moses, and you type:
+<I>/ME is going to the mall.</I>
+This will display:
+<I><.*> moses is going to the mall.</I>
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+<LINK topic="error_linetoolong">Line too long.</LINK>
+
+<B><U>History:</U></B>
+The /ME command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

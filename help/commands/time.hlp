@@ -1,0 +1,20 @@
+<!-- $Id: time.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<XCHELP topic=cmd_time>
+<CENTER><FONT size=32 color=blue><B>/WHOIS, /INFO</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /TIME [user]
+
+<B><U>Description:</U></B>
+The /TIME command, given no arguments, displays the system's time.
+Given a nickname, the command requests the time at that user's system, 
+displaying it to you. <BR>
+It may happen that some client will NOT reply to a time request.
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nouser">No such user.</LINK>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+
+<B><U>History:</U></B>
+The /TIME command first appeared in XChatter version 0.3.
+</PRE>
+</XCHELP>
