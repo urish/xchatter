@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.18 2002-03-25 15:06:13 urish Exp $
+# $Id: usercmd.tcl,v 1.19 2002-03-26 21:42:38 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -13,6 +13,7 @@ proc usercmd_init {} {
 	MSG	user_msg
 	ACTION	user_act
 	ME	user_act
+	SLAP	user_slap
 	BEEP	user_beep
 	BELL	user_bell
 	QUOTE	user_raw
@@ -57,6 +58,9 @@ proc usercmd_init {} {
 	TIMERS	user_timers
 	TIMESTAMP user_timestamp
     }
+    
+    # add a slap command
+    userlist_menu_add "Slap" {user_slap ""}
 }
 
 proc process_command {text} {
@@ -178,6 +182,16 @@ proc user_act {uargs} {
     global nick
     putsock "GCMD ACTION [join $uargs]"
     putcmsg sent_action n $nick t [join $uargs]
+    return 1
+}
+
+proc user_slap {uargs {menu_nick ""}} {
+    if {$menu_nick != ""} {
+	set cnick $menu_nick
+    } else {
+	set cnick [lindex $uargs 0]
+    }
+    user_act "slaps $cnick with a large unix manual"
     return 1
 }
 
