@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: compiler.tcl,v 1.4 2001-08-15 07:36:55 uri Exp $
+# $Id: compiler.tcl,v 1.5 2002-03-15 13:15:52 urish Exp $
 
 proc openf {name} {
     global fd
@@ -9,6 +9,35 @@ proc openf {name} {
 proc putf {line} {
     global fd
     puts $fd $line
+}
+
+proc closef {} {
+    global fd
+    close $fd
+}
+
+proc compile_help {data} {
+    global no_standalone help
+    if ![info exists no_standalone] {
+	foreach i {../help/compile.tcl help/compile.tcl help.tcl compile.tcl} {
+	    if [file readable $i] {
+		set compiler $i
+		break
+	    }
+	}
+	if [info exists compiler] {
+	    set no_standalone 1
+	    source $compiler
+	} else {
+	    puts "Can't find help compiler."
+	    return ""
+	}
+    }
+    init_tags
+    process_helpfile_data $data
+    set helpdata [array get help]
+    catch {unset help}
+    return $helpdata
 }
 
 proc replace_include {data basedir} {
@@ -23,7 +52,6 @@ proc replace_include {data basedir} {
 	}
 	set fname [string trim [string range $after 0 [expr $incend - 1]]]
 	if ![file readable $basedir/$fname] {
-	    puts "Search $basedir/$fname"
 	    error "can't read from included file '$fname'"
 	}
 	puts -nonewline "+"
@@ -35,8 +63,18 @@ proc replace_include {data basedir} {
     return $data
 }
 
+proc strtok {varname} {
+    upvar $varname var
+    set result ""
+    while {$result == ""} {
+	set result [lindex $var 0]
+	set var [lrange $var 1 end]
+    }
+    return $result
+}
+
 proc readext {fname basedir} {
-    global extentions
+    global extensions
     puts -nonewline "  $fname... "
     flush stdout
     set fd [open $fname r]
@@ -47,36 +85,48 @@ proc readext {fname basedir} {
 	puts "error: $data"
 	return
     }
-    set hop [lindex $head 0]
+    set hop [strtok head]
     if {$hop != "EXTENTION"} {
 	puts "Header invalid."
 	return
     }
-    set hdata [split [join [lrange $head 1 end]] -]
-    set extname [lindex $hdata 0]
-    set extver [lindex $hdata 1]
-    set extnumver [lindex $hdata 2]
-    set extentions($extname,version) [list $extver $extnumver]
-    set extentions($extname,script) [join [split $data \\] \xff]
+    set extname [strtok head]
+    set extver 1.0
+    set extbuild 1
+    while {$head != ""} {
+	set name [strtok head]
+	set value [strtok head]
+	switch -- [string toupper $name] {
+	    VERSION {
+		set extver $value
+	    }
+	    BUILD {
+		set extbuild $value
+	    }
+	    HELP {
+		set helpfile $value
+	    }
+	}
+    }
+    set extensions($extname,version) [list $extver $extbuild]
+    set extensions($extname,script) [join [split $data \\] \xff]
+    if [info exists helpfile] {
+	if [file readable $basedir/$helpfile] {
+	    set helpfd [open $basedir/$helpfile]
+	    set extensions($extname,help) [compile_help [read $helpfd]]
+	    close $helpfd
+	    if {$extensions($extname,help) == ""} {
+		return
+	    }
+	} else {
+	    puts "Help file not found."
+	    return
+	}
+    }
     puts "$extname v$extver"
 }
 
-puts "Compiling XChatter plus, please hold on."
-puts -nonewline "Reading src/xcplus.defs... "
-
-set defdata [read [open src/xcplus.defs]]
-array set defs $defdata
-
-puts "version $defs(version)"
-
-puts "Reading src/main.tcl... "
-
-set xcpmainsrc [read [open src/main.tcl]]
-
-regsub -all __XCPLUS_VERSION__ $xcpmainsrc $defs(version) xcpmainsrc
-regsub -all __XCPLUS_NUMVER__ $xcpmainsrc $defs(numver) xcpmainsrc
-
-puts "Reading XChatter extentions..."
+puts "Reading XChatter extensions..."
 
 foreach i [glob src/*.ext] {
     readext $i "src"
@@ -91,23 +141,21 @@ foreach i [glob -nocomplain src/*] {
     }
 }
 
-regsub -all __EXTENTIONS__ $xcpmainsrc [join [split [join [split [list [array get extentions]] \xff] \\\\] &] \\&] xcpmainsrc
+puts -nonewline "Building output files... "
 
-puts -nonewline "Building output file... "
-
-openf "xcplus.xcp"
-putf "# xchatter-0.5 ~$defs(version)~50~XChatter plus plugin"
-putf "# xchatter-plus ~$defs(version)~$defs(numver)~$defs(minver)~$defs(maxver)"
-putf ""
-putf "# XChatter plus, compiled at [clock format [clock seconds]]."
-putf ""
-putf "catch {xcplus::destroy}"
-putf {proc destroy_widget {args} {eval destroy $args}}
-putf {proc xcplus {args} {eval xcplus::[lindex $args 0] [lrange $args 1 end]}}
-putf ""
-putf $xcpmainsrc
-putf "# Initilize the xchatter plus extention"
-putf "xcplus::init"
-putf "return"
+foreach i [array names extensions *,version] {
+    set name [lindex [split $i ,] 0]
+    openf "$name.xcp"
+    putf "# 1 EXT $name [join $extensions($i) " "] 0 1"
+    putf "# XChatter plus extension $name, compiled at [clock format [clock seconds]]."
+    putf "# END HEADER."
+    if [info exists extensions($name,help)] {
+	set help $extensions($name,help)
+    } else {
+	set help ""
+    }
+    putf "[join [split [list $extensions($name,script) $help] \xff] \\]"
+    closef
+}
 
 puts "DONE"
