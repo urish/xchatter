@@ -1,6 +1,6 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.6 2002-03-16 11:11:31 urish Exp $
+# $Id: compile.tcl,v 1.7 2002-03-18 20:39:43 urish Exp $
 
 proc replace_entities {text} {
     set first 1
@@ -367,8 +367,8 @@ if [info exists no_standalone] {
 
 puts "Compiling help files, please hold on..."
 find_help_files .
-foreach i $helpfiles {
-    puts "* $i"
+foreach fname $helpfiles {
+    puts "* $fname"
     init_tags
     set fildes [open $fname]
     set data [read $fildes]
