@@ -32,10 +32,10 @@ proc remove_client {idx reason} {
     if ![info exists clients(i,$idx)] {
 	return
     }
-    set name [string tolower $clients(i,$idx)]
+    set name $clients(i,$idx)
     fileevent $idx readable ""
     if {$name != ""} {
-	unset clients(n,$name)
+	unset clients(n,[string tolower $name])
     }
     foreach i [array names clients ?,$idx] {
 	unset clients($i)
@@ -114,6 +114,10 @@ proc client_nick {idx arglist} {
     variable clients
     set newname [lindex $arglist 0]
     set name $clients(i,$idx)
+    if {([string tolower $name] == [string tolower $newname]) && $name != ""} {
+	tell_all_but_one "NICK $name $newname" ""
+	return
+    }
     if {[string length $newname] < 2 || [string length $newname] > 16 ||
 	[string index $newname 0] == "@"} {
 	putsock $idx "ERROR 105 $newname Invalid nick."
@@ -220,7 +224,7 @@ proc client_info {idx arglist} {
 	return
     }
     set oidx [get_client_by_name $idx [lindex $arglist 0]]
-    putsock $idx "INFO $clients(i,$oidx) IP $clients(A,$oidx) IDLE [expr [clock seconds] - $clients(l,$oidx)] CONNECTED $clients(c,$oidx)"
+    putsock $idx "INFO NICK $clients(i,$oidx) IP $clients(A,$oidx) IDLE [expr [clock seconds] - $clients(l,$oidx)] CONNECTED $clients(c,$oidx)"
 }
 
 proc client_sinfo {idx} {
