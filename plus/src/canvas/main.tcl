@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.11 2002-04-01 10:52:49 amirs Exp $
+# $Id: main.tcl,v 1.12 2002-04-01 11:04:59 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -15,7 +15,8 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 			align_to_grid_y \
 			align_line	\
 			putcmd		\
-			register_tool
+			register_tool	\
+			addslashes
 
     proc init {} {
 	onevent servercmd DRAW [namespace current]::server_cmd_draw
