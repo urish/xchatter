@@ -1,0 +1,52 @@
+<!-- $Id: styles.hlp,v 1.1 2002-03-14 20:37:10 urish Exp $ -->
+<XCHELP topic=xcplus_styles alias=styles>
+<CENTER><FONT size=32 color=blue><B>XCPLUS Styles extention</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Description:</U></B>
+The XChatter PLUS text styles extention is designed to provide a much better control on the way the font will be displayed, by applying various 'styles' on it.
+In addition to the <LINK topic="xchatter_styles">XChatter default styles</LINK>, it provides two new features:
+1. The abillity to use styles in nicks (see the <LINK topic="xcplus_snick">/SNICK</LINK> command).
+2. Enhanced text styles support.
+The apply the enhanced text styles, perior to writing the text you want the styles to be applied on, you need to write a <U>style string</U> enclosed by two <U>Style Markers</U>.
+To add a <U>style marker</U> to the input box of XChatter, use the Ctrl+S keypair.
+A <U>style string</U> is made of one or more <U>style specifiers</U>.
+In the current version, the following <U>style specifiers</U> are available:
+<U>Letter</U> - <U>Example</U> - <U>Description</U>
+a - <FONT style="a">Example</FONT> - Blinking text 1.
+A - <FONT style="A">Example</FONT> - Blinking text 2.
+b - <FONT style="b">Example</FONT> - Bold text (like the Ctrl+B xchatter bold style).
+B<FONT color="red">n</FONT> - <FONT style="B1">Blue Background</FONT> - Text with background. <FONT color="red">n</FONT> should contain the color code. See below for a list of color codes.
+d - <FONT style="d">Example</FONT> - Disabled text.
+D - <FONT style="DB3">Example (Cyan background)</FONT> - Darken background.
+h - <FONT style="h">Example</FONT> - Hidden text (can be discovered by copying it, and pasting it somewhere else).
+i - <FONT style="i">Example</FONT> - Italic text.
+k - <FONT style="k">Example</FONT> - Blinking text.
+g - <FONT style="gW3">Example</FONT> - Groove border.
+l - <FONT style="lW3">Example</FONT> - Lowered text.
+r - <FONT style="rW3">Example</FONT> - Raised text.
+R - <FONT style="RW3">Example</FONT> - Ridge border.
+s - <FONT style="s">Example</FONT> - Overstrike text.
+S - <FONT style="S">Example</FONT> - Superscript.
+u - <FONT style="u">Example</FONT> - Underlined text.
+<FONT color="red">n</FONT> - <FONT style="4">Red foreground</FONT> - Text foreground color - replace <FONT color="red">n</FONT> with the color code. See below for a list of color codes. Must come before any 'W' or 'B' style specifiers.
+
+<B><U>Color Codes:</U></B>
+The following color codes are available:
+0 - <FONT style="0">example</FONT> - black
+1 - <FONT style="1">example</FONT> - blue
+2 - <FONT style="2">example</FONT> - green
+3 - <FONT style="3">example</FONT> - cyan
+4 - <FONT style="4">example</FONT> - red
+5 - <FONT style="5">example</FONT> - magenta (purple)
+6 - <FONT style="6">example</FONT> - yellow
+7 - <FONT style="7">example</FONT> - white
+
+<B><U>Examples:</U></B>
+4B2 - <FONT style="4B2">Example</FONT> - Red on cyan
+4B2D - <FONT style="4B2D">Example</FONT> - Dark red on cyan
+uis - <FONT style="uis">Example</FONT> - Underline, Italic, and overStrike
+
+<B><U>History:</U></B>
+The text styles 'h', 'a', 'A' first appeared in XChatter plus version 1.1.
+</PRE>
+</XCHELP>
