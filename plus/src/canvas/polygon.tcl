@@ -76,10 +76,12 @@ namespace eval polygon {
 	if ![info exists coords] {
 	    return
 	}
-	.drawing_canvas.canvas delete $tempitem
-	set def [getdef $coords]
-	eval .drawing_canvas.canvas create $def
-	putsock "GCMD DRAW $def"
+	if {[llength $coords] >= 6} {
+	    .drawing_canvas.canvas delete $tempitem
+	    set def [getdef $coords]
+	    eval .drawing_canvas.canvas create $def
+	    putsock "GCMD DRAW $def"
+	}
 	unset coords
 	unset tempitem
     }
