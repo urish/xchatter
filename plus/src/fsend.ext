@@ -8,6 +8,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 			FCLOSE [namespace current]::ucmd_fclose \
 			FLIST [namespace current]::ucmd_flist
 	onevent servercmd FSEND [namespace current]::scmd_fsend
+	onevent userlist_menu_popup "" [namespace current]::userlist_menu_popup
 	register_msgs {
 	    xcplus_fsend_error_nonick "*** Error: no nick name specified."
 	    xcplus_fsend_error_nofile "*** Error: no file name specified."
@@ -27,14 +28,19 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    xcplus_fsend_list_get "%x. Incoming transfer of '%f' from %n (%i:%p)"
 	    xcplus_fsend_list_get_e "%x. Receiving '%f' from %n (%i:%p): %d%% (%kkb/sec)"
 	}
+	
+	userlist_menu_add "File send" [list [namespace current]::ucmd_fsend ""]
     }
     
     proc destroy {} {
+	userlist_menu_del "File send" [list [namespace current]::ucmd_fsend ""]
+	userlist_menu_del "File get" [list [namespace current]::ucmd_fget ""]
 	unevent usercmd [list [namespace current]::ucmd_fsend \
 			      [namespace current]::ucmd_fget \
 			      [namespace current]::ucmd_flist \
 			      [namespace current]::ucmd_fclose]
 	unevent servercmd [namespace current]::scmd_fsend
+	unevent userlist_menu_popup [namespace current]::userlist_menu_popup
 	namespace delete [namespace current]
     }
     
@@ -44,6 +50,22 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    set file [string range $file [expr $first + 1] end]
 	}
 	return $file
+    }
+    
+    proc userlist_menu_popup {args} {
+	variable dcc
+	set nick [.userlist get active]
+	userlist_menu_del "File get" [list [namespace current]::ucmd_fget ""]
+	foreach var [array names dcc *,nick] {
+	    if {$nick == $dcc($var)} {
+		set i [lindex [split $var ,] 0]
+		if {$dcc($i,type) == "GET"} {
+		    userlist_menu_add "File get" [list [namespace current]::ucmd_fget ""]
+		    return 0
+		}
+	    }
+	}
+	return 0
     }
     
     proc scmd_fsend {nick uargs} {
@@ -57,6 +79,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	set dcc($num,ip) [lindex $uargs 2]
 	set dcc($num,port) [lindex $uargs 3]
 	set dcc($num,magickey) [lindex $uargs 4]
+	return 1
     }
     
     proc ucmd_flist {uargs} {
@@ -83,9 +106,14 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	return 1
     }
     
-    proc ucmd_fsend {uargs} {
-	set nick [strtok uargs]
-	set file [strtok uargs]
+    proc ucmd_fsend {uargs {menu_nick ""}} {
+	if {$menu_nick == ""} {
+	    set nick [strtok uargs]
+	    set file [strtok uargs]
+	} else {
+	    set nick $menu_nick
+	    set file ""
+	}
 	if {$nick == ""} {
 	    putcmsg xcplus_fsend_error_nonick 
 	    return 1
@@ -105,13 +133,17 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	return 1
     }
     
-    proc ucmd_fget {uargs} {
+    proc ucmd_fget {uargs {menu_nick ""}} {
 	variable dcc
-	set arg [strtok uargs]
-	if [catch {expr $arg + 1}] {
-	    set num [dcc_search $arg]
+	if {$menu_nick == ""} {
+	    set arg [strtok uargs]
+	    if [catch {expr $arg + 1}] {
+		set num [dcc_search $arg]
+	    } else {
+		set num $arg
+	    }
 	} else {
-	    set num $arg
+	    set num [dcc_search $menu_nick]
 	}
 	if {[array names dcc $num,type] == ""} {
 	    putcmsg xcplus_fsend_error_nosuch
