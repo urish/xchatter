@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.7 2001-09-02 09:04:15 amirs Exp $
+# $Id: server.tcl,v 1.8 2001-12-02 22:55:05 urish Exp $
 
 proc server_init {} {
     # register events
@@ -79,7 +79,8 @@ proc is_connected {} {
 }
 
 proc connect {server port} {
-    global sock
+    global sock server_inf
+    set server_inf "$server $port"
     if {[catch {socket $server $port} sock]} {
 	set err $sock
 	unset sock
@@ -88,16 +89,18 @@ proc connect {server port} {
     fileevent $sock readable incoming
     fconfigure $sock -blocking 0 -buffering none
     process_event connected "" $sock
+    process_alias onconnect "$server $port"
     return ""
 }
 
 proc disconnect {} {
-    global sock
+    global sock server_inf
     if [info exists sock] {
 	catch {fileevent $sock readable {}}
 	catch {close $sock}
 	unset sock
 	process_event disconnected
+        process_alias ondisconnect $server_inf
 	return 1
     } else {
 	putcmsg socket_not_conn
