@@ -1,4 +1,4 @@
-# $Id: TODO,v 1.8 2001-08-13 11:53:51 uri Exp $
+# $Id: TODO,v 1.9 2001-09-02 08:50:02 amirs Exp $
 
 Important:
 * Finish the intergration of the new -user and -type options to putcmsg 
@@ -14,7 +14,6 @@ Mid-important:
   chat
 * Make a /IGNORE command, that will take advantage of the new -user/-type
   options.
-* Recode /AWAY system to use the new timer system.
 * Add the following features to the timer system:
   - Internal (tcl) timer can't be deleted.
   - add DISABLE/ENABLE timer
@@ -59,3 +58,4 @@ Already done:
 * Make XChatter function without help.tcl
 * Finish the timer system - amir.
 * Add a /SINFO command, copy the code from the /SINFO plugin
+* Recode /AWAY system to use the new timer system.
