@@ -1,7 +1,7 @@
-# $Id: TODO,v 1.4 2001-08-11 12:04:06 uri Exp $
+# $Id: TODO,v 1.5 2001-08-11 12:41:59 amir Exp $
 
 Important:
-* Finish the timer system - amir
+* Finish the timer system - amir - DONE
 * Finish the intergration of the new -user and -type options to putcmsg 
   in xchatter core - amir :)
 * Add all ideas/bug fix requests to the TODO document.

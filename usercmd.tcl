@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.3 2001-08-11 12:04:06 uri Exp $
+# $Id: usercmd.tcl,v 1.4 2001-08-11 12:41:59 amir Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -606,7 +606,7 @@ proc user_timer {uargs} {
 	    }
 	}
 	* {
-	    putchat "*** Invalid subcommand '$cmd'. /HELP TIMER for more information."
+	    putcmsg "*** Invalid subcommand '$cmd'. /HELP TIMER for more information."
 	}
     }
     return 1
