@@ -1,4 +1,4 @@
-<!-- $Id: me.hlp,v 1.2 2001-10-01 12:24:26 urish Exp $ -->
+<!-- $Id: me.hlp,v 1.3 2001-10-07 12:16:45 urish Exp $ -->
 <XCHELP topic=cmd_me alias=me>
 <CENTER><FONT size=32 color=blue><B>/MSG</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -11,7 +11,7 @@ The /ME command is used to describe user actions.
 For example, Say that your nick is moses, and you type:
 <I>/ME is going to the mall.</I>
 This will display:
-<I><.*> moses is going to the mall.</I>
+<I>&lt;*&gt; moses is going to the mall.</I>
 
 <B><U>Possible Errors:</U></B>
 <LINK topic="error_notregistered">You are not registered.</LINK>

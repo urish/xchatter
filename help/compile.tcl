@@ -1,6 +1,53 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.4 2001-10-01 12:24:26 urish Exp $
+# $Id: compile.tcl,v 1.5 2001-10-07 12:16:45 urish Exp $
+
+proc replace_entities {text} {
+    set first 1
+    set output ""
+    foreach l [split $text "&"] {
+	if $first {
+	    if {[string index $text 0] != "&"} {
+		set first 0
+		append output $l
+		continue
+	    }
+    	}
+	set p [string first ";" $l]
+	if {$p == -1} {
+	    if {$first} {
+		append output $l
+		set first 0
+	    } else {
+		append output "&$l"
+	    }
+	    continue
+    	}
+	set first 0
+	set ap [string range $l [expr $p + 1] end]
+	set bp [string range $l 0 [expr $p - 1]]
+	switch -- $bp {
+	    amp	{
+		append output &
+	    }
+	    nbsp {
+		append output " "
+	    }
+	    gt {
+		append output ">"
+	    }
+	    lt {
+		append output "<"
+	    }
+	    default {
+		append output "&$l"
+		continue
+	    }
+    	}
+	append output $ap
+    }
+    return $output
+}
 
 proc process_text {text} {
     global tags help
@@ -33,18 +80,25 @@ proc process_text {text} {
 	set name [lindex $i 0]
 	set size [lindex $i 1]
 	set color [lindex $i 2]
+	set style [lindex $i 3]
 	if {$name != ""} {
 	    set font(name) $name
 	}
 	if {$color != ""} {
 	    set font(color) $color
 	}
+	if {$style != ""} {
+	    set font(style) $style
+        }
 	if {$size != ""} {
 	    set font(size) $size
 	}
     }
     if [info exists font(color)] {
-	lappend stylelist color-$color
+	lappend stylelist color-$font(color)
+    }
+    if [info exists font(style)] {
+	lappend stylelist style-$font(style)
     }
     if [info exists font(size)] {
         lappend fontoptions -size $font(size)
@@ -71,7 +125,7 @@ proc process_text {text} {
     if $tags(lastisnl) {
 	set text [string trimright $text " \t"]
     }
-    lappend help($topic) $stylelist $text
+    lappend help($topic) $stylelist [replace_entities $text]
 }
 
 proc argtok {var} {
@@ -144,10 +198,14 @@ proc process_tag_font {closer targs} {
 	return
     }
     set fontname ""
+    set style ""
     set size ""
     set color ""
     foreach {name value} [splitargs $targs] {
 	switch -exact -- [string tolower $name] {
+	    style {
+		set style $value
+	    }
 	    name {
 		set fontname $value
 	    }
@@ -164,7 +222,7 @@ proc process_tag_font {closer targs} {
 	    }
 	}
     }
-    lappend tags(font) [list $fontname $size $color]
+    lappend tags(font) [list $fontname $size $color $style]
 }
 
 proc process_tag_link {closer targs} {
