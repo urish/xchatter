@@ -1,5 +1,5 @@
 # Initialize plugin
-# $Id: main.tcl,v 1.2 2001-07-30 16:53:17 uri Exp $
+# $Id: main.tcl,v 1.3 2001-07-31 11:30:50 uri Exp $
 
 namespace eval xcplus {
     variable version __XCPLUS_VERSION__
@@ -68,7 +68,7 @@ namespace eval xcplus {
 		    if {[lsearch -exact $loaded_exts $extname] >= 0} {
 			continue
 		    }
-		    eval [join [split $extentions($extent) \xff] \\]
+		    eval $extentions($extent)
 		    ${ext}::init
 		    lappend loaded_exts $ext
 		}

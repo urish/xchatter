@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: compiler.tcl,v 1.2 2001-07-30 16:53:17 uri Exp $
+# $Id: compiler.tcl,v 1.3 2001-07-31 11:30:49 uri Exp $
 
 proc openf {name} {
     global fd
@@ -49,7 +49,7 @@ foreach i [glob src/*.ext] {
     puts "$extname v$extver"
 }
 
-regsub -all __EXTENTIONS__ $xcpmainsrc [join [split [join [split [list [array get extentions]] \\] \\\\] &] \\&] xcpmainsrc
+regsub -all __EXTENTIONS__ $xcpmainsrc [join [split [join [split [list [array get extentions]] \xff] \\\\] &] \\&] xcpmainsrc
 
 puts -nonewline "Building output file... "
 
