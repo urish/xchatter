@@ -1,10 +1,9 @@
-# $Id: TODO,v 1.1 2001-07-25 15:32:06 uri Exp $
+# $Id: TODO,v 1.2 2001-07-27 15:48:24 uri Exp $
 
-Urgent:
-- Fix on-disconnected bug (unending loop thingie) - for AMIR.
+Important:
+* Finish the timer system - amir
 
 Less urgent:
-* Finish the timer system
 * Implement a /redirect command, redirects putchat output to various places:
   - to the global chat
   - to a user
