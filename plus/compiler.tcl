@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: compiler.tcl,v 1.3 2001-07-31 11:30:49 uri Exp $
+# $Id: compiler.tcl,v 1.4 2001-08-15 07:36:55 uri Exp $
 
 proc openf {name} {
     global fd
@@ -9,6 +9,56 @@ proc openf {name} {
 proc putf {line} {
     global fd
     puts $fd $line
+}
+
+proc replace_include {data basedir} {
+    set include_start "<@INCLUDE "
+    set include_end ">"
+    while {[set incpos [string first $include_start $data]] >= 0} {
+	set before [string range $data 0 [expr $incpos - 1]]
+	set after [string range $data [expr $incpos + [string length $include_start]] end]
+	set incend [string first $include_end $after]
+	if {$incend == -1} {
+	    return $data
+	}
+	set fname [string trim [string range $after 0 [expr $incend - 1]]]
+	if ![file readable $basedir/$fname] {
+	    puts "Search $basedir/$fname"
+	    error "can't read from included file '$fname'"
+	}
+	puts -nonewline "+"
+	set fd [open $basedir/$fname r]
+	set fdata [read $fd]
+	close $fd
+	set data $before$fdata[string range $after [expr $incend + [string length $include_end]] end]
+    }
+    return $data
+}
+
+proc readext {fname basedir} {
+    global extentions
+    puts -nonewline "  $fname... "
+    flush stdout
+    set fd [open $fname r]
+    set head [split [gets $fd]]
+    set data [read $fd]
+    close $fd
+    if [catch {replace_include $data $basedir} data] {
+	puts "error: $data"
+	return
+    }
+    set hop [lindex $head 0]
+    if {$hop != "EXTENTION"} {
+	puts "Header invalid."
+	return
+    }
+    set hdata [split [join [lrange $head 1 end]] -]
+    set extname [lindex $hdata 0]
+    set extver [lindex $hdata 1]
+    set extnumver [lindex $hdata 2]
+    set extentions($extname,version) [list $extver $extnumver]
+    set extentions($extname,script) [join [split $data \\] \xff]
+    puts "$extname v$extver"
 }
 
 puts "Compiling XChatter plus, please hold on."
@@ -29,24 +79,16 @@ regsub -all __XCPLUS_NUMVER__ $xcpmainsrc $defs(numver) xcpmainsrc
 puts "Reading XChatter extentions..."
 
 foreach i [glob src/*.ext] {
-    puts -nonewline "  $i... "
-    flush stdout
-    set fd [open $i r]
-    set head [split [gets $fd]]
-    set data [read $fd]
-    close $fd
-    set hop [lindex $head 0]
-    if {$hop != "EXTENTION"} {
-	puts "Header invalid."
+    readext $i "src"
+}
+
+foreach i [glob -nocomplain src/*] {
+    if {[lindex $i 0] == "."} {
 	continue
     }
-    set hdata [split [join [lrange $head 1 end]] -]
-    set extname [lindex $hdata 0]
-    set extver [lindex $hdata 1]
-    set extnumver [lindex $hdata 2]
-    set extentions($extname,version) [list $extver $extnumver]
-    set extentions($extname,script) [join [split $data \\] \xff]
-    puts "$extname v$extver"
+    if [file exists $i/main.tcl] {
+	readext $i/main.tcl $i
+    }
 }
 
 regsub -all __EXTENTIONS__ $xcpmainsrc [join [split [join [split [list [array get extentions]] \xff] \\\\] &] \\&] xcpmainsrc
