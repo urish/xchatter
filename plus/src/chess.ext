@@ -1,0 +1,623 @@
+EXTENTION chess-0.9-1
+# $Id: chess.ext,v 1.1 2001-07-26 08:26:46 uri Exp $
+
+namespace eval chess {
+    variable colors
+    variable pieces
+# chess piece definition
+    array set pieces {rook,coords {32 44} king {0 8 8 0 16 0 24 7 24 0 32 0 32 7 40 0 48 0 56 8 56 24 41 39 15 39 0 24 0 8 8 12 13 7 15 7 24 15 24 32 16 32 8 24 8 12 0 8 32 16 41 7 43 7 48 12 48 24 40 32 32 32 32 16 0 8} rook {0 0 6 0 6 7 13 7 13 0 19 0 19 7 26 7 26 0 32 0 32 13 26 19 26 34 32 40 32 44 0 44 0 38 6 32 6 18 0 13 0 0} bishop,coords {32 49} knight,coords {36 47} pawn,coords {24 37} queen,coords {55 44} bishop {0 49 32 49 32 44 19 37 19 30 22 30 22 24 19 24 19 21 23 19 24 18 25 18 20 18 25 12 25 11 16 0 7 11 6 11 6 18 9 21 12 21 12 22 12 24 9 24 10 30 13 30 13 37 0 44 0 49} knight {36 47 36 32 33 16 32 16 15 0 15 9 0 29 0 30 5 35 7 35 18 25 19 25 19 26 18 27 12 47 36 47} pawn {0 37 24 37 24 33 23 33 14 24 14 18 19 18 19 14 15 14 15 13 19 9 19 4 18 4 14 0 10 0 5 4 5 9 9 13 9 14 5 14 5 18 10 18 10 25 8 25 0 33 0 37} queen {8 44 48 44 48 36 55 6 42 20 37 0 28 19 19 0 13 20 0 6 8 36 8 44} king,coords {56 39}}
+    set colors(p0) orange
+    set colors(p1) red
+    set colors(s0) white
+    set colors(s1) black
+    set colors(phi) yellow
+
+    proc init {} {
+	onevent usercmd CHESS [namespace current]::ucmd_chess
+	iface_init
+	canvas_init
+    }
+    
+    proc destroy {} {
+	unevent usercmd [namespace current]::ucmd_chess
+	destroy_widget .chess
+	namespace delete [namespace current]
+    }
+
+    proc iface_init {} {
+	toplevel .chess
+	wm title .chess "XCchess"
+	wm protocol .chess WM_DELETE_WINDOW [namespace current]::window_close
+	wm withdraw .chess
+    }
+
+    proc canvas_init {} {
+	canvas .chess.canvas -relief raised -border 2 -height [expr 32 * 8 + 28] -width [expr 32 * 8 + 28] -background gray
+	grid configure .chess.canvas -row 1 -column 1
+	draw_board 32 32
+    }
+
+    proc get_square_coords {h v} {
+	variable board
+	return [list	\
+	    [expr $board(hoffs) + $h * $board(hsize)]	\
+	    [expr $board(voffs) + $v * $board(vsize)]	\
+	    [expr $board(hoffs) + $h * $board(hsize) + $board(hsize) - 1]\
+	    [expr $board(voffs) + $v * $board(vsize) + $board(vsize) - 1]]
+    }
+    
+    proc get_square_by_coords {x y} {
+	variable board
+	return [list \
+	    [expr ($x - $board(hoffs)) / $board(hsize)] \
+	    [expr ($y - $board(voffs)) / $board(vsize)]]
+    }
+    
+    proc get_piece_coords {h v} {
+	set coords [get_square_coords $h $v]
+	return [list \
+	    [expr [lindex $coords 0] + 2] \
+	    [expr [lindex $coords 1] + 2] \
+	    [expr [lindex $coords 2] - 2] \
+	    [expr [lindex $coords 3] - 2]]
+    }
+    
+    proc format_coords {coords} {
+	set letters "ABCDEFGH"
+	return [string index $letters [lindex $coords 0]][expr [lindex $coords 1] + 1]
+    }
+    
+    proc draw_piece {h v piece color} {
+	variable pieces
+	variable colors
+	set ucoords [get_piece_coords $h $v]
+	set centerx [expr ([lindex $ucoords 0] + [lindex $ucoords 2]) / 2]
+	set basex [expr $centerx - [lindex $pieces($piece,coords) 0] / 4]
+	set basey [expr [lindex $ucoords 3] - [lindex $pieces($piece,coords) 1] / 2]
+	foreach {x y} $pieces($piece) {
+	    lappend polycoords [expr int($x * 0.5) + $basex] \
+			       [expr int($y * 0.5) + $basey]
+	}
+	eval .chess.canvas create polygon $polycoords -fill [list $color]
+	return 
+    }
+    
+    proc put_piece {h v player type} {
+	variable game
+	variable colors
+	draw_piece $h $v $type $colors(p$player)
+    }
+    
+    proc board_draw {args} {
+	.chess.canvas addtag board withtag [uplevel ".chess.canvas create $args"]
+    }
+    
+    proc draw_board {{hsize 0} {vsize 0} {hoffs 0} {voffs 0}} {
+	variable board
+	variable colors
+	if !$hsize {
+	    set hsize [expr ([.drawing_canvas.canvas cget -height] - 28) / 8]
+	    set hoffs [expr ([.drawing_canvas.canvas cget -height] - 28) % 8 / 2]
+	}
+	if !$vsize {
+	    set vsize [expr ([.drawing_canvas.canvas cget -width] - 28) / 8]
+	    set voffs [expr ([.drawing_canvas.canvas cget -width] - 28) % 8 / 2]
+	}
+	incr hoffs 15
+	incr voffs 15
+	set board(hsize) $hsize
+	set board(vsize) $vsize
+	set board(hoffs) $hoffs
+	set board(voffs) $voffs
+	set color 1
+	.chess.canvas delete board
+	board_draw rectangle [expr $hoffs - 12] [expr $voffs - 12] \
+	 	[expr $hoffs + $hsize * 8 + 14] [expr $voffs + $vsize * 8 + 14] \
+		-fill green -outline black -stipple gray25
+	board_draw rectangle [expr $hoffs - 1] [expr $voffs - 1] \
+	 	[expr $hoffs + $hsize * 8] [expr $voffs + $vsize * 8] \
+		-fill "" -outline black
+	set letters "ABCDEFGH"
+	for {set i 1} {$i <= 8} {incr i 2} {
+	    board_draw text [expr $hoffs - 7] \
+		[expr int((8 - $i + 0.5) * $vsize) + $voffs] -text "$i"
+	    incr i -1
+	    board_draw text [expr int(($i + 0.5) * $hsize) + $hoffs] \
+		 [expr $voffs + 8 * $vsize + 7] -text [string index $letters $i]
+	}
+	for {set h 0} {$h < 8} {incr h} {
+	    for {set v 0} {$v < 8} {incr v} {
+		eval board_draw rectangle [get_square_coords $h $v] {-fill $colors(s$color) -outline $colors(s$color)}
+		set color [expr !$color]
+	    }
+	    set color [expr !$color]
+	}
+    }
+    
+    proc init_game {} {
+	variable board
+	variable colors
+	variable game
+	wm deiconify .chess
+	set game(player) 0
+	set game(castling0s) 1
+	set game(castling0l) 1
+	set game(castling1s) 1
+	set game(castling1l) 1
+	set game(enpassent) ""
+	set h 0
+	set v 0
+	foreach type {rook knight bishop king queen bishop knight rook
+		      pawn pawn pawn pawn pawn pawn pawn pawn} {
+	    put_piece $h $v 0 $type
+	    put_piece [expr 7 - $h] [expr 7 - $v] 1 $type
+	    lappend game(p0) $type
+	    lappend game(p1) $type
+	    incr h
+	    if {$h == 8} {
+		set h 0
+		incr v
+	    }
+	}
+	.chess.canvas bind pieces <ButtonPress-1> "[namespace current]::piece_bpress %x %y"
+	.chess.canvas bind pieces <ButtonRelease-1> "[namespace current]::piece_brelease %x %y %s"
+	.chess.canvas bind pieces <B1-Motion> "[namespace current]::piece_bmotion %x %y"
+    }
+    
+    proc finish_game {} {
+	variable board
+	variable game
+	.chess.canvas delete pieces
+	foreach i [concat [array names board sq*] [array names board qu*] \
+		  [array names board u*]] {
+	    unset board($i)
+	}
+	foreach i [concat [array names game p*] network isblack] {
+	    unset game($i)
+	}
+	wm withdraw .chess
+    }
+    
+    proc game_win {player} {
+	variable game
+	if $game(network) {
+	    if $player {
+		putcmsg xcplus_chess_youlost p $game(peer)
+		tk_dialog .chess.dialog "You lost !" "You lost the game :-(" info 0 "Bummer !"
+	    } else {
+		putcmsg xcplus_chess_youwon p $game(peer)
+		tk_dialog .chess.dialog "You won !" "You won the game !" info 0 "Yey !"
+	    }
+	} else {
+	    set name [expr {$player ? "black" : "white"}]
+	    putcmsg xcplus_chess_win t $name
+	    if [tk_dialog .chess.dialog "The $name won !" "The $name player won the game !" info 1 "Dismiss" "Another Game !"] {
+		set new_game 1
+	    }
+	}
+	finish_game
+	if [info exists new_game] {
+	    set game(network) 0
+	    set game(isblack) 0
+	    init_game
+	}
+    }
+    
+    proc is_piece {coords} {
+	variable board
+	return [info exists board(sq[join $coords ""])]
+    }
+    
+    proc get_piece {coords} {
+	variable board
+	if [info exists board(sq[join $coords ""])] {
+	    return $board(u$board(sq[join $coords ""]))
+	} else {
+	    return ""
+	}
+    }
+
+    proc destroy_piece {coords player} {
+	variable board
+	variable game
+	set piece $board(sq[join $coords ""])
+	unset board(sq[join $coords ""])
+	.chess.canvas delete $piece
+	incr game(p$player) -1
+	if !$game(p$player) {
+	    after idle {game_win [expr !$player]}
+	}
+    }
+    
+    proc is_queen {piece} {
+	variable board
+	return [info exists board(qu$piece)]
+    }
+    
+    proc make_queen {piece} {
+	variable board
+	set board(qu$piece) 1
+	.chess.canvas itemconfigure $piece -stipple ""
+    }
+    
+    proc piece_move {piece source target} {
+	variable board
+	unset board(sq[join $source ""])
+	set board(sq[join $target ""]) $piece
+    }
+    
+    proc can_move_line {sx sy tx ty} {
+	if {$tx == $sx} {
+	    set start [expr ($ty > $sy ? $sy : $ty) + 1]
+	    set end [expr $ty > $sy ? $ty : $sy]
+	    for {set y $start} {$y < end} {incr y} {
+		if [is_piece [list $sx $y]] {
+		    return 0
+		}
+	    }
+	} elseif {$ty == $sy} {
+	    set start [expr ($tx > $sx ? $sx : $tx) + 1]
+	    set end [expr $tx > $sx ? $tx : $sx]
+	    for {set x $start} {$x < end} {incr x} {
+		if [is_piece [list $x $sy]] {
+		    return 0
+		}
+	    }
+	} else {
+	    return 0
+	}
+    }
+    
+    proc can_move_diagonal {sx sy tx ty} {
+	if {abs($tx - $sx) != abs($ty - $sy)} {
+	    return 0
+	}
+	set sqcnt [expr abs($tx - $sx)]
+	if {$sx > $tx} {
+	    set x $tx
+	} else {
+	    set x $sx
+	}
+	if {$sy > $ty} {
+	    set y $yx
+	} else {
+	    set y $ty
+	}
+	for {set i 1} {$i < $sqcnt} {incr i} {
+	    incr x
+	    incr y
+	    if [is_piece [list $x $y]] {
+		return 0
+	    }
+	}
+    }
+    
+    proc can_move {piece type source target player} {
+	if {$source == $target} {
+	    return 0
+	}
+	if {[get_piece $target] == $player} {
+	    return 0
+	}
+	set sx [lindex $source 0]
+	set sy [lindex $source 1]
+	set tx [lindex $target 0]
+	set ty [lindex $target 1]
+	switch $type {
+	    pawn {
+	    }
+	    knight {
+		if {abs($tx - $sx) + abs($ty - $sy) == 3 && $tx != $sx &&
+		    $ty != $sy} {
+		    return 1
+		}
+	    }
+	    bishop {
+		if [eval can_move_diagonal $source $target] {
+		    return 1
+		}
+	    }
+	    rook {
+		if [eval can_move_line $source $target] {
+		    return 1
+		}
+	    }
+	    queen {
+		if {[eval can_move_line $source $target] || 
+		    [eval can_move_diagonal $source $target]} {
+		    return 1
+		}
+	    }
+	    king {
+		if {(abs($tx - $sx) < 2 && abs($ty - $sy < 2)) || 
+		    [can_castle $source $target]} {
+		    if ![can_piece_be_eaten $target] {
+			
+		    }
+		}
+	    }
+	}
+	return 0
+    }
+    
+    proc move_piece {piece source target player with_multi} {
+	variable board
+	variable game
+	set multi [info exists game(inmulti)]
+	if $multi {
+	    unset game(inmulti)
+	}
+	switch -- [can_move $piece $source $target $player $multi] {
+	    0 {
+		return 0
+	    }
+	    1 {
+		set multi 0
+	    }
+	    2 {
+		if $with_multi {
+		    set game(inmulti) 1
+		    set multi 1
+		} else {
+		    set multi 0
+		}
+	    }
+	}
+	# check - should item turn into queen ?
+	if {[lindex $target 1] == ($player ? 7 : 0)} {
+	    make_queen $piece
+	}
+	piece_move $piece $source $target
+	if !$multi {
+	    set game(pactive) [expr !$game(pactive)]
+	}
+	return [expr $multi ? 2 : 1]
+    }
+    
+    proc piece_enter {} {
+	variable colors
+	.chess.canvas itemconfigure current -fill $colors(phi) -outline $colors(phi)
+    }
+    
+    proc piece_leave {} {
+	variable colors
+	variable board
+	variable game
+	set curpiece [.chess.canvas find withtag current]
+	if {$game(isblack)} {
+	    set color $colors(p[expr !$board(u$curpiece)])
+	} else {
+	    set color $colors(p$board(u$curpiece))
+	}
+	.chess.canvas itemconfigure current -fill $color -outline $color
+    }
+
+    proc piece_bpress {x y} {
+	variable current_piece
+	variable board
+	variable game
+	set piece [.chess.canvas find withtag current]
+	if {$game(pactive) != $board(u$piece) ||
+	    ($game(pactive) == 1 && $game(network))} {
+	    bell
+	    return
+	}
+	set current_piece(name) $piece
+	set current_piece(coords) [get_square_by_coords $x $y]
+	set ucoords [.chess.canvas coords current]
+	set board(hfix) [expr $x - [lindex $ucoords 0]]
+	set board(vfix) [expr $y - [lindex $ucoords 1]]
+    }
+    
+    proc piece_bmotion {x y} {
+	variable current_piece
+	variable board
+	if ![info exists current_piece] {
+	    return
+	}
+	set x [expr $x - $board(hfix)]
+	set y [expr $y - $board(vfix)]
+	.chess.canvas coords $current_piece(name) $x $y [expr $x + $board(hsize) - 4] [expr $y + $board(vsize) - 4]
+    }
+
+    proc piece_brelease {x y state} {
+	variable current_piece
+	variable board
+	variable game
+	set with_multi [expr $state & 0x1]
+	if ![info exists current_piece] {
+	    return
+	}
+	set square [get_square_by_coords $x $y]
+	if {$square == $current_piece(name)} {
+	    eval .chess.canvas coords $current_piece(name) [eval get_piece_coords $current_piece(coords)]
+	    return
+	}
+	if [set ret [move_piece $current_piece(name) $current_piece(coords) $square $board(u$current_piece(name)) $with_multi]] {
+	    eval .chess.canvas coords $current_piece(name) [eval get_piece_coords $square]
+	    if $game(network) {
+		if {$ret == 1} {
+		    putsock "CMD $game(peer) CKRS MOVE [format_coords $current_piece(coords)] [format_coords $square]"
+		} else {
+		    putsock "CMD $game(peer) CKRS MULTI MOVE [format_coords $current_piece(coords)] [format_coords $square]"
+		}
+	    }
+	} else {
+	    eval .chess.canvas coords $current_piece(name) [eval get_piece_coords $current_piece(coords)]
+	    bell
+	}
+	unset current_piece
+    }
+    
+    proc process_peer_move {source target ismulti} {
+	variable board
+	set h [expr 7 - [lindex $source 0]]
+	set v [expr 7 - [lindex $source 1]]
+	set source [list $h $v]
+	set target [list [expr 7 - [lindex $target 0]] [expr 7 - [lindex $target 1]]]
+	if ![info exists board(sq$h$v)] {
+	    return 0
+	}
+	set piece $board(sq$h$v)
+	if [move_piece $piece $source $target 1 $ismulti] {
+	    eval .chess.canvas coords $piece [eval get_piece_coords $target]
+	    return 1
+	}
+	return 0
+    }
+
+    proc window_close {} {
+	variable game
+	if [info exists game(peer)] {
+	    putsock "CMD $game(peer) CKRS CANCEL"
+	}
+	finish_game
+    }
+
+    proc server_error {sargs} {
+	variable game
+	set errornum [strtok sargs]
+	if {$errornum == 104} {
+	    set nick [string tolower [strtok sargs]]
+	    if [info exists game(network)] {
+		if {$nick == $game(peer)} {
+		    putcmsg xcplus_chess_disc p $game(peer)
+		    tk_dialog .chess.dialog "Remote side disconnected." "The remote side disconnected." error 0 "Bummer !"
+		    finish_game
+		}
+	    }
+	    foreach i [array names game *,$nick] {
+		unset game($i)
+	    }
+	}
+	return 0
+    }
+
+    proc ucmd_chess {uargs} {
+	variable game
+	set peer [strtok uargs]
+	set lpeer [string tolower $peer]
+	if {[string toupper $peer] == "REFUSE"} {
+	    set peer [strtok uargs]
+	    set reason [strrest uargs]
+	    if {$peer == ""} {
+		return 1
+	    }
+	    if [info exists game(offers,$lpeer)] {
+		unset game(offers,$lpeer)
+		putcmsg xcplus_chess_refusing n $peer t $reason
+		putsock "CMD $peer CKFS refuse $reason"
+	    } else {
+		putcmsg xcplus_chess_norefuse n $peer
+	    }
+	    return 1
+	}
+	if {[string toupper $peer] == "PLAY"} {
+	    set peer [strtok uargs]
+	}
+	if [info exists game(network)] {
+	    putcmsg xcplus_chess_inprogress
+	    return 1
+	}
+	if {$peer == ""} {
+	    set game(network) 0
+	    set game(isblack) 0
+	    init_game
+	    return 1
+	}
+	if [info exists game(offers,$lpeer)] {
+	    unset game(offers,$lpeer)
+	    set game(network) 1
+	    set game(isblack) 1
+	    set game(peer) $lpeer
+	    putcmsg xcplus_chess_start n $peer
+	    init_game
+	    putsock "CMD $peer CKRS START"
+	    return 1
+	}
+        set game(offerto,$lpeer) 1
+        putsock "CMD $peer CKRS PLAY"
+	putcmsg xcplus_chess_offering n $peer
+	return 1
+    }
+    
+    proc server_cmd_ckrs {source cargs} {
+	variable game
+	set cargs [split $cargs]
+	set cmd [strtok cargs]
+	set lsource [string tolower $source]
+	set multi 0
+	if {[string toupper $cmd] == "MULTI"} {
+	    set multi 1
+	    set cmd [strtok cargs]
+	}
+	switch -exact -- [string toupper $cmd] {
+	    PLAY {
+		set game(offers,$lsource) 1
+		putcmsg xcplus_chess_offer n $source
+	    }
+	    START {
+		if [info exists game(network)] {
+		    putsock "CMD $source REFUSE Game already in progress."
+		}
+		if [info exists game(offerto,$lsource)] {
+		    unset game(offerto,$lsource)
+		    set game(isblack) 0
+		    set game(network) 1
+		    set game(peer) $lsource
+		    putcmsg xcplus_chess_start n $source
+		    init_game
+		} else {
+		    putsock "CMD $source REFUSE I didn't offer you any game."
+		}
+	    }
+	    CANCEL {
+	        if [info exists game(network)] {
+		    if {$lsource == $game(peer)} {
+			putcmsg xcplus_chess_disc p $game(peer)
+			tk_dialog .chess.dialog "Remote side disconnected." "The other player left the game." error 0 "Bummer !"
+			finish_game
+		    }
+		}
+	    }
+	    REFUSE {
+		set reason [strrest $cargs]
+		putcmsg xcplus_chess_refuse n $source t $reason
+	    }
+	    MOVE {
+		if ![info exists game(peer)] {
+		    return 1
+		}
+		if {$game(peer) != $lsource} {
+		    return 1
+		}
+		if !$game(pactive) {
+		    putcmsg xcplus_chess_turncheat n $source
+		    return 1
+		}
+		set letters "ABCDEFGH"
+		set src [strtok cargs]
+		set target [strtok cargs]
+		if {[string length $src] != 2 || [string length $target] != 2} {
+		    putcmsg xcplus_chess_badmove n $source
+		    return 1
+		}
+		set num 0
+		foreach {i j} [split $src$target ""] {
+		    set i [string toupper $i]
+		    if {![string match {[ABCDEFGH]} $i] || ![string match {[12345678]} $j]} {
+			putcmsg xcplus_chess_badmove n $source
+			return 1
+		    }
+		    set coords($num) [list [expr [string first $i $letters]] [expr $j - 1]]
+		    incr num
+		}
+		if ![process_peer_move $coords(0) $coords(1) $multi] {
+		    putcmsg xcplus_chess_cheatmove n $source
+		}
+	    }
+	}
+	return 1
+    }
+    
+}
