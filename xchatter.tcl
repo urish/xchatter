@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.1 2001-07-25 15:32:07 uri Exp $
+# $Id: xchatter.tcl,v 1.2 2001-08-10 11:04:45 uri Exp $
 
 set version 0.5
 set numver 50.0
@@ -35,9 +35,30 @@ proc format_msg {msg args} {
     return $output$msg
 }
 
+proc getargs {argvar} {
+    upvar $argvar args
+    while {[string index [lindex $args 0] 0] == "-"} {
+	set name [string range [lindex $args 0] 1 end]
+	set value [lindex $args 1]
+	set args [lrange $args 2 end]
+	uplevel [list set $name $value]
+    }
+}
+
 proc putcmsg {msg args} {
+    set type ""
+    getargs args
     set fmsg [eval format_msg $msg $args]
     foreach i [split $fmsg \n] {
+	if [info exists user] {
+	    if [process_event msg_user $user $type $fmsg] {
+		continue
+	    }
+	} else {
+	    if [process_event msg $fmsg] {
+		continue
+	    }
+	}
         putchat $i
     }
 }
