@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.17 2002-03-24 13:36:44 amirs Exp $
+# $Id: usercmd.tcl,v 1.18 2002-03-25 15:06:13 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -32,6 +32,7 @@ proc usercmd_init {} {
 	PING	user_ping
 	ADMIN	user_admin
 	DIE	user_die
+	LOG	user_log
 	KILL	user_kill
 	BACK	user_back
 	AWAY	user_away
@@ -69,9 +70,7 @@ proc process_command {text} {
 	    }
 	}
 	if {$i != ""} {
-	    if ![process_event userglob $i $i] {
-		user_glob $i
-	    }
+	    user_glob $i
 	}
     }
 }
@@ -155,6 +154,9 @@ proc user_cmd {text} {
 
 proc user_glob {text} {
     global nick
+    if [process_event userglob $text $text] {
+	return
+    }
     putsock "GLOBAL $text"
     if [info exists nick] {
 	putcmsg sent_glob_msg n $nick t $text
@@ -208,6 +210,27 @@ proc user_kill {uargs} {
 proc user_die {uargs} {
     putsock "DIE [join $uargs]"
     putcmsg server_die t [join $uargs]"
+    return 1
+}
+
+proc user_log {uargs} {
+    global logfile
+    set fname [lindex $uargs 0]
+    if {$fname == ""} {
+	set logfile ""
+	putcmsg logging_stopped
+	return 1
+    }
+    set error [catch {
+        set fd [open $fname a+]
+        puts $fd "\n---> Logging started at [clock format [clock seconds] -format "%d/%m/%Y"]\n"
+	close $fd
+	putcmsg logging_started n $fname
+        set logfile $fname
+    } errtext]
+    if $error {
+	putcmsg logging_error s $errtext
+    }
     return 1
 }
 

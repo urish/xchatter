@@ -1,5 +1,5 @@
 # English language messages for XChatter.
-# $Id: english.lang,v 1.9 2002-03-18 20:31:27 urish Exp $
+# $Id: english.lang,v 1.10 2002-03-25 15:06:17 urish Exp $
 norm_text_style		normal
 item inputbox		justify left
 # interface.tcl
@@ -45,6 +45,9 @@ text sent_action	<*> %n %t
 text sent_beep		[beep(%n)] %t 
 text raw		-> *SERVER* %t 
 text server_die		*** Asking server to die (%t) 
+text logging_stopped	*** Stopped logging to file.
+text logging_started	*** Logging chat buffer to file %n.
+text logging_error	*** Can't open log file: %s.
 text terminate_conn	*** Terminating old connection to server... 
 text conn_error		*** Error while connecting to %s:%p: %t. 
 text connected_nick	*** Successfully connected to %s, using nick '%n'. 
@@ -98,11 +101,13 @@ text skin_tcl_error	*** In skinfile, tcl command error in line %d: %t.
 text skin_tcl_warning	*** Warning: skin file executed tcl command %t 
 text skin_invalid_cmd	*** Invalid command at line %d in skin file. 
 text quit_no		Quit: No (good :-) 
-text welcome		Welcome to XChatter %t, type /help for more info. 
+text welcome		Welcome to XChatter %t, to get help, type '/help'.
+text +welcome		XChatter is Copyright 2000, 2001, 2002, Uri Shaked.
 text xchatter_rc	XChatter.rc found, executing. 
 text home_xchatter_rc	.xchatterrc found in your home directory, executing. 
 # plugin.tcl
 text extension_already_exists Extension %n already loaded. Can't load twice.
 text extension_error_loading Error loading extension '%n'.
 text extension_no_match No such extension '%n'.
+text extension_not_loaded No such extension '%n' loaded.
 				    
