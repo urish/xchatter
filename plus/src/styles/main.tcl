@@ -1,5 +1,5 @@
 EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
-# $Id: main.tcl,v 1.3 2002-03-19 11:56:49 urish Exp $
+# $Id: main.tcl,v 1.4 2002-03-20 18:04:56 urish Exp $
 
     variable stylemap
     variable nickmap
@@ -83,7 +83,8 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
 	}
 	onevent usercmd SNICK [namespace current]::ucmd_snick \
 			ACTION [namespace current]::ucmd_action \
-			ME [namespace current]::ucmd_action
+			ME [namespace current]::ucmd_action \
+			TEXTBOX [namespace current]::ucmd_textbox
 	onevent servercmd NICK_STYLE [namespace current]::servercmd_nick_style \
 	                  NICK_STYLE_SEARCH [namespace current]::servercmd_nick_style_search \
 			  ACTION [namespace current]::servercmd_action
@@ -109,7 +110,8 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
     proc unload {} {
 	rm_timer disappear_timer
 	unevent usercmd [list [namespace current]::ucmd_snick	\
-			[namespace current]::ucmd_action]
+			[namespace current]::ucmd_action 	\
+			[namespace current]::ucmd_textbox	]
 	unevent servercmd [list [namespace current]::servercmd_nick_style	\
 			  [namespace current]::servercmd_nick_style_search \
 			  [namespace current]::servercmd_action]
@@ -197,6 +199,13 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
 	    putsock "NICK $tnick"
 	    putsock "GCMD NICK_STYLE $snick"
 	}
+	return 1
+    }
+    
+    proc ucmd_textbox {uargs} {
+	user_glob "7W7RB1h  $uargs   "
+	user_glob "7W7RB1  $uargs   "
+	user_glob "7W7RB1h  $uargs   "
 	return 1
     }
     
@@ -315,7 +324,7 @@ EXTENTION styles VERSION 1.1 BUILD 2 HELP styles.hlp
 	return 0
     }
     
-    proc disconnected {} {
+    proc disconnected {args} {
 	variable nickmap
 	if [info exists nickmap] {
 	    unset nickmap
