@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.4 2001-08-11 12:46:35 amir Exp $
+# $Id: xchatter.tcl,v 1.5 2001-08-11 15:18:19 uri Exp $
 
 set version 0.5
 set numver 50.0
@@ -205,6 +205,75 @@ proc exechook {hook args} {
 	return ""
     }
     eval [lindex $hooks($hook) 0] $args
+}
+
+# Timer system
+proc timer_proc {name} {
+    global timers
+    if {$timers($name,type) == "tcl"} {
+        eval $timers($name,command)
+    } else {
+	process_command $timers($name,command)
+    }
+    if {$timers($name,count)} {
+	incr timers($name,count) -1
+	if {$timers($name,count) == 0} {
+	    return
+	}
+    }
+    set timers($name,timer) [after $timers($name,interval) "timer_proc [list $name]"]
+}
+
+proc timer {name type interval count command} {
+    global timers
+    set name [string tolower $name]
+    catch {after cancel $timers($name,timer)}
+    set timers($name,timer) [after $interval "timer_proc [list $name]"]
+    set timers($name,interval) $interval
+    set timers($name,count) $count
+    set timers($name,command) $command
+    set timers($name,type) $type
+}
+
+proc rm_timer {name} {
+    global timers
+    set name [string tolower $name]
+    if [catch {after cancel $timers($name,timer)}] {
+	return 0
+    }
+    foreach i [array names timers $name,*] {
+	unset timers($i)
+    }
+    return 1
+}
+
+proc timers {type name} {
+    global timers
+    set result ""
+    foreach i [array names timers *,type] {
+	set tname [string range $i 0 [expr [string last , $i] - 1]]
+	if {[string match $type $timers($i)] && 
+	    [string match [string tolower $name] $tname]} {
+	    lappend result $tname
+	}
+    }
+    return $result
+}
+
+proc timer_info {name what} {
+    global timers
+    set name [string tolower $name]
+    if ![info exists timers($name,timer)] {
+	return ""
+    }
+    switch $what {
+	type - command - interval - count {
+	    return $timers($name,$what)
+	}
+	default {
+	    return ""
+	}
+    }
 }
 
 # Skins

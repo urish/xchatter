@@ -1,9 +1,10 @@
-# $Id: TODO,v 1.6 2001-08-11 13:37:19 uri Exp $
+# $Id: TODO,v 1.7 2001-08-11 15:18:18 uri Exp $
 
 Important:
 * Finish the intergration of the new -user and -type options to putcmsg 
   in xchatter core - amir :)
 * Add all ideas/bug fix requests to the TODO document.
+* Finish documenting all commands.
 
 Mid-important:
 * Make all extentions supports putcmsg -user and putcmsg -type
@@ -12,14 +13,22 @@ Mid-important:
   chat
 * Make a /IGNORE command, that will take advantage of the new -user/-type
   options.
-
-Less urgent:
+* Recode /AWAY system to use the new timer system.
+* Add the following features to the timer system:
+  - Internal (tcl) timer can't be deleted.
+  - add DISABLE/ENABLE timer
+  - add RENAME timer
+  - add INTERVAL <timer> <new interval>, to change timer interval
+  - add tcl-level commands to handle timer disable/enable/rename/interval
+    change.
 * Implement a /redirect command, redirects putchat output to various places:
   - to the global chat
   - to a user
   - to the stdbuf (history buffer)
   - to the inputline
   - to the void
+
+Less urgent:
 * Add alias-based events:
     - onglob
     - ondisconnect
@@ -42,8 +51,10 @@ Maybe:
 * Integrate the plugin system with XChatter plus extention system, to create
   a simple interface for new plugins, that is similar to XChatter plus extention
   registration
+* Add support for creating xcscript timers with COUNT specified - maybe with
+  /TIMER CREATE <name> <interval>[:count] command
 
 Already done:
-* Add a font choosing option in help
+* Add a font choosing option in help.
 * Make XChatter function without help.tcl
 * Finish the timer system - amir.

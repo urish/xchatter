@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.4 2001-08-11 12:41:59 amir Exp $
+# $Id: usercmd.tcl,v 1.5 2001-08-11 15:18:19 uri Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -47,7 +47,7 @@ proc usercmd_init {} {
 	ECHO	user_echo
 	PLUS	user_plus
 	ALIAS	user_alias
-	TIMER	user_timer
+	TIMERS	user_timers
 	TIMESTAMP user_timestamp
     }
 }
@@ -523,31 +523,55 @@ proc user_plus {uargs} {
     return 1
 }
 
-proc timer_proc {lname} {
-    global timers
-    if ![info exists timers($lname,timer)] {
-	return 
+proc get_interval {interval} {
+    set timeunit 1000
+    set tudigits 0
+    switch -glob -- $interval {
+    *ms {
+        set timeunit 1
+	set tudigits 2
     }
-    set timers($lname,timer) [after [expr $timers($lname,interval) * 1000] timer_proc $lname]
-    incr timers($lname,count)
-    process_command $timers($lname,cmd)
+    *m {
+        set timeunit 60000
+	set tudigits 1
+    }
+    *s {
+        set timeunit 
+	set tudigits 1
+    }
+    *h {
+        set timeunit 36000000
+	set tudigits 1
+    }
+    }
+    set interval [string range $interval 0 [expr [string length $interval] - $tudigits - 1]]
+    if [catch {expr int($interval*$timeunit)} interval] {
+	return ""
+    }
+    if {$interval < 0} {
+	return ""
+    }
+    return $interval
 }
 
-proc user_timer {uargs} {
+proc user_timers {uargs} {
     global timers
     set cmd [strtok uargs]
-    switch -glob -- [string toupper $cmd] {
-	LIST {
+    switch -exact -- [string toupper $cmd] {
+	LIST - ? {
 	    putcmsg timer_list_start
 	    set timer_cnt 0
-	    foreach i [array names timers "*,cmd"] {
-		set name [lindex [split $i ,] 0]
-		putcmsg timer_list_entry n $name c $timers($name,count) i $timers($name,interval) t $timers($name,cmd)
+	    foreach i [timers tcl *] {
+		putcmsg timer_list_tclentry n $i t [timer_info $i command] i [timer_info $i interval]
+		incr timer_cnt
+	    }
+	    foreach i [timers script *] {
+		putcmsg timer_list_entry n $i t [timer_info $i command] i [timer_info $i interval]
 		incr timer_cnt
 	    }
 	    putcmsg timer_list_end d $timer_cnt
 	}
-	ADD {
+	ADD - CREATE - + {
 	    set name [strtok uargs]
 	    set interval [strtok uargs]
 	    set command [strrest uargs]
@@ -559,14 +583,11 @@ proc user_timer {uargs} {
 		putcmsg timer_error_nointerval
 		return 1
 	    }
-	    if [catch {expr 1 * $interval}] {
+	    set interval [get_interval $interval]
+	    if {$interval == ""} {
 		putcmsg timer_error_badinterval
 		return 1
 	    } 
-	    if {$interval < 0} {
-		putcmsg timer_error_badinterval
-		return 1
-	    }
 	    if {$command == ""} {
 		putcmsg timer_error_nocmd
 		return 1
@@ -578,35 +599,22 @@ proc user_timer {uargs} {
 	    if {[string tolower $name] == "auto"} {
 		set name "t#[incr timers(auto_counter)]"
 	    }
-	    set modified 0
-	    set lname [string tolower $name]
-	    if [info exists timers($lname,timer)] {
-		set modified 1
-		after cancel $timers($lname,timer)
-	    }
-	    set timers($lname,cmd) $command
-	    set timers($lname,interval) $interval
-	    set timers($lname,count) 0
-	    set timers($lname,timer) [after [expr $interval * 1000] timer_proc $lname]
+	    timer $name script $interval 0 $command
 	}
-	DEL {
+	DEL - DELETE - REMOVE - RM - - {
 	    set name [strtok uargs]
 	    if {$name == ""} {
 		putcmsg timer_error_noname
 		return 1
 	    }
-	    set lname [string tolower $name]
-	    if [info exists timers($lname,timer)] {
-		after cancel $timers($lname,timer)
-		unset timers($lname,timer) timers($lname,count) 
-		unset timers($lname,cmd)   timers($lname,interval)
+	    if [rm_timer $name] {
 		putcmsg timer_del_done n $name
 	    } else {
 		putcmsg timer_del_error n $name
 	    }
 	}
-	* {
-	    putcmsg "*** Invalid subcommand '$cmd'. /HELP TIMER for more information."
+	default {
+	    putcmsg timer_bad_subcmd t $cmd
 	}
     }
     return 1
