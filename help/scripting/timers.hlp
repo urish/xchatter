@@ -1,5 +1,5 @@
-<!-- $Id: timers.hlp,v 1.1 2001-10-02 08:46:00 urish Exp $ -->
-<XCHELP topic=cmd_timers alias=timer,timers>
+<!-- $Id: timers.hlp,v 1.2 2001-10-02 08:54:44 urish Exp $ -->
+<XCHELP topic=cmd_timers aliases="timer,timers">
 <CENTER><FONT size=32 color=blue><B>/TIMERS</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> /TIMER name interval[:count] [command]
@@ -23,22 +23,22 @@ Note that XChatter itself uses some timers. Those timers also appear on the time
 
 <B><U>Examples:</U></B>
 Defining a timer that rings the bell every hour for the next day (that is, it has to be executed 24 times), and named 'ALARM' will look like:
-<FONT color=blue>/TIMER alarm 1h:24 /bell</FONT>
+<FONT color=red>/TIMER alarm 1h:24 /bell</FONT>
 
 Defining a timer pair that will change your nick every 30 minutes:
-<FONT color=blue>/TIMER <U>changenick1</U> 1h /nick coolnick
+<FONT color=red>/TIMER <U>changenick1</U> 1h /nick coolnick
 /TIMER <U>crt_timer</U> 30m:1 /timer <U>changenick2</U> 1h /nick othernick</FONT>
 This will create two timers:
 1. <U>changenick1</U> that changes your nick to 'coolnick' once per hour
 2. <U>crt_timer</U> that will create another timer, 30 minutes later, called <U>changenick2</U>, which changes your nick to 'othernick' once per hour.
 Those timers will start changing your nick an hour after defined, and will change it each 30 minutes.
 Now, say that after two days you are tired of having your nick changed, you can delete the timers by typing:
-<FONT color=blue>/TIMER -<U>changenick1</U> <U>changenick2</U></FONT>
+<FONT color=red>/TIMER -<U>changenick1</U> <U>changenick2</U></FONT>
 
 Modifying the blinking timer to work faster:
-/TIMER blink_timer 100ms
+<FONT color=red>/TIMER blink_timer 100ms</FONT>
 and to work slower:
-/TIMER blink_timer 500ms
+<FONT color=red>/TIMER blink_timer 500ms</FONT>
 
 <B><U>History:</U></B>
 A /TIMER command first appeared in XChatter version 0.2. At that time, it was incomplete, had many bugs, was hard to use, and not commonly used.
