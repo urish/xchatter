@@ -1,4 +1,4 @@
-<!-- $Id: styles.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<!-- $Id: styles.hlp,v 1.2 2001-09-15 13:23:33 urish Exp $ -->
 <XCHELP topic=index>
 <CENTER><FONT size=32 color=blue><B>XChatter Text Styles</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -11,7 +11,7 @@ The following styles are available:
 <B>BLINKING text</B> - this style will make your text blinking. XChatter provides a very nice fading effect for a blinking text.
     To apply this style on some text, use the same method for applying bold text style, but using Ctrl+K instead Ctrl+S.
 
-Note that the XChatter Plus Styles extention may provide a much more wider range of text styles (such as colored text, underlined text, and so on).
+Note that the XChatter Plus Styles extention provides a much more wider range of text styles (such as colored text, underlined text, and so on).
 
 <B><U>History:</U></B>
 The bold/blinking text support first appeared in XChatter 0.2 (as read-only).

@@ -1,0 +1,50 @@
+<!-- $Id: alias.hlp,v 1.1 2001-09-15 13:23:33 urish Exp $ -->
+<XCHELP topic=cmd_bell>
+<CENTER><FONT size=32 color=blue><B>/ALIAS</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /ALIAS 
+<B><U>Syntax:</U></B> /ALIAS [+]name [definition]
+
+<B><U>Description:</U></B>
+The /ALIAS command is used to manipulate xchatter aliases.
+An alias is a short name that execute one or more longer commands.
+Aliases are also used in XChatter to define what to do in various conditions - such as when receiving a beep.
+Given no arguments, that /ALIAS command lists the currently defined aliases.
+Defining an alias can be done by issuing a /ALIAS command, followed by the alias name and its definition.
+Since xchatter version 0.5b2, aliases can contain multiple commands.
+This could be done like:
+/ALIAS name firstcommand
+/ALIAS +name secondcommand
+...
+/ALIAS +name lastcommand
+Removing a previously defined alias is done by issuing a /ALIAS command, followed by the alias name.
+Aliases can also take arguments. Look in the Examples section below for example of aliases which take arguments.
+After you define an alias, you can call it by typing the slash ('/') character, followed by the alias name, and possibly, its arguments.
+
+<B><U>Examples:</U></B>
+Defining an alias named 'connect' that connects to server, registers there as 'buddy', and sends the text "Hi everybody", will look like:
+<I>/ALIAS connect /SERVER some.server.net
+/ALIAS +connect /NICK buddy
+/ALIAS +connect Hi everybody</I>
+To call this alias you defined later, simply type '/connect'.
+An example for using alias arguments:
+<I>/ALIAS example /ECHO My first argument is $0.
+/ALIAS +example /ECHO My second argument is $1.
+/ALIAS +example /ECHO My first four arguments are $-3.
+/ALIAS +example /ECHO My third, forth, and fifth arguments are $2-4.
+/ALIAS +example /ECHO All of my arguments are $-.
+/ALIAS +example /ECHO All of my arguments, except for the first three, are $3-.</I>
+Then, typing <I>/EXAMPLE Hello World What a pleasant day</I>
+will print:
+<I>My first argument is Hello.
+My second argument is World.
+My first four arguments are Hello World What a.
+My third, forth, and fifth arguments are What a pleasant.
+All of my arguments are Hello World What a pleasant day.
+All of my arguments, except for the first three, are a pleasant day.</I>
+Note that argument numbering always starts from 0.
+
+<B><U>History:</U></B>
+The /ALIAS command first appeared in XChatter version 0.4.
+</PRE>
+</XCHELP>

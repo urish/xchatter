@@ -1,0 +1,11 @@
+<!-- $Id: scripting.hlp,v 1.1 2001-09-15 13:23:33 urish Exp $ -->
+<XCHELP topic=commands>
+<CENTER><FONT size=32 color=blue><B>XChatter advanced/scripting commands</B></FONT></CENTER><BR><BR>
+<PRE>
+<LINK topic=cmd_alias>ALIAS</LINK>
+<LINK topic=cmd_timer>ECHO</LINK>
+<LINK topic=cmd_exec>EXEC</LINK>
+<LINK topic=cmd_tcl>TCL</LINK>
+<LINK topic=cmd_timer>TIMERS</LINK>
+</PRE>
+</XCHELP>
