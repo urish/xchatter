@@ -1,5 +1,5 @@
-<!-- $Id: linetoolong.hlp,v 1.1 2001-09-29 13:39:38 urish Exp $ -->
-<XCHELP topic=error_linetoolong>
+<!-- $Id: linetoolong.hlp,v 1.2 2001-10-02 09:31:05 urish Exp $ -->
+<XCHELP topic=aicp.e_linetoolong alias=108>
 <CENTER><FONT size=32 color=blue><B>'Line too Long' error</B></FONT></CENTER><BR><BR>
 <PRE>
 

@@ -1,5 +1,5 @@
-<!-- $Id: nickinvalid.hlp,v 1.3 2001-09-29 13:38:24 urish Exp $ -->
-<XCHELP topic=error_nickinvalid>
+<!-- $Id: nickinvalid.hlp,v 1.4 2001-10-02 09:31:05 urish Exp $ -->
+<XCHELP topic=aicp.e_nickinvalid alias=105>
 <CENTER><FONT size=32 color=blue><B>'Invalid nick' error</B></FONT></CENTER><BR><BR>
 <PRE>
 
