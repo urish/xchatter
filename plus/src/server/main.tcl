@@ -280,7 +280,10 @@ proc client_kill {idx arglist} {
 
 proc incoming_text {idx} {
     variable clients
-    set buf [split [gets $idx] " "]
+    if [catch {split [gets $idx] " "} buf] {
+	remove_client $idx "Read error: $buf"
+	return
+    }
     if [eof $idx] {
 	remove_client $idx "EOF from client"
 	return
