@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.2 2001-07-30 14:05:07 amir Exp $
+# $Id: usercmd.tcl,v 1.3 2001-08-11 12:04:06 uri Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -624,6 +624,11 @@ proc user_timestamp {uargs} {
 }
 
 proc user_help {uargs} {
+    global helploaded
+    if {!$helploaded} {
+	putcmsg help_not_loaded
+	return 1
+    }
     show_help [join $uargs]
     return 1
 }

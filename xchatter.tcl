@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.2 2001-08-10 11:04:45 uri Exp $
+# $Id: xchatter.tcl,v 1.3 2001-08-11 12:04:05 uri Exp $
 
 set version 0.5
 set numver 50.0
@@ -346,7 +346,12 @@ catch {
 source server.tcl
 source usercmd.tcl
 source interface.tcl
-source help.tcl
+if [file exists help.tcl] {
+    source help.tcl
+    set helploaded 1
+} else {
+    set helploaded 0
+}
 
 # Initialize graphical user interface
 xchatter_ui .
@@ -357,7 +362,9 @@ catch {
 }
 
 # Load help
-init_help
+if $helploaded {
+    init_help
+}
 
 # Initialize user command interface, server interface
 usercmd_init
@@ -367,9 +374,12 @@ server_init
 set timestamp 1
 
 # Load messages file
-if [file readable lang/english.lang] {
-    load_skin lang/english.lang
-} else {
+foreach i {lang/english.lang english.lang ./english.lang} {
+    if [file readable $i] {
+	load_skin $i
+    }
+}
+if ![info exists text] {
     putchat "*** Warning: no language file found, use /skin <filename> to load messages."
 }
 
@@ -396,7 +406,7 @@ if [file readable ~/.xchatterrc] {
     set fidx [open ~/.xchatterrc]
     set buf [read $fidx]
     close $fidx
-    process_command $buf
+#    process_command $buf
     incr rcread
 }
 
