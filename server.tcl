@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.6 2001-08-14 13:54:59 amir Exp $
+# $Id: server.tcl,v 1.7 2001-09-02 09:04:15 amirs Exp $
 
 proc server_init {} {
     # register events
@@ -202,12 +202,14 @@ proc server_list {sargs} {
 	unset slist
 	return
     }
-    set user [lindex $sargs 0]
-    set ipp  [lsearch $sargs IP]
-    if {$ipp != -1} {
-	set ip [lindex $sargs [expr $ipp + 1]]
-    } else {
-	set ip ""
+    set user [strtok sargs]
+    set ip "0.0.0.0"
+    while {[llength $sargs]} {
+	set name [strtok sargs]
+	set value [strtok sargs]
+	switch -exact -- $name {
+	    IP 		{ set ip	$value }
+	}
     }
     putcmsg user_list_entry -type list n $user i $ip
     incr slist
@@ -215,10 +217,20 @@ proc server_list {sargs} {
 }
 
 proc server_info {sargs} {
-    set user [lindex $sargs 1]
-    set ip   [lindex $sargs 3]
-    set idle [lindex $sargs 5]
-    set conn [lindex $sargs 7]
+    set user ""
+    set ip   "0.0.0.0"
+    set idle 0
+    set conn 0
+    while {[llength $sargs]} {
+	set name [strtok sargs]
+	set value [strtok sargs]
+	switch -exact -- $name {
+	    NICK 	{ set user 	$value }
+	    IP 		{ set ip	$value }
+	    IDLE 	{ set idle 	$value }
+	    CONNECTED 	{ set conn 	$value }
+	}
+    }
     putcmsg user_info -nick $user -type info n $user i $ip l [duration $idle] s [clock format $conn]
     return 1
 }
