@@ -1,5 +1,5 @@
 # XChatter's online help system
-# $Id: help.tcl,v 1.5 2001-10-01 12:24:25 urish Exp $
+# $Id: help.tcl,v 1.6 2002-03-16 11:25:31 urish Exp $
 
 proc init_help {} {
     global helptext helpfont
@@ -34,7 +34,7 @@ proc init_help {} {
     pack .xchelp.help -fill both -expand yes -side left -padx 2 -anchor nw -before .xchelp.scrollbar
     set helptext(unknown) "{} {Error: No help file loaded.}"
     set helptext(alias_too_many) "{} {Error: Too many levels of aliases.}"
-    set helpfont [font actual default]
+    set helpfont "-size 14"
     catch {
 	set helpfile [open xchatter.hlp r]
 	array set helptext [read $helpfile]
@@ -81,6 +81,9 @@ proc show_help {topic} {
 		link {
 		    .xchelp.help tag bind $i <Button-1> "show_help [lindex $j 1]"
 		    lappend styles link
+		}
+		style {
+		    eval lappend styles [exechook process_style [join [lrange $j 1 end] -]]
 		}
 	    }
 	    lappend styles $i
