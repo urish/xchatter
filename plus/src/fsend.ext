@@ -24,8 +24,8 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    xcplus_fsend_list_header "Transfer list:"
 	    xcplus_fsend_list_send "%x. Waiting for %n to accept '%f'"
 	    xcplus_fsend_list_send_e "%x. Sending '%f' to %n: %d%% (%kkb/sec)"
-	    xcplus_fsend_list_get "%x. Incoming transfer of '%f' from %n"
-	    xcplus_fsend_list_get_e "%x. Receiving '%f' from %n: %d%% (%kkb/sec)"
+	    xcplus_fsend_list_get "%x. Incoming transfer of '%f' from %n (%i:%p)"
+	    xcplus_fsend_list_get_e "%x. Receiving '%f' from %n (%i:%p): %d%% (%kkb/sec)"
 	}
     }
     
@@ -78,7 +78,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 		set kbs [expr $dcc($num,nowsize) / 1024 / $time]
 		set done [expr (($dcc($num,nowsize) / 1024) * 100) / ($dcc($num,filesize) / 1024)]
 	    }
-	    putcmsg $type x $num n $dcc($num,nick) f $dcc($num,file) d $done k $kbs
+	    putcmsg $type x $num n $dcc($num,nick) f $dcc($num,file) i $dcc($num,ip) p $dcc($num,port) d $done k $kbs
 	}
 	return 1
     }
@@ -168,6 +168,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    putcmsg xcplus_fsend_error_init
 	    return
 	}
+	fconfigure $fd -blocking 1 -translation binary
 	set num [allocate_dcc SEND $nick [strip_file $file] $fd]
 	set dcc($num,realfile) $file
 	set dcc($num,filesize) [file size $file]
@@ -190,13 +191,14 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    free_dcc $num
 	    return 0
 	} 
+	fconfigure $dcc($num,fd) -blocking 1 -translation binary
 	if [catch {socket $dcc($num,ip) $dcc($num,port)} dcc($num,myfd)] {
 	    unset dcc($num,myfd)
 	    putcmsg xcplus_fsend_error_init
 	    free_dcc $num
 	    return 0
 	}
-	fconfigure $dcc($num,myfd) -blocking 0 -translation auto -buffering line
+	fconfigure $dcc($num,myfd) -blocking 0 -translation crlf -buffering line
 	puts $dcc($num,myfd) $dcc($num,magickey)
 	unset dcc($num,magickey)
 	flush $dcc($num,myfd)
@@ -236,6 +238,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	    unset dcc($num,listenfd)
 	    return 0
 	}
+	set dcc($num,ip) [lindex [fconfigure $dcc($num,listenfd) -sockname] 0]
 	set dcc($num,port) [lindex [fconfigure $dcc($num,listenfd) -sockname] 2]
 	return 1
     }
@@ -257,7 +260,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
 	close $dcc($num,listenfd)
 	unset dcc($num,listenfd)
 	set dcc($num,clientfd) $idx
-	fconfigure $idx -blocking 0 -translation auto -buffering line
+	fconfigure $idx -blocking 0 -translation crlf -buffering line
 	fileevent $idx readable "[namespace current]::dcc_server_in $num $idx"
 	putcmsg xcplus_fsend_established n $dcc($num,nick) f $dcc($num,file)
     }
