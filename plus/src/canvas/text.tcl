@@ -1,4 +1,4 @@
-# $Id: text.tcl,v 1.3 2002-04-01 10:39:20 amirs Exp $
+# $Id: text.tcl,v 1.4 2002-04-01 10:52:49 amirs Exp $
 
 namespace eval texttool {
     namespace import    [namespace parent]::putcmd 		\
@@ -67,7 +67,7 @@ namespace eval texttool {
 	    if {[string trim $text] == ""} {
 	        .drawing_canvas.canvas delete $shape
 	    } else {
-	        putcmd "text [.drawing_canvas.canvas coords $shape] [list -text $text] [list -fill [.drawing_canvas.canvas itemcget $shape -fill]] [list -anchor [.drawing_canvas.canvas itemcget $shape -anchor]] [list -font [.drawing_canvas.canvas itemcget $shape -font]]" 0
+	        putcmd text [.drawing_canvas.canvas coords $shape] "[list -text $text] [list -fill [.drawing_canvas.canvas itemcget $shape -fill]] [list -anchor [.drawing_canvas.canvas itemcget $shape -anchor]] [list -font [.drawing_canvas.canvas itemcget $shape -font]]"
 	    }
 	    set shape ""
 	}

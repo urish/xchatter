@@ -1,4 +1,4 @@
-# $Id: polygon.tcl,v 1.6 2002-04-01 10:39:20 amirs Exp $
+# $Id: polygon.tcl,v 1.7 2002-04-01 10:52:49 amirs Exp $
 
 # polygons (multi-line based tools)
 namespace eval polygon {
@@ -43,16 +43,16 @@ namespace eval polygon {
 	set lnwidth [set [namespace parent]::linewidth]
 	switch [set [namespace parent]::tools(tool)] {
 	    polygon { 
-		return "polygon $coords -outline $lnc -width $lnwidth -fill {}"
+		return "-outline $lnc -width $lnwidth -fill {}"
 	    }
 	    fpolygon {
-		return "polygon $coords -outline $lnc -width $lnwidth -fill $flc"
+		return "-outline $lnc -width $lnwidth -fill $flc"
 	    }
 	    cpolygon { 
-		return "polygon $coords -outline $lnc -width $lnwidth -fill {} -smooth 1"
+		return "-outline $lnc -width $lnwidth -fill {} -smooth 1"
 	    }
 	    cfpolygon {
-		return "polygon $coords -outline $lnc -width $lnwidth -fill $flc -smooth 1"
+		return "-outline $lnc -width $lnwidth -fill $flc -smooth 1"
 	    }
 	}
     }
@@ -88,8 +88,8 @@ namespace eval polygon {
 	if {[llength $coords] >= 6} {
 	    .drawing_canvas.canvas delete $tempitem
 	    set def [getdef $coords]
-	    eval .drawing_canvas.canvas create $def
-	    putcmd "$def"
+	    eval .drawing_canvas.canvas create polygon $coords $def
+	    putcmd polygon $coords $def
 	}
 	unset coords
 	unset tempitem

@@ -1,4 +1,4 @@
-# $Id: rect.tcl,v 1.6 2002-04-01 10:39:20 amirs Exp $
+# $Id: rect.tcl,v 1.7 2002-04-01 10:52:49 amirs Exp $
 
 namespace eval recttool {
     namespace import	[namespace parent]::align_to_grid_x	\
@@ -24,27 +24,36 @@ namespace eval recttool {
 	}
     }
     
-    proc getdef {x y} {
+    proc gettype {} {
+    	switch [set [namespace parent]::tools(tool)] {
+	    line 	{ return "line" }
+	    rectangle 	{ return "rectangle" }
+	    frectangle	{ return "rectangle" }
+	    oval 	{ return "oval" }
+	    foval 	{ return "oval"	}
+	}
+    }
+    
+    proc getdef {} {
 	variable coords
-	set dcoords [list $coords(x) $coords(y) $x $y]
 	set lnc [list [set [namespace parent]::colors(line)]]
 	set flc [list [set [namespace parent]::colors(fill)]]
 	set lnwidth [set [namespace parent]::linewidth]
 	switch [set [namespace parent]::tools(tool)] {
 	    line { 
-		return "line $dcoords -fill $lnc -width $lnwidth"
+		return "-fill $lnc -width $lnwidth"
 	    }
 	    rectangle {
-		return "rectangle $dcoords -outline $lnc -width $lnwidth"
+		return "-outline $lnc -width $lnwidth"
 	    }
 	    frectangle {
-		return "rectangle $dcoords -fill $flc -outline $lnc -width $lnwidth"
+		return "-fill $flc -outline $lnc -width $lnwidth"
 	    }
 	    oval {
-		return "oval $dcoords -outline $lnc -width $lnwidth"
+		return "-outline $lnc -width $lnwidth"
 	    }
 	    foval {
-		return "oval $dcoords -fill $flc -outline $lnc -width $lnwidth"
+		return "-fill $flc -outline $lnc -width $lnwidth"
 	    }
 	}
     }
@@ -67,7 +76,7 @@ namespace eval recttool {
 	if [info exists tempitem] {
 	    .drawing_canvas.canvas coords $tempitem $coords(x) $coords(y) $x $y
 	} else {
-	    set tempitem [eval .drawing_canvas.canvas create [getdef $x $y]]
+	    set tempitem [eval .drawing_canvas.canvas create [gettype] $coords(x) $coords(y) $x $y [getdef]]
 	}
     }
     
@@ -80,7 +89,7 @@ namespace eval recttool {
 	if [info exists tempitem] {
 	    unset tempitem
 	}
-	putcmd "[getdef $x $y]" 0
+	putcmd [gettype] "$coords(x) $coords(y) $x $y" "[getdef]"
 	unset coords
     }
 }

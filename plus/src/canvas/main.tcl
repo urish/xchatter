@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.10 2002-04-01 10:39:20 amirs Exp $
+# $Id: main.tcl,v 1.11 2002-04-01 10:52:49 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -289,8 +289,8 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	return 1
     }
 
-    proc putcmd {args {quiet 1}} {
-	putsock "GCMD DRAW [addslashes $args]" $quiet
+    proc putcmd {type coordinates options} {
+	putsock "GCMD DRAW $type $coordinates [addslashes $options]" 1
     }
 
     #########
