@@ -1,5 +1,5 @@
-<!-- $Id: alias.hlp,v 1.1 2001-09-15 13:23:33 urish Exp $ -->
-<XCHELP topic=cmd_bell>
+<!-- $Id: alias.hlp,v 1.2 2001-09-30 17:27:19 urish Exp $ -->
+<XCHELP topic=cmd_alias>
 <CENTER><FONT size=32 color=blue><B>/ALIAS</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> /ALIAS 
