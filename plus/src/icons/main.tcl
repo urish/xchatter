@@ -1,5 +1,5 @@
 EXTENTION icons VERSION 1.1 BUILD 1
-# $Id: main.tcl,v 1.2 2002-03-19 10:21:47 urish Exp $
+# $Id: main.tcl,v 1.3 2002-03-24 17:01:45 urish Exp $
 
 <@INCLUDE icons.tcl>
 
@@ -10,7 +10,7 @@ proc init {} {
     set j 0
     foreach i [image names] {
 	set lname .icon_select.l$j
-	label $lname -image $i -background [.icon_select cget -background]
+	label $lname -image $i -background [.icon_select cget -background] -cursor hand2
 	bind $lname <1> [list [namespace current]::insert_icon [namespace tail $i]]
 	pack $lname -side left
 	incr j
