@@ -8,8 +8,16 @@ namespace eval fsend {
 			FGET [namespace current]::ucmd_fget
 	onevent servercmd FSEND [namespace current]::scmd_fsend
 	register_msgs {
-	    xcplus_fsend_refuse ""
-	    xcplus_fsend_
+	    xcplus_fsend_error_nonick "*** Error: no nick name specified."
+	    xcplus_fsend_error_nofile "*** Error: no file name specified."
+	    xcplus_fsend_error_openfile "*** Error: couldn't open %f."
+	    xcplus_fsend_error_init "*** Error: Failed initilaizing file transfer."
+	    xcplus_fsend_error_magickey "*** Error: Incoming magickey from %s is WORNG."
+	    xcplus_fsend_established "*** File transfer with %n of file %f established."
+	    xcplus_fsend_completed "*** File transfer with %n of file %f completed."
+	    xcplus_fsend_incoming "*** Incoming file transfer %f from %n. Write '/fget %x' to receive it."
+	    xcplus_fsend_bigger "*** Warning: incoming file is larger than %n said. closing connection."
+	    xcplus_fsend_inform "*** Sending file %f to %n."
 	}
     }
     
@@ -31,8 +39,9 @@ namespace eval fsend {
     proc scmd_fsend {nick uargs} {
 	variable dcc
 	set uargs [split $uargs " "]
-	set num [allocate_dcc GET $nick [strip_file [lindex $uargs 0]]]
-	putchat "dcc get from $nick for $dcc(dcc,$num,file) num $num"
+	set file [strip_file [lindex $uargs 0]]
+	set num [allocate_dcc GET $nick $file]
+	putcmsg xcplus_fsend_incoming n $nick f $file x $num
 	set dcc(dcc,$num,filesize) [lindex $uargs 1]
 	set dcc(dcc,$num,nowsize) 0
 	set dcc(dcc,$num,ip) [lindex $uargs 2]
@@ -41,22 +50,21 @@ namespace eval fsend {
     }
     
     proc ucmd_fsend {uargs} {
-	putchat $uargs
 	set nick [strtok uargs]
 	set file [strtok uargs]
 	if {$nick == ""} {
-	    putchat "Ein file ein send."
+	    putcmsg xcplus_fsend_error_nonick 
 	    return 1
 	}
 	if {$file == ""} {
 	    set file [tk_getOpenFile]
 	    if {$file == ""} {
-		putchat "Ein file ein send."
+		putcmsg xcplus_fsend_error_nofile
 		return 1
 	    }
 	} 
 	if {![file isfile $file]} {
-	    putchat "Ein file ein send."
+	    putcmsg xcplus_fsend_error_openfile f $file
 	    return 1
 	}
 	dcc_send $nick $file
@@ -72,12 +80,11 @@ namespace eval fsend {
 	    set num $arg
 	}
 	if {[array names dcc dcc,$num,type] == ""} {
-	    putchat "ein send"
 	    return 1
 	}
 	set file [tk_getSaveFile -initialfile $dcc(dcc,$num,file) -initialdir .]
 	if {$file == ""} {
-	    putchat "eifo ha filename?"
+	    putcmsg xcplus_fsend_error_nofile
 	    return 1
 	}
 	if ![dcc_get $num $file] {
@@ -99,13 +106,14 @@ namespace eval fsend {
     proc dcc_send {nick file} {
 	variable dcc
 	if [catch {open $file r} fd] {
-	     putchat "Ein file ein send"
-	     return
+	    putcmsg xcplus_fsend_error_init
+	    return
 	}
 	set num [allocate_dcc SEND $nick [strip_file $file] $fd]
 	set dcc(dcc,$num,realfile) $file
 	if {![dcc_listen $num]} {
-	    putchat "Failed to initiaize sending."
+	    free_dcc $num
+	    putchat xcplus_fsend_error_init
 	    return
 	}
 	dcc_informuser $num [file size $file]
@@ -118,20 +126,22 @@ namespace eval fsend {
 	}
 	if [catch {open $file w} dcc(dcc,$num,fd)] {
 	    unset dcc(dcc,$num,fd)
-	    putchat "ein file"
+	    putcmsg xcplus_fsend_error_init
+	    free_dcc $num
 	    return 0
 	} 
 	putchat connecting
 	if [catch {socket $dcc(dcc,$num,ip) $dcc(dcc,$num,port)} dcc(dcc,$num,myfd)] {
 	    unset dcc(dcc,$num,myfd)
-	    putchat "connection closed"
+	    putcmsg xcplus_fsend_error_init
+	    free_dcc $num
 	    return 0
 	}
 	fconfigure $dcc(dcc,$num,myfd) -blocking 0 -translation auto -buffering line
 	puts $dcc(dcc,$num,myfd) $dcc(dcc,$num,magickey)
 	flush $dcc(dcc,$num,myfd)
 	fconfigure $dcc(dcc,$num,myfd) -blocking 0 -translation binary -buffering none
-	putchat connected
+	putcmsg xcplus_fsend_established n $dcc(dcc,$num,nick) f $dcc(dcc,$num,file)
 	fcopy $dcc(dcc,$num,myfd) $dcc(dcc,$num,fd) -command [list [namespace current]::dcc_client_in $num $dcc(dcc,$num,myfd)] -size 1024
 	return 1
     }
@@ -160,7 +170,6 @@ namespace eval fsend {
 	set dcc(dcc,$num,magickey) "xc[clock clicks][clock seconds][clock clicks][expr rand()]"
 	if [catch {socket -server "[namespace current]::dcc_newconn $num" 0} dcc(dcc,$num,listenfd)] {
 	    unset dcc(dcc,$num,listenfd)
-	    putchat "Ein file ein send"
 	    return 0
 	}
 	set dcc(dcc,$num,port) [lindex [fconfigure $dcc(dcc,$num,listenfd) -sockname] 2]
@@ -171,6 +180,7 @@ namespace eval fsend {
 	variable dcc
 	global sock
 	set ip [lindex [fconfigure $sock -sockname] 0]
+	putcmsg xcplus_fsend_inform f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
 	putsock "CMD $dcc(dcc,$num,nick) FSEND $dcc(dcc,$num,file) $size $ip $dcc(dcc,$num,port) $dcc(dcc,$num,magickey)"
     }
     
@@ -185,7 +195,7 @@ namespace eval fsend {
 	set dcc(dcc,$num,clientfd) $idx
 	fconfigure $idx -blocking 0 -translation auto -buffering line
 	fileevent $idx readable "[namespace current]::dcc_server_in $num $idx"
-	putchat "new conn"
+	putcmsg xcplus_fsend_established n $dcc(dcc,$num,nick) f $dcc(dcc,$num,file)
     }
     
     proc dcc_server_in {num idx} {
@@ -197,11 +207,10 @@ namespace eval fsend {
     	if [catch {set buf [gets $idx]}] {return}
 	if {$buf == ""} {return}
 	if {$buf != $dcc(dcc,$num,magickey)} {
+	    putcmsg xcplus_fsend_error_magickey s [lindex [fconfigure $idx -peername] 0]
 	    free_dcc $num
-	    putchat "HACKERIM!"
 	    return
 	}
-	putchat "started sending"
 	fconfigure $idx -blocking 0 -translation binary -buffering none
 	fileevent $idx readable ""
 	fcopy $dcc(dcc,$num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
@@ -209,11 +218,10 @@ namespace eval fsend {
     
     proc dcc_server_out {num idx bytes {error {}}} {
 	variable dcc
-	putchat "server out $error copying..."
 	flush $idx
 	if {[string length $error] != 0 || [eof $dcc(dcc,$num,fd)]} {
+	    putcmsg xcplus_fsend_completed f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
 	    free_dcc $num
-	    putchat "done"
 	    return 1
 	} else {
 	    fcopy $dcc(dcc,$num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
@@ -222,17 +230,16 @@ namespace eval fsend {
     
     proc dcc_client_in {num idx bytes {error {}}} {
 	variable dcc
-	putchat "server out $error copying... [eof $idx]"
 	flush $dcc(dcc,$num,fd)
 	incr dcc(dcc,$num,nowsize) $bytes
 	if {[string length $error] != 0 || [eof $idx] || $dcc(dcc,$num,nowsize) == $dcc(dcc,$num,filesize)} {
+	    putcmsg xcplus_fsend_completed f $dcc(dcc,$num,file) n $dcc(dcc,$num,nick)
 	    free_dcc $num
-	    putchat "done"
 	} elseif {$dcc(dcc,$num,nowsize) > $dcc(dcc,$num,filesize)} {
-	    putchat "misho ose hack -> $dcc(dcc,$num,nowsize) >= $dcc(dcc,$num,filesize)"
+	    putcmsg xcplus_fsend_bigger n $dcc(dcc,$num,nick)
 	    free_dcc $num
 	} else {
-	    fcopy $idx $dcc(dcc,$num,fd) -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
+	    fcopy $idx $dcc(dcc,$num,fd) -command [list [namespace current]::dcc_client_in $num $idx] -size 1024
 	}
     }
 }
