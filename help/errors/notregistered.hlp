@@ -1,11 +1,11 @@
-<!-- $Id: notregistered.hlp,v 1.1 2001-09-01 12:24:09 urish Exp $ -->
+<!-- $Id: notregistered.hlp,v 1.2 2001-09-29 13:38:24 urish Exp $ -->
 <XCHELP topic=error_notregistered>
-<CENTER><FONT size=32 color=blue><B>'You are no registered' error</B></FONT></CENTER><BR><BR>
+<CENTER><FONT size=32 color=blue><B>'You are not registered' error</B></FONT></CENTER><BR><BR>
 <PRE>
 
 <B><U>Description:</U></B>
-This error occurs when you tried to use a command before you chose your nick.
-In order to register, you need to select an initial nickname using the <LINK topic="cmd_nick">/NICK</LINK> command.
+This error occurs when you try to issue a command before you selected an initial nick.
+You can select a nickname using the <LINK topic="cmd_nick">/NICK</LINK> command.
 
 <B><U>Error code:</U></B>
 The AICP code for this error is 100.

@@ -1,28 +1,45 @@
-<!-- $Id: aicp.hlp,v 1.1 2001-07-25 15:32:08 uri Exp $ -->
+<!-- $Id: aicp.hlp,v 1.2 2001-09-29 13:38:24 urish Exp $ -->
 <XCHELP topic=aicp>
 <CENTER><FONT size=32 color=blue><B>The AICP Protocol</B></FONT></CENTER><BR><BR>
 <PRE>
-The AICP protocol is the protocol XChatter uses to communicate with the chat server.
-The protocol is very simple, and consists of a commands.
-Each command may take one or more arguments, and is terminated by a newline (CR-LF pair, ascii values 13 followed by 10).
-The space characters is used to seperate between the command and the arguments.
-The list of the commands, as of AICP protocol version 205:
-<LINK topic=aicp_cmd>CMD</LINK>
-<LINK topic=aicp_gcmd>GCMD</LINK>
-<LINK topic=aicp_global>GLOBAL</LINK>
-<LINK topic=aicp_help>HELP</LINK>
-<LINK topic=aicp_info>INFO</LINK>
-<LINK topic=aicp_list>LIST</LINK>
-<LINK topic=aicp_msg>MSG</LINK>
-<LINK topic=aicp_nick>NICK</LINK>
-<LINK topic=aicp_ping>PING</LINK>
-<LINK topic=aicp_pong>PONG</LINK>
-<LINK topic=aicp_protver>PROTVER</LINK>
-<LINK topic=aicp_quit>QUIT</LINK>
-<LINK topic=aicp_version>VERSION</LINK>
-<LINK topic=aicp_ping>PING</LINK>
+The AICP protocol is the protocol used by XChatter to communicate with the chatting server.
+The protocol is very simple, and consists of client commands, and server responses (named 'Messages').
+Each message is made of a command name, optionally followed by arguments, and is terminated by a newline (CR-LF pair, ASCII value 13 followed by 10).
+The space character is used to seperate between the command name, and the arguments.
 
-In the AICP protocol version 206, you don't have to send the full command name. Instead, you can use only the first letter(s).
-Check the help for each of the commands to determine how many letters you need to use.
+The list of the clients commands, according to the AICP protocol version 205:
+<LINK topic=aicp.c_cmd>CMD</LINK>
+<LINK topic=aicp.c_gcmd>GCMD</LINK>
+<LINK topic=aicp.c_global>GLOBAL</LINK>
+<LINK topic=aicp.c_help>HELP</LINK>
+<LINK topic=aicp.c_info>INFO</LINK>
+<LINK topic=aicp.c_list>LIST</LINK>
+<LINK topic=aicp.c_msg>MSG</LINK>
+<LINK topic=aicp.c_nick>NICK</LINK>
+<LINK topic=aicp.c_ping>PING</LINK>
+<LINK topic=aicp.c_pong>PONG</LINK>
+<LINK topic=aicp.c_protver>PROTVER</LINK>
+<LINK topic=aicp.c_quit>QUIT</LINK>
+<LINK topic=aicp.c_sinfo>SINFO</LINK>
+<LINK topic=aicp.c_version>VERSION</LINK>
+
+Server administration commands:
+<LINK topic=aicp.c_admin>ADMIN</LINK>
+<LINK topic=aicp.c_kill>KILL</LINK>
+<LINK topic=aicp.c_die>DIE</LINK>
+
+Server responses/messages (AICP v205):
+<LINK topic="aicp.s_admin">ADMIN</LINK>
+<LINK topic="aicp.s_list">CMD</LINK>
+<LINK topic="aicp.s_error">ERROR</LINK>
+<LINK topic="aicp.s_global">GLOBAL</LINK>
+<LINK topic="aicp.s_join">JOIN</LINK>
+<LINK topic="aicp.s_user">USER</LINK>
+
+<LINK topic="aicp.errors">Listing of AICP error codes.</LINK>
+
+Starting with the AICP protocol version 206, you don't have to send the full command name. Instead, you can use its abbreviation.
+The abbreviation is usually only the first letter of the command (but check the HELP for each command for the exact details).
+
 </PRE>
 </XCHELP>

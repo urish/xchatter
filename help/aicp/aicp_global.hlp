@@ -1,11 +1,11 @@
-<!-- $Id: aicp_global.hlp,v 1.1 2001-07-25 15:32:09 uri Exp $ -->
-<XCHELP topic=aicp_global>
+<!-- $Id: aicp_global.hlp,v 1.2 2001-09-29 13:38:24 urish Exp $ -->
+<XCHELP topic=aicp.c_global>
 <CENTER><FONT size=32 color=blue><B>The GLOBAL command</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> GLOBAL message
 
 <B><U>Description:</U></B>
 The GLOBAL command is used to send a message to all of the <LINK topic="registered">registered users</LINK> on the server.
-Each user will get a <LINK topic="aicpr_global">GLOBAL response</LINK>
+Each user will get a <LINK topic="aicp.s_global">GLOBAL response</LINK>
 </PRE>
 </XCHELP>
