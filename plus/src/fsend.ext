@@ -1,6 +1,5 @@
-EXTENTION fsend-1.0-1
+EXTENTION fsend VERSION 1.0 BUILD 1
 
-namespace eval fsend {
     variable dcc
 
     proc init {} {
@@ -312,4 +311,3 @@ namespace eval fsend {
 	    fcopy $idx $dcc($num,fd) -command [list [namespace current]::dcc_client_in $num $idx] -size 1024
 	}
     }
-}

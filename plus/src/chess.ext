@@ -1,5 +1,5 @@
-EXTENTION chess-0.9-7
-# $Id: chess.ext,v 1.10 2001-10-07 00:44:35 urish Exp $
+EXTENTION chess VERSION 0.9 BUILD 7
+# $Id: chess.ext,v 1.11 2002-03-16 10:50:16 urish Exp $
 
 # File structure:
 # * Variable initialization
@@ -15,7 +15,6 @@ EXTENTION chess-0.9-7
 # * Move performing routine (move piece)
 # * Piece event routines (piece click, piece drag, etc.)
 
-namespace eval chess {
     variable colors
     variable pieces
 # chess piece definition
@@ -678,8 +677,8 @@ namespace eval chess {
 		}
 		king - pawn {
 		    set source [list $h $v]
-		    foreach ho {-1 -1 -1 0  0  1 1 1} \
-		    	    vo {-1  0  1 -1 1 -1 0 1} {
+		    foreach ho {-1 -1 -1 0  0  1 1 1 0  0} \
+		    	    vo {-1  0  1 -1 1 -1 0 1 -2 2} {
 			set target [list [expr $h + $ho] [expr $v + $vo]]
 			if [is_move_legal $board($i) $type $source $target $player] {
 			    return 1
@@ -982,4 +981,3 @@ namespace eval chess {
 	}
 	return 1
     }    
-}

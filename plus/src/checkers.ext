@@ -1,7 +1,6 @@
-EXTENTION checkers-0.9-6
-# $Id: checkers.ext,v 1.2 2001-10-04 22:34:09 urish Exp $
+EXTENTION checkers VERSION 0.9 BUILD 6
+# $Id: checkers.ext,v 1.3 2002-03-16 10:50:16 urish Exp $
 
-namespace eval checkers {
     variable colors
     set colors(p0) cyan
     set colors(p1) red
@@ -612,4 +611,3 @@ namespace eval checkers {
 	}
 	return 1
     }    
-}

@@ -1,7 +1,6 @@
-EXTENTION userlist-1.0-1
-# $Id: userlist.ext,v 1.1 2001-07-25 15:32:15 uri Exp $
+EXTENTION userlist VERSION 1.0 BUILD 1
+# $Id: userlist.ext,v 1.2 2002-03-16 10:50:16 urish Exp $
 
-namespace eval userlist {
     variable update_in_progress 0
 
     proc init {} {
@@ -153,4 +152,3 @@ namespace eval userlist {
 	empty
 	return 0
     }
-}

@@ -1,7 +1,6 @@
-EXTENTION reversi-1.0-1
-# $Id: reversi.ext.beta,v 1.1 2001-07-25 15:32:14 uri Exp $
+EXTENTION reversi VERSION 1.0 BUILD 1
+# $Id: reversi.ext.beta,v 1.2 2002-03-16 10:50:16 urish Exp $
 
-namespace eval reversi {
     variable colors
     set colors(board) white
     set colors(p0) white
@@ -475,5 +474,3 @@ namespace eval reversi {
 	}
 	return 1
     }
-    
-}
