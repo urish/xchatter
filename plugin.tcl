@@ -1,5 +1,5 @@
 # XChatter extension support
-# $Id: plugin.tcl,v 1.1 2002-03-14 10:25:51 urish Exp $
+# $Id: plugin.tcl,v 1.2 2002-03-19 10:09:26 urish Exp $
 
 proc make_extension_index {} {
     global extensions
@@ -61,6 +61,23 @@ proc load_extension_from_file {namespace name scriptidx helpidx} {
     return 1
 }
 
+proc unload_extension {name} {
+    global loaded_exts
+    set name [string tolower $name]
+    set count 0
+    foreach ext [array names loaded_exts [string tolower $name]] {
+	set namespace [lindex $loaded_exts($ext) 2]
+	catch {
+	    $namespace::unload
+	} # or print an error ?
+	namespace delete $namespace
+	incr count
+    }
+    if !$count {
+	putcmsg extension_not_loaded n $name
+    }    
+}
+
 proc load_extension {name} {
     global extensions loaded_exts
     if ![make_extension_index] {
@@ -83,12 +100,12 @@ proc load_extension {name} {
 	    }
 	}
 	if [load_extension_from_file $name [lindex $bext 0] [lindex $bext 3] [lindex $bext 4]] {
-	    set loaded_exts($name) [lrange $bext 1 2]
+	    set loaded_exts($name) [concat [lrange $bext 1 2] [list [lindex $bext 0]]]
 	} else {
 	    putcmsg extension_error_loading n $name
 	}
     }
     if ![info exists biggest] {
-	putcmsg extension_no_match
+	putcmsg extension_no_match n $name
     }
 }
