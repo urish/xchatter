@@ -1,0 +1,17 @@
+<!-- $Id: nickinvalid.hlp,v 1.1 2001-07-25 15:32:11 uri Exp $ -->
+<XCHELP topic=error_nickinvalid>
+<CENTER><FONT size=32 color=blue><B>'Invalid nick' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This error occurs when you set your nickname, and your new nickname contains invalid characters, or has an invalid length.
+As for AICP protocol version 205, the following rules apply for a valid nickname:
+1. Nickname can be 2 - 16 characters long.
+2. Nickname can contain only characters that their ASCII code is between 33 and 127, Excluding the '@' character (ASCII code 64).
+
+Nicknames can't contain <LINK topic="styles">style characters</LINK>.
+
+<B><U>Error code:</U></B>
+The code for this error is 105.
+</PRE>
+</XCHELP>

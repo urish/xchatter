@@ -1,0 +1,10 @@
+<!-- $Id: index.hlp,v 1.1 2001-07-25 15:32:08 uri Exp $ -->
+<XCHELP topic=index>
+<CENTER><FONT size=32 color=blue><B>XChatter HELP</B></FONT></CENTER><BR><BR>
+Welcome to XChatter 0.5 online HELP.<BR>
+Please choose a topic from the list below:<BR>
+<PRE>
+<LINK topic="commands">Basic Commands</LINK>
+<LINK topic="aicp">The chatting protocol (AICP)</LINK>
+</PRE>
+</XCHELP>

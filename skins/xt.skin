@@ -1,0 +1,13 @@
+# $Id: xt.skin,v 1.1 2001-07-25 15:32:16 uri Exp $
+print Xt skin 1.3 by allow.
+style chat:bold background green foreground black underline 1
+item menu		background black
+item mainframe		background black
+item label#1		background green foreground black
+item chat		background black foreground green highlightcolor green selectforeground black selectbackground green insertbackground green
+item helpmenu		background black foreground green activebackground green activeforeground black
+item commandmenu	background black foreground green activebackground green activeforeground black
+item helpmenu:m		background black foreground green activebackground green activeforeground black
+item commandmenu:m	background black foreground green activebackground green activeforeground black
+item inputbox		background black foreground green highlightcolor green insertbackground green selectforeground black selectbackground green
+item scrollbar		background green highlightcolor black troughcolor black activebackground black

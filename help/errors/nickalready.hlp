@@ -1,0 +1,13 @@
+<!-- $Id: nickalready.hlp,v 1.1 2001-07-25 15:32:11 uri Exp $ -->
+<XCHELP topic=error_nickalready>
+<CENTER><FONT size=32 color=blue><B>'Nick already in use' error</B></FONT></CENTER><BR><BR>
+<PRE>
+
+<B><U>Description:</U></B>
+This error occurs when you try to set your nick to a nick which is already used by someone else.
+Depends on the configuration, xchatter may auto append an underscore ('_') to your nickname.
+
+<B><U>Error code:</U></B>
+The code for this error is 106.
+</PRE>
+</XCHELP>

@@ -1,0 +1,12 @@
+# $Id: pink.skin,v 1.1 2001-07-25 15:32:16 uri Exp $
+print ping skin 1.2 by allow.
+style chat:bold background #a0b7ce
+item menu	background #f2c0c0
+item commandmenu activeforeground blue background #ecc0c0 foreground blue activebackground #ececec
+item helpmenu	activeforeground blue background #ecc0c0 foreground blue activebackground #ececec
+item label#1	background blue foreground bisque
+item chat	background #f2c0c0 foreground red
+item scrollbar	background #f2c0c0 troughcolor #d9d9d9 activebackground #ececec
+item inputbox	background #f2c0c0 foreground blue highlightcolor black insertbackground red
+item helpmenu:m	background #f2c0c0 foreground black activebackground #ececec activeforeground black
+item commandmenu:m background #f2c0c0 foreground black activebackground #ececec activeforeground black

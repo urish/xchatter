@@ -1,0 +1,228 @@
+EXTENTION canvas-1.1-2
+# $Id: canvas.ext,v 1.1 2001-07-25 15:32:14 uri Exp $
+
+namespace eval canvas {
+    variable last_active_color
+    variable linewidth 1 color
+    variable canvas_lock "*"
+
+    proc init {} {
+	onevent servercmd DRAW [namespace current]::server_cmd_draw
+	onevent usercmd CANVAS_LOCK [namespace current]::ucmd_canvas_lock
+	iface_init
+	canvas_init
+	colorbox_init
+	linewidth_init
+	toolbox_init
+    }
+    
+    proc destroy {} {
+	unevent servercmd [namespace current]::server_cmd_draw
+	destroy_widget .drawing_canvas
+	namespace delete [namespace current]
+    }
+
+    proc iface_init {} {
+	toplevel .drawing_canvas
+	wm title .drawing_canvas "Drawing Canvas"
+	frame .drawing_canvas.topframe
+	frame .drawing_canvas.bottomframe
+	grid configure .drawing_canvas.topframe -row 1 -column 1 -sticky nswe
+	grid configure .drawing_canvas.bottomframe -row 2 -column 1 -sticky wes
+	grid columnconfigure .drawing_canvas 1 -weight 1 -minsize 256
+	grid rowconfigure .drawing_canvas 1 -weight 2 -minsize 256
+	grid rowconfigure .drawing_canvas 2 -weight 0 -minsize 32
+    }
+        
+    proc canvas_init {} {
+	canvas .drawing_canvas.canvas -cursor pencil -relief raised -border 2 -height 20 -width 50
+	grid configure .drawing_canvas.canvas -in .drawing_canvas.topframe -row 1 -column 1 -sticky nswe
+	bind .drawing_canvas.canvas <B1-Motion> "[namespace current]::canvas_motion %x %y"
+	bind .drawing_canvas.canvas <ButtonPress-1> "[namespace current]::canvas_press %x %y"
+	bind .drawing_canvas.canvas <ButtonRelease-1> "[namespace current]::canvas_release %x %y"
+	grid rowconfigure .drawing_canvas.topframe 1 -weight 1
+	grid columnconfigure .drawing_canvas.topframe 1 -weight 1
+    }
+    
+    proc colorbox_init {} {
+	variable last_active_color
+	variable color
+	frame .drawing_canvas.colorbox -relief raised -border 1
+	grid configure .drawing_canvas.colorbox -in .drawing_canvas.bottomframe -row 1 -column 1 -sticky wn
+	set counter 0
+	foreach i {black white {dark gray} gray {dark blue} blue {dark cyan} cyan {dark red} red {dark orange} orange purple violet {green yellow} yellow {dark green} green} {
+	    label .drawing_canvas.colorbox.color#$counter -background $i -height 1 -width 2
+	    grid configure .drawing_canvas.colorbox.color#$counter -column [expr $counter / 2] -row [expr $counter % 2] -sticky n
+	    bind .drawing_canvas.colorbox.color#$counter <Button-1> "[namespace current]::set_color %W 0"
+	    bind .drawing_canvas.colorbox.color#$counter <Button-3> "[namespace current]::set_color %W 1"
+	    bind .drawing_canvas.colorbox.color#$counter <Double-Button-1> "[namespace current]::select_color %W"
+	    incr counter
+	}
+	set last_active_color(fg) .drawing_canvas.colorbox.color#0
+	set last_active_color(bg) .drawing_canvas.colorbox.color#1
+	set color(fg) black
+	set color(bg) white
+	$last_active_color(fg) configure -border 2 -relief raised -text "F" -foreground white
+	$last_active_color(bg) configure -border 2 -relief raised -text "B" -foreground black
+    }
+    
+    proc linewidth_init {} {
+	variable linewidth_line
+	canvas .drawing_canvas.linewbox -relief raised -border 1 -height 36 -width 50
+	grid configure .drawing_canvas.linewbox -in .drawing_canvas.bottomframe -row 1 -column 2 -sticky ne
+	set linewidth_line [.drawing_canvas.linewbox create line 0 18 30 18 -fill black -width 1]
+	set plus [.drawing_canvas.linewbox create polygon 42 1 34 16 50 16 42 1 -fill black]
+	set minus [.drawing_canvas.linewbox create polygon 34 20 50 20 42 36 34 20 -fill black]
+	.drawing_canvas.linewbox bind all <Any-Enter> "[namespace current]::linewidth_enter"
+	.drawing_canvas.linewbox bind all <Any-Leave> "[namespace current]::linewidth_leave"
+	.drawing_canvas.linewbox bind $plus <Button-1> "[namespace current]::linewidth_plus"
+	.drawing_canvas.linewbox bind $minus <Button-1> "[namespace current]::linewidth_minus"
+	set nexty 0
+    }
+    
+    proc toolbox_init {} {
+	canvas .drawing_canvas.toolbox
+#	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2
+	foreach i {line multiline polygon multicurve} {
+	}
+    }
+    
+    proc set_color {widget isbg} {
+	variable color
+	variable last_active_color
+	set kind [expr {$isbg ? "bg" : "fg"}]
+	set okind [expr {!$isbg ? "bg" : "fg"}]
+	set names {F B}
+	if {$widget != $last_active_color($kind)} {
+	    if {$last_active_color($kind) == $last_active_color($okind)} {
+		$last_active_color($kind) configure -relief flat -text [lindex $names [expr !$isbg]]
+	    } else {
+		$last_active_color($kind) configure -relief flat -text ""
+	    }
+	    set last_active_color($kind) $widget
+	    set color($kind) [$widget cget -background]
+	    if {$last_active_color($okind) == $widget} {
+		$widget configure -relief raised -text "*"
+	    } else {
+		$widget configure -relief raised -text [lindex $names $isbg]
+	    }
+	    set rgb [winfo rgb $widget $color($kind)]
+	    $widget configure -foreground [format "#%04x%04x%04x" [expr 65535 - [lindex $rgb 0]] [expr 65535 - [lindex $rgb 1]] [expr 65535 - [lindex $rgb 2]]]
+	}
+    }
+    
+    proc select_color {widget} {
+	variable color
+	variable last_active_color
+	set_color $widget 0
+	if {[set color(fg) [tk_chooseColor -parent .drawing_canvas -initialcolor $color(fg) -title "Edit color"]] != ""} {
+	    $last_active_color(fg) configure -background $color(fg)
+	} else {
+	    set color(fg) [$last_active_color(fg) cget -background]
+	}
+    }
+    
+    proc canvas_press {x y} {
+	variable start_coords
+	set start_coords(x) $x
+	set start_coords(y) $y
+    }
+    
+    proc canvas_motion {x y} {
+	variable start_coords
+	variable color
+	variable linewidth
+	if ![info exists start_coords] {
+	    return
+	}
+	if [info exists start_coords(tempitem)] {
+	    .drawing_canvas.canvas delete $start_coords(tempitem)
+	}
+	set start_coords(tempitem) [.drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth]
+    }
+    
+    proc canvas_release {x y} {
+	variable start_coords
+	variable color
+	variable linewidth
+	if ![info exists start_coords] {
+	    return
+	}
+	if [info exists start_coords(tempitem)] {
+	    .drawing_canvas.canvas delete $start_coords(tempitem)
+	}
+	.drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
+	set args ""
+	if {$color(fg) != "black"} {
+	    lappend args -fill $color(fg)
+	}
+	if {$linewidth != 1} {
+	    lappend args -width $linewidth
+	}
+	putsock "GCMD DRAW line $start_coords(x) $start_coords(y) $x $y $args"
+	unset start_coords
+    }
+    
+    proc linewidth_enter {} {
+	.drawing_canvas.linewbox itemconfigure current -fill red
+    }
+
+    proc linewidth_leave {} {
+	.drawing_canvas.linewbox itemconfigure current -fill black
+    }
+
+    proc linewidth_plus {} {
+	variable linewidth
+	variable linewidth_line
+	if {$linewidth >= 100} {
+	    return
+	}
+        incr linewidth
+	.drawing_canvas.linewbox delete $linewidth_line
+	set linewidth_line [.drawing_canvas.linewbox create line 0 18 30 18 -fill black -width $linewidth]
+    }
+
+    proc linewidth_minus {} {
+	variable linewidth
+	variable linewidth_line
+	if {$linewidth <= 1} {
+	    return
+	}
+	incr linewidth -1
+	.drawing_canvas.linewbox delete $linewidth_line
+	set linewidth_line [.drawing_canvas.linewbox create line 0 18 30 18 -fill black -width $linewidth]
+    }
+    
+    proc server_cmd_draw {source cargs} {
+	variable canvas_lock
+	foreach i $canvas_lock {
+	    if {[string index $i 0] == "!"} {
+	        if [string match [string range $i 1 end] $source] {
+		    break
+		}
+	    } else {
+	        if [string match $i $source] {
+		    set ok 1
+		    break
+		}
+	    }
+	}
+	if {![info exists ok] && [string length $canvas_lock]} {
+	    return 0
+	}
+	catch {
+	    foreach i $cargs {
+		lappend nargs $i
+	    }
+	    eval ".drawing_canvas.canvas create $nargs"
+	    return 1
+	}
+	return 0
+    }
+    
+    proc ucmd_canvas_lock {uargs} {
+	variable canvas_lock
+	set canvas_lock $uargs
+	return 1
+    }
+}

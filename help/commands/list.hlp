@@ -1,0 +1,26 @@
+<!-- $Id: list.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<XCHELP topic=cmd_list>
+<CENTER><FONT size=32 color=blue><B>/LIST</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /LIST
+
+<B><U>Description:</U></B>
+The /LIST command displays the list of all users who are currently connected to the server and registered.
+A user is considered as a registered user after he chose a nickname using the <LINK topic="cmd_nick">/NICK</LINK> command.
+The output of the /LIST commands looks like:
+<I>User List:
+<FONT color="red">eran</FONT>	IP <FONT color="blue">212.199.49.158</FONT>
+<FONT color="red">samir</FONT>	IP <FONT color="blue">213.8.152.117</FONT>
+<FONT color="red">amir</FONT>	IP <FONT color="blue">62.0.97.111</FONT>
+<FONT color="red">uri</FONT>	IP <FONT color="blue">212.179.144.30</FONT>
+Total of <FONT color="purple">4</FONT> users.</I>
+As you can see in the example above, the output of the /LIST command contains two fields: the nickname of the user (<FONT color="red">red</FONT> colored in the example), and the IP (Internet Protocol) address of the user (<FONT color="blue">blue</FONT> colored in the example).
+The total count of online users appears at the end of the output (<FONT color="purple">purple</FONT> colored in the example).
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+
+<B><U>History:</U></B>
+The /LIST command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

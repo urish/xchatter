@@ -1,0 +1,13 @@
+# $Id: blue.skin,v 1.1 2001-07-25 15:32:15 uri Exp $
+print Blue skin 1.2 by riddle.
+style chat:bold background white foreground blue underline 1
+item mainframe	background blue
+item menu	background blue
+item label#1	background white foreground blue
+item chat	background blue foreground white highlightcolor white selectforeground blue selectbackground white
+item helpmenu	background blue foreground white activebackground white activeforeground black
+item commandmenu background blue foreground white activebackground white activeforeground black
+item helpmenu:m	background blue foreground white activebackground white activeforeground black
+item commandmenu:m background blue foreground white activebackground white activeforeground black
+item inputbox	background blue foreground white highlightcolor white insertbackground white selectforeground black selectbackground white
+item scrollbar	background white highlightcolor blue troughcolor blue activebackground blue

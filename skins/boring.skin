@@ -1,0 +1,13 @@
+# $Id: boring.skin,v 1.1 2001-07-25 15:32:15 uri Exp $
+print Boring skin 1.2 by allow.
+style chat:bold background black foreground #c0c0c0 underline 1
+item mainframe	background #c0c0c0
+item menu	background #c0c0c0
+item label#1	background black foreground #c0c0c0
+item chat	background #c0c0c0 foreground black highlightcolor black selectforeground #c0c0c0 selectbackground black
+item helpmenu	background #c0c0c0 foreground black activebackground black activeforeground black
+item commandmenu background #c0c0c0 foreground black activebackground black activeforeground black
+item helpmenu:m	background #c0c0c0 foreground black activebackground black activeforeground black
+item commandmenu:m background #c0c0c0 foreground black activebackground black activeforeground black
+item inputbox	background #c0c0c0 foreground black highlightcolor black insertbackground black selectforeground black selectbackground black
+item scrollbar	background black highlightcolor #c0c0c0 troughcolor #c0c0c0 activebackground #c0c0c0

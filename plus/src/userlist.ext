@@ -1,0 +1,156 @@
+EXTENTION userlist-1.0-1
+# $Id: userlist.ext,v 1.1 2001-07-25 15:32:15 uri Exp $
+
+namespace eval userlist {
+    variable update_in_progress 0
+
+    proc init {} {
+	catch {listbox .userlist}
+	onevent usercmd USERLIST [namespace current]::ucmd_userlist
+	onevent serverin [join [split {
+	    LIST @server_list
+	    NICK @server_nick
+	    USER @server_user
+	    JOIN @server_join
+	    QUIT @server_quit
+	    } @] [namespace current]::]
+	onevent connected "" [namespace current]::connected
+	onevent disconnected "" [namespace current]::disconnected
+	show
+	update
+    }
+    
+    proc destroy {} {
+	hide
+	destroy_widget .userlist
+	namespace delete [namespace current]
+	unevent usercmd [namespace current]::*
+	unevent serverin [namespace current]::*
+	unevent connected [namespace current]::*
+	unevent disconnected [namespace current]::*
+    }
+    
+    proc show {} {
+	grid .userlist -in .mainframe -row 1 -column 3 -sticky nesw
+	grid columnconfigure .mainframe 3 -minsize 40 -weight 0
+	catch {
+	    .userlist configure -background [.chat cget -background] -foreground [.chat cget -foreground] -width 0
+	}
+	.chat see end
+    }
+
+    proc add {nickname} {
+	global nick
+        set lnickname [string tolower $nickname]
+	for {set i 0} {$i < [.userlist size]} {incr i} {
+    	    if {[string tolower [.userlist get $i]] == $lnickname} {
+		return
+	    }
+	    if {[string compare [.userlist get $i] $nickname] >= 0} {
+		break
+	    }
+	}
+	.userlist insert $i $nickname
+	if ![info exists nick] {
+	    return
+	}
+	if {[string tolower $nickname] == [string tolower $nick]} {
+	    if {$i != [expr [.userlist size] - 1]} {
+		incr i
+	    }
+	    catch {.userlist itemconfigure $i -foreground red} err
+	    catch {.userlist itemconfigure $i -selectforeground red} err
+	}
+    }
+
+    proc del {nickname} {
+	set index [lsearch -exact [string tolower [.userlist get 0 end]] [string tolower $nickname]]
+	if {$index >= 0} {
+	    .userlist del $index
+	}
+    }
+    
+    proc empty {} {
+        .userlist del 0 end
+    }
+    
+    proc hide {} {
+        grid forget .userlist
+    }
+    
+    proc update {} {
+	variable update_in_progress 1
+	putsock "LIST"
+    }
+    
+    proc ucmd_userlist {uargs} {
+	set cmd [strtok uargs]
+	switch -- [string toupper $cmd] {
+	    SHOW {
+		show
+	    }
+	    HIDE {
+		hide
+	    }
+	    UPDATE {
+		update
+	    }
+	    default {
+		putcmsg unknown_subcmd c USERLIST s $cmd
+	    }
+	}
+	return 1
+    }
+    
+    proc server_list {sargs} {
+	variable inlist
+	variable update_in_progress
+	if ![info exists inlist] {
+	    set inlist 1
+	    empty
+	}
+	if {[string toupper $sargs] == "END"} {
+	    unset inlist
+	    if {$update_in_progress} {
+		set update_in_progress 0
+		return 1
+	    }
+	    return 0
+	}
+        add [lindex $sargs 0]
+	return $update_in_progress
+    }
+
+    proc server_user {sargs} {
+	add [lindex $sargs 0]
+	return 0
+    }
+
+    proc server_nick {sargs} {
+	if {[string tolower [lindex $sargs 0]] != [string tolower [lindex $sargs 1]]} {
+	    del [lindex $sargs 0]
+	    add [lindex $sargs 1]
+	}
+	return 0
+    }
+
+    proc server_join {sargs} {
+	add [lindex $sargs 0]
+	return 0
+    }
+
+    proc server_quit {sargs} {
+	del [lindex $sargs 0]
+	return 0
+    }
+
+    proc connected {sock} {
+	update
+	return 0
+    }
+    
+    proc disconnected {} {
+	empty
+	return 0
+    }
+}

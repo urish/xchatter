@@ -1,0 +1,100 @@
+# English language messages for XChatter.
+# $Id: english.lang,v 1.1 2001-07-25 15:32:12 uri Exp $
+norm_text_style		normal
+item inputbox		justify left
+# interface.tcl
+text ucmd_tclerror	*** Debug: TCL ERROR: %t.
+# server.tcl:
+text disconnected	*** Disconnected from server. 
+text server_tclerror	*** Debug: TCL ERROR: %t (SERVER BUFFER: %b).
+text socket_write_error *** Server write error: %t. Disconnected.
+text socket_not_conn	*** Error: socket is not connected. 
+text glob_msg		<%n> %t
+text priv_msg		[%n] %t
+text invalid_ping_reply	*** Got invalid ping reply from %n: %t.
+text ping_reply		*** Ping reply from %n: %t.
+text nick_registered	*** Registered in server as %n.
+text nick_change	*** You are now known as %n.
+text user_nick_change	*** %o is now known as %n. 
+text admin_reply	*** Admin: %t 
+text user_join		*** %n joined the chat. 
+text user_quit		*** %n left the chat (%t). 
+text server_error	*** ERROR: %t 
+text server_version_reply *** version reply from server: %t 
+text user_list_start	User List: 
+text user_list_end	Total of %d users.
+text user_list_entry	%n    IP %i
+text user_info		*** Whois info on %n
+text +user_info		*** Host: %i
+text +user_info		*** Idle: %l.
+text +user_info		*** Signon: %s
+text +user_info		*** End of Whois info.
+text user_action	<*> %n %t 
+text user_requested_version *** %n requested version information. 
+text version_reply	*** Version reply from %n: %t 
+text user_requested_time *** %n requested time information. 
+text invalid_time_reply *** Invalid time reply from %n. 
+text time_reply		*** Time reply from %n: %t 
+text user_beep		*** %n beeps you %t 
+# usercmd.tcl:
+text alias_loop		*** Too many alias levels (probably alias loop). 
+text plugin_err		*** Error in plugin handler %p: %t
+text invalid_cmd	*** Invalid command '%t' ! 
+text sent_glob_msg	<%n> %t
+text sent_priv_msg	-> [%n] %t 
+text sent_action	<*> %n %t
+text sent_beep		[beep(%n)] %t 
+text raw		-> *SERVER* %t 
+text server_die		*** Asking server to die (%t) 
+text terminate_conn	*** Terminating old connection to server... 
+text conn_error		*** Error while connecting to %s:%p: %t. 
+text connected_nick	*** Successfully connected to %s, using nick '%n'. 
+text connected		*** Successfully connected to %s, use /NICK to assign yourself a nick. 
+text nick_not_connected *** Default nickname set to '%n'.
+text time_is		*** The time is %t 
+text requested_server_version *** Requesting version from server... 
+text requested_version	*** Requesting version from %n... 
+text server_ping	*** Pinging server... 
+text user_ping		*** Pinging %n... 
+text back_not_away	*** You didn't go away, so how can that be that you are back ? 
+text away_back		*** Welcome back ! you was away for %t. 
+text away_reason_changed *** Your away reason was changed. 
+text away_set		*** You are marked as being away. 
+text plugin_error	*** Plugin error: %t 
+text tcl_error		(tcl) Error: %t 
+text tcl_result		(tcl) %t 
+text exec_result	(exec) %t 
+text exec_error		*** open: %t 
+text alias_list_start	*** Aliases: 
+text alias_list_entry	*** Alias: %a = %t 
+text alias_list_end	*** End of alias list (total %d aliases). 
+text alias_removed	*** Alias %a was removed. 
+text alias_not_exists	*** Unable to remove alias %a: no such alias. 
+text alias_modified	*** Alias %a was modified. 
+text alias_added	*** Alias %a was added. 
+text no_xchatter_plus	*** Error: No xchatter plus could be found.
+text xchatter_plus_badver *** Error: Incompatibe XChatter plus version.
+text bad_xchatter_plus	*** Error: Bad xchatter plus file '%f'.
+text xchatter_plus_tclerror *** Error: In xchatter plus init script: Tcl error: %t
+text timer_list_start	
+text timer_list_entry   *** Timer %n: count=%c, interval=%i, cmd=%t
+text timer_list_end	*** End of timer list (total %d timers).
+text timer_error_noname *** Error: no timer name specified.
+text timer_error_nointerval *** Error: no timer interval/execution count specified.
+text timer_error_badinterval *** Error: Invalid timer interval specified.
+text timer_error_nocmd  *** Error: no timer command specified.
+text help_start		(HELP) Help for %s: 
+text help_first_line    |    %t 
+text help_line		|    %t
+text help_no_match	*** Sorry, no matching help subject was found. 
+# xchatter.tcl:
+text skin_not_found	*** No such skin file %t. 
+text skin_error		*** In skinfile, syntax error in line %d. 
+text skin_print		*** %t
+text skin_tcl_error	*** In skinfile, tcl command error in line %d: %t.  
+text skin_tcl_warning	*** Warning: skin file executed tcl command %t 
+text skin_invalid_cmd	*** Invalid command at line %d in skin file. 
+text quit_no		Quit: No (good :-) 
+text welcome		Welcome to XChatter %t, type /help for more info. 
+text xchatter_rc	XChatter.rc found, executing. 
+text home_xchatter_rc	.xchatterrc found in your home directory, executing. 

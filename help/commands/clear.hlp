@@ -1,0 +1,14 @@
+<!-- $Id: clear.hlp,v 1.1 2001-07-25 15:32:09 uri Exp $ -->
+<XCHELP topic=cmd_clear>
+<CENTER><FONT size=32 color=blue><B>/CLEAR</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /CLEAR
+
+<B><U>Description:</U></B>
+The /CLEAR command clears the history buffer of XChatter.
+If the buffer becomes very big, it can consume a lot of system memory.
+
+<B><U>History:</U></B>
+The /CLEAR command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

@@ -1,0 +1,19 @@
+# $Id: TODO,v 1.1 2001-07-25 15:32:06 uri Exp $
+
+Urgent:
+- Fix on-disconnected bug (unending loop thingie) - for AMIR.
+
+Less urgent:
+* Finish the timer system
+* Implement a /redirect command, redirects putchat output to various places:
+  - to the global chat
+  - to a user
+  - to the stdbuf (history buffer)
+  - to the inputline
+  - to the void
+* Add events:
+    - onglob
+    - ondisconnect
+    - onconnected
+    - ...
+* Add a font choosing option in help.

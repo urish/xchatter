@@ -1,0 +1,615 @@
+EXTENTION checkers-0.9-6
+# $Id: checkers.ext,v 1.1 2001-07-25 15:32:14 uri Exp $
+
+namespace eval checkers {
+    variable colors
+    set colors(p0) cyan
+    set colors(p1) red
+    set colors(s0) white
+    set colors(s1) black
+    set colors(phi) yellow
+
+    proc init {} {
+	onevent servercmd CKRS [namespace current]::server_cmd_ckrs
+	onevent usercmd CHECKERS [namespace current]::ucmd_checkers
+	onevent serverin ERROR [namespace current]::server_error \
+			 NICK [namespace current]::server_nick
+	iface_init
+	canvas_init
+	register_msgs {
+	    xcplus_checkers_inprogress {*** A checkers game is already in progress.}
+	    xcplus_checkers_offering {*** Offering %n a checkers game.}
+	    xcplus_checkers_offer {*** %n is offering you a checkers game. type /CHECKERS %n to accept.}
+	    xcplus_checkers_progoffer {*** %n is offering you a checkers game. You can't play because a game is already in progress.}
+	    xcplus_checkers_refusing {*** Refusing the game request from %n.}
+	    xcplus_checkers_norefuse {*** %n didn't offer you any checkers game, therefore you can't refuse.}
+	    xcplus_checkers_refuse {*** checkers: %n is refusing your game request: %t.}
+	    xcplus_checkers_turncheat {*** checkers: %n tried to move NOT on his turn.}
+	    xcplus_checkers_start {*** checkers: Starting game with %n.}
+	    xcplus_checkers_badmove {*** checkers: Invalid move from %n.}
+	    xcplus_checkers_cheatmove {*** checkers: Illegal move from %n.}
+	    xcplus_checkers_youwon {*** checker: You won the game !}
+	    xcplus_checkers_youlost {*** checker: You lost the game :-(}
+	    xcplus_checkers_win {*** checker: The %t player won the game.}
+	    xcplus_checkers_disc {*** Checkers: remote side disconnected.}
+	}
+    }
+    
+    proc destroy {} {
+	unevent servercmd [namespace current]::ucmd_checkers
+	unevent usersmc [namespace current]::server_cmd_ckrs
+	unevent serverin [list [namespace current]::server_error \
+			 [namespace current]::server_nick]
+	destroy_widget .checkers
+	namespace delete [namespace current]
+    }
+
+    proc iface_init {} {
+	toplevel .checkers
+	wm title .checkers "XCCheckers"
+	wm protocol .checkers WM_DELETE_WINDOW [namespace current]::window_close
+	wm withdraw .checkers
+    }
+        
+    proc canvas_init {} {
+	canvas .checkers.canvas -relief raised -border 2 -height [expr 32 * 8] -width [expr 32 * 8] -background gray
+	grid configure .checkers.canvas -row 1 -column 1
+	draw_board 32 32
+    }
+
+    proc get_square_coords {h v} {
+	variable board
+	return [list	\
+	    [expr $board(hoffs) + $h * $board(hsize)]	\
+	    [expr $board(voffs) + $v * $board(vsize)]	\
+	    [expr $board(hoffs) + $h * $board(hsize) + $board(hsize) - 1]\
+	    [expr $board(voffs) + $v * $board(vsize) + $board(vsize) - 1]]
+    }
+    
+    proc get_square_by_coords {x y} {
+	variable board
+	return [list \
+	    [expr ($x - $board(hoffs)) / $board(hsize)] \
+	    [expr ($y - $board(voffs)) / $board(vsize)]]
+    }
+    
+    proc get_unit_coords {h v} {
+	set coords [get_square_coords $h $v]
+	return [list \
+	    [expr [lindex $coords 0] + 2] \
+	    [expr [lindex $coords 1] + 2] \
+	    [expr [lindex $coords 2] - 2] \
+	    [expr [lindex $coords 3] - 2]]
+    }
+    
+    proc format_coords {coords} {
+	set letters "ABCDEFGH"
+	return [string index $letters [lindex $coords 0]][expr [lindex $coords 1] + 1]
+    }
+
+    proc draw_unit {h v color} {
+	return [eval .checkers.canvas create oval [get_unit_coords $h $v] {-fill $color -outline $color -stipple gray50}]
+    }
+    
+    proc draw_board {{hsize 0} {vsize 0} {hoffs 0} {voffs 0}} {
+	variable board
+	variable colors
+	if !$hsize {
+	    set hsize [expr [.drawing_canvas.canvas cget -height] / 8]
+	    set hoffs [expr [.drawing_canvas.canvas cget -height] % 8 / 2]
+	}
+	if !$vsize {
+	    set vsize [expr [.drawing_canvas.canvas cget -width] / 8]
+	    set voffs [expr [.drawing_canvas.canvas cget -width] % 8 / 2]
+	}
+	incr hoffs 2
+	incr voffs 2
+	set board(hsize) $hsize
+	set board(vsize) $vsize
+	set board(hoffs) $hoffs
+	set board(voffs) $voffs
+	set color 1
+	for {set h 0} {$h < 8} {incr h} {
+	    for {set v 0} {$v < 8} {incr v} {
+		.checkers.canvas delete square$h$v
+		set item [eval .checkers.canvas create rectangle [get_square_coords $h $v] {-fill $colors(s$color) -outline $colors(s$color)}]
+		.checkers.canvas addtag square$h$v withtag $item
+		.checkers.canvas lower $item
+		set color [expr !$color]
+	    }
+	    set color [expr !$color]
+	}
+    }
+    
+    proc init_game {} {
+	variable board
+	variable colors
+	variable game
+	wm deiconify .checkers
+	set game(p0) 12
+	set game(p1) 12
+	set game(pactive) [expr $game(network) && $game(isblack)]
+	foreach v {0 1 2 5 6 7} player {1 1 1 0 0 0} {
+	    for {set h [expr $v % 2]} {$h < 8} {incr h 2} {
+		if {$game(network) && $game(isblack)} {
+		    set unit [draw_unit $h $v $colors(p[expr !$player])]
+		} else {
+		    set unit [draw_unit $h $v $colors(p$player)]
+		}
+		set board(sq$h$v) $unit
+		set board(u$unit) $player
+		.checkers.canvas addtag units withtag $unit
+	    }
+	}
+	.checkers.canvas bind units <Any-Enter> [namespace current]::unit_enter
+	.checkers.canvas bind units <Any-Leave> [namespace current]::unit_leave
+	.checkers.canvas bind units <ButtonPress-1> "[namespace current]::unit_bpress %x %y"
+	.checkers.canvas bind units <ButtonRelease-1> "[namespace current]::unit_brelease %x %y %s"
+	.checkers.canvas bind units <B1-Motion> "[namespace current]::unit_bmotion %x %y"
+    }
+    
+    proc finish_game {} {
+	variable board
+	variable game
+	.checkers.canvas delete units
+	foreach i [concat [array names board sq*] [array names board qu*] \
+		  [array names board u*]] {
+	    unset board($i)
+	}
+	foreach i [concat [array names game p*] network isblack] {
+	    unset game($i)
+	}
+	wm withdraw .checkers
+    }
+    
+    proc game_win {player} {
+	variable game
+	if $game(network) {
+	    if $player {
+		putcmsg xcplus_checkers_youlost p $game(peer)
+		tk_dialog .checkers.dialog "You lost !" "You lost the game :-(" info 0 "Bummer !"
+	    } else {
+		putcmsg xcplus_checkers_youwon p $game(peer)
+		tk_dialog .checkers.dialog "You won !" "You won the game !" info 0 "Yey !"
+	    }
+	} else {
+	    set name [expr {$player ? "black" : "white"}]
+	    putcmsg xcplus_checkers_win t $name
+	    if [tk_dialog .checkers.dialog "The $name won !" "The $name player won the game !" info 1 "Dismiss" "Another Game !"] {
+		set new_game 1
+	    }
+	}
+	finish_game
+	if [info exists new_game] {
+	    set game(network) 0
+	    set game(isblack) 0
+	    init_game
+	}
+    }
+    
+    proc is_network_game {} {
+	variable game
+	if ![info exists game(network)] {
+	    return 0
+	}
+	return $game(network)
+    }
+    
+    proc is_unit {coords} {
+	variable board
+	return [info exists board(sq[join $coords ""])]
+    }
+    
+    proc get_unit {coords} {
+	variable board
+	if [info exists board(sq[join $coords ""])] {
+	    return $board(u$board(sq[join $coords ""]))
+	} else {
+	    return ""
+	}
+    }
+
+    proc destroy_unit {coords player} {
+	variable board
+	variable game
+	set unit $board(sq[join $coords ""])
+	unset board(sq[join $coords ""])
+	.checkers.canvas delete $unit
+	incr game(p$player) -1
+	if !$game(p$player) {
+	    after idle "[namespace current]::game_win [expr !$player]"
+	}
+    }
+    
+    proc is_queen {unit} {
+	variable board
+	return [info exists board(qu$unit)]
+    }
+    
+    proc make_queen {unit} {
+	variable board
+	set board(qu$unit) 1
+	.checkers.canvas itemconfigure $unit -stipple ""
+    }
+    
+    proc unit_move {unit source target} {
+	variable board
+	unset board(sq[join $source ""])
+	set board(sq[join $target ""]) $unit
+    }
+    
+    proc can_move {unit source target player nomove} {
+	set sx [lindex $source 0]
+	set sy [lindex $source 1]
+	set tx [lindex $target 0]
+	set ty [lindex $target 1]
+	# don't permit moving out of the board
+	if {$tx < 0 || $ty < 0 || $tx > 7 || $ty > 7} {
+	    return 0
+	}
+	# unit can't be on a white square
+	if {$tx % 2 != $ty % 2} {
+	    return 0
+	}
+	# two units can't be on the same square
+	if [is_unit $target] {
+	    return 0
+	}
+        set xdir [expr ($tx - $sx) > 0 ? 1 : -1]
+        set ydir [expr ($ty - $sy) > 0 ? 1 : -1]
+	# check unit kind
+	if [is_queen $unit] {
+	    # queen can move only in diagonal line
+	    if {abs($sy - $ty) != abs($sx - $tx)} {
+		return 0
+	    }
+	    # queen can't step over existing soliders
+	    for {set i 1} {$i <= abs($sy - $ty)} {incr i} {
+		set coords [list [expr $sx + ($xdir * $i)] [expr $sy + ($ydir * $i)]]
+		set result [get_unit $coords]
+		if {$result == !$player && $i == abs($sy - $ty) -1} {
+		    set eatcoords $coords
+		} elseif {$result != ""} {
+		    return 0
+		}
+	    }
+	    # eat, if should.
+	    # don't let non-eat move in multi-eat mode.
+	    if {[info exists eatcoords]} {
+		destroy_unit $eatcoords [expr !$player]
+    	        if {([get_unit [list [expr $tx + 1] [expr $ty + 1]]] == !$player && $ty < 6 && $tx < 6) ||
+		    ([get_unit [list [expr $tx - 1] [expr $ty + 1]]] == !$player && $ty < 6 && $tx > 1) ||
+		    ([get_unit [list [expr $tx + 1] [expr $ty - 1]]] == !$player && $ty > 1 && $tx < 6) || 
+		    ([get_unit [list [expr $tx - 1] [expr $ty - 1]]] == !$player && $ty > 1 && $tx > 1)} {
+		    return 2
+		}
+		return 1
+	    } elseif $nomove {
+		return 0
+	    }
+	    # move is ok
+	    return 1
+	}
+	# in any case, except for multi-eat, a normal unit can't move backwards
+	if {($player ? $sy >= $ty : $sy <= $ty) && !$nomove} {
+	    return 0
+	}
+	set direction [expr $player * 2 - 1]
+	set eatcoords [list [expr $sx + $xdir] [expr $sy + $ydir]]
+	# can player eat ?
+	if {abs($ty - $sy) == 2 && abs($tx - $sx) == 2 && 
+	    [get_unit $eatcoords] == !$player} {
+	    destroy_unit $eatcoords [expr !$player]
+	    set eat 1
+	    #multi-eat permits backwards. check for multi-eat.
+	    if {([get_unit [list [expr $tx + 1] [expr $ty + 1]]] == !$player && $ty < 6 && $tx < 6) ||
+		([get_unit [list [expr $tx - 1] [expr $ty + 1]]] == !$player && $ty < 6 && $tx > 1) ||
+		([get_unit [list [expr $tx + 1] [expr $ty - 1]]] == !$player && $ty > 1 && $tx < 6) || 
+		([get_unit [list [expr $tx - 1] [expr $ty - 1]]] == !$player && $ty > 1 && $tx > 1)} {
+		return 2
+	    }
+	    return 1
+	}
+	# if inside multi eat, let the player _only_ eat.
+	if $nomove {
+	    return 0
+	}
+	# can player normally move ?
+	if {($sy + $direction == $ty && $sx + $xdir == $tx)} {
+	    return 1
+	}
+	return 0
+    }
+    
+    proc move_unit {unit source target player with_multi} {
+	variable board
+	variable game
+	set multi [info exists game(inmulti)]
+	if $multi {
+	    unset game(inmulti)
+	}
+	switch -- [can_move $unit $source $target $player $multi] {
+	    0 {
+		return 0
+	    }
+	    1 {
+		set multi 0
+	    }
+	    2 {
+		if $with_multi {
+		    set game(inmulti) 1
+		    set multi 1
+		} else {
+		    set multi 0
+		}
+	    }
+	}
+	# check - should item turn into queen ?
+	if {[lindex $target 1] == ($player ? 7 : 0)} {
+	    make_queen $unit
+	}
+	unit_move $unit $source $target
+	if !$multi {
+	    set game(pactive) [expr !$game(pactive)]
+	}
+	return [expr $multi ? 2 : 1]
+    }
+    
+    proc unit_enter {} {
+	variable colors
+	.checkers.canvas itemconfigure current -fill $colors(phi) -outline $colors(phi)
+    }
+    
+    proc unit_leave {} {
+	variable colors
+	variable board
+	variable game
+	set curunit [.checkers.canvas find withtag current]
+	if {$game(isblack)} {
+	    set color $colors(p[expr !$board(u$curunit)])
+	} else {
+	    set color $colors(p$board(u$curunit))
+	}
+	.checkers.canvas itemconfigure current -fill $color -outline $color
+    }
+
+    proc unit_bpress {x y} {
+	variable current_unit
+	variable board
+	variable game
+	set unit [.checkers.canvas find withtag current]
+	if {$game(pactive) != $board(u$unit) ||
+	    ($game(pactive) == 1 && $game(network))} {
+	    bell
+	    return
+	}
+	set current_unit(name) $unit
+	set current_unit(coords) [get_square_by_coords $x $y]
+	set ucoords [.checkers.canvas coords current]
+	set board(hfix) [expr $x - [lindex $ucoords 0]]
+	set board(vfix) [expr $y - [lindex $ucoords 1]]
+    }
+    
+    proc unit_bmotion {x y} {
+	variable current_unit
+	variable board
+	if ![info exists current_unit] {
+	    return
+	}
+	set x [expr $x - $board(hfix)]
+	set y [expr $y - $board(vfix)]
+	.checkers.canvas coords $current_unit(name) $x $y [expr $x + $board(hsize) - 4] [expr $y + $board(vsize) - 4]
+    }
+
+    proc unit_brelease {x y state} {
+	variable current_unit
+	variable board
+	variable game
+	set with_multi [expr $state & 0x1]
+	if ![info exists current_unit] {
+	    return
+	}
+	set square [get_square_by_coords $x $y]
+	if {$square == $current_unit(name)} {
+	    eval .checkers.canvas coords $current_unit(name) [eval get_unit_coords $current_unit(coords)]
+	    return
+	}
+	if [set ret [move_unit $current_unit(name) $current_unit(coords) $square $board(u$current_unit(name)) $with_multi]] {
+	    eval .checkers.canvas coords $current_unit(name) [eval get_unit_coords $square]
+	    if $game(network) {
+		if {$ret == 1} {
+		    putsock "CMD $game(peer) CKRS MOVE [format_coords $current_unit(coords)] [format_coords $square]"
+		} else {
+		    putsock "CMD $game(peer) CKRS MULTI MOVE [format_coords $current_unit(coords)] [format_coords $square]"
+		}
+	    }
+	} else {
+	    eval .checkers.canvas coords $current_unit(name) [eval get_unit_coords $current_unit(coords)]
+	    bell
+	}
+	unset current_unit
+    }
+    
+    proc process_peer_move {source target ismulti} {
+	variable board
+	set h [expr 7 - [lindex $source 0]]
+	set v [expr 7 - [lindex $source 1]]
+	set source [list $h $v]
+	set target [list [expr 7 - [lindex $target 0]] [expr 7 - [lindex $target 1]]]
+	if ![info exists board(sq$h$v)] {
+	    return 0
+	}
+	set unit $board(sq$h$v)
+	if [move_unit $unit $source $target 1 $ismulti] {
+	    eval .checkers.canvas coords $unit [eval get_unit_coords $target]
+	    return 1
+	}
+	return 0
+    }
+
+    proc window_close {} {
+	variable game
+	if [info exists game(peer)] {
+	    putsock "CMD $game(peer) CKRS CANCEL"
+	}
+	finish_game
+    }
+
+    proc server_error {sargs} {
+	variable game
+	set errornum [strtok sargs]
+	if {$errornum == 104} {
+	    set nick [string tolower [strtok sargs]]
+	    if [is_network_game] {
+		if {$nick == $game(peer)} {
+		    putcmsg xcplus_checkers_disc p $game(peer)
+		    tk_dialog .checkers.dialog "Remote side disconnected." "The remote side disconnected." error 0 "Bummer !"
+		    finish_game
+		}
+	    }
+	    foreach i [array names game *,$nick] {
+		unset game($i)
+	    }
+	}
+	return 0
+    }
+
+    proc server_nick {sargs} {
+	variable game
+	set oldnick [string tolower [strtok sargs]]
+	set newnick [string tolower [strtok sargs]]
+	if [is_network_game] {
+	    if {$oldnick == $game(peer)} {
+		set game(peer) $newnick
+	    }
+	}
+	return 0
+    }
+
+    proc ucmd_checkers {uargs} {
+	variable game
+	set peer [strtok uargs]
+	set lpeer [string tolower $peer]
+	if {[string toupper $peer] == "REFUSE"} {
+	    set peer [strtok uargs]
+	    set reason [strrest uargs]
+	    if {$peer == ""} {
+		return 1
+	    }
+	    if [info exists game(offers,$lpeer)] {
+		unset game(offers,$lpeer)
+		putcmsg xcplus_checkers_refusing n $peer t $reason
+		putsock "CMD $peer CKFS refuse $reason"
+	    } else {
+		putcmsg xcplus_checkers_norefuse n $peer
+	    }
+	    return 1
+	}
+	if {[string toupper $peer] == "PLAY"} {
+	    set peer [strtok uargs]
+	}
+	if [info exists game(network)] {
+	    putcmsg xcplus_checkers_inprogress
+	    return 1
+	}
+	if {$peer == ""} {
+	    set game(network) 0
+	    set game(isblack) 0
+	    init_game
+	    return 1
+	}
+	if [info exists game(offers,$lpeer)] {
+	    unset game(offers,$lpeer)
+	    set game(network) 1
+	    set game(isblack) 1
+	    set game(peer) $lpeer
+	    putcmsg xcplus_checkers_start n $peer
+	    init_game
+	    putsock "CMD $peer CKRS START"
+	    return 1
+	}
+        set game(offerto,$lpeer) 1
+        putsock "CMD $peer CKRS PLAY"
+	putcmsg xcplus_checkers_offering n $peer
+	return 1
+    }
+    
+    proc server_cmd_ckrs {source cargs} {
+	variable game
+	set cargs [split $cargs]
+	set cmd [strtok cargs]
+	set lsource [string tolower $source]
+	set multi 0
+	if {[string toupper $cmd] == "MULTI"} {
+	    set multi 1
+	    set cmd [strtok cargs]
+	}
+	switch -exact -- [string toupper $cmd] {
+	    PLAY {
+		set game(offers,$lsource) 1
+		putcmsg xcplus_checkers_offer n $source
+	    }
+	    START {
+		if [info exists game(network)] {
+		    putsock "CMD $source REFUSE Game already in progress."
+		}
+		if [info exists game(offerto,$lsource)] {
+		    unset game(offerto,$lsource)
+		    set game(isblack) 0
+		    set game(network) 1
+		    set game(peer) $lsource
+		    putcmsg xcplus_checkers_start n $source
+		    init_game
+		} else {
+		    putsock "CMD $source REFUSE I didn't offer you any game."
+		}
+	    }
+	    CANCEL {
+	        if [info exists game(network)] {
+		    if {$lsource == $game(peer)} {
+			putcmsg xcplus_checkers_disc p $game(peer)
+			tk_dialog .checkers.dialog "Remote side disconnected." "The other player left the game." error 0 "Bummer !"
+			finish_game
+		    }
+		}
+	    }
+	    REFUSE {
+		set reason [strrest $cargs]
+		putcmsg xcplus_checkers_refuse n $source t $reason
+	    }
+	    MOVE {
+		if ![info exists game(peer)] {
+		    return 1
+		}
+		if {$game(peer) != $lsource} {
+		    return 1
+		}
+		if !$game(pactive) {
+		    putcmsg xcplus_checkers_turncheat n $source
+		    return 1
+		}
+		set letters "ABCDEFGH"
+		set src [strtok cargs]
+		set target [strtok cargs]
+		if {[string length $src] != 2 || [string length $target] != 2} {
+		    putcmsg xcplus_checkers_badmove n $source
+		    return 1
+		}
+		set num 0
+		foreach {i j} [split $src$target ""] {
+		    set i [string toupper $i]
+		    if {![string match {[ABCDEFGH]} $i] || ![string match {[12345678]} $j]} {
+			putcmsg xcplus_checkers_badmove n $source
+			return 1
+		    }
+		    set coords($num) [list [expr [string first $i $letters]] [expr $j - 1]]
+		    incr num
+		}
+		if ![process_peer_move $coords(0) $coords(1) $multi] {
+		    putcmsg xcplus_checkers_cheatmove n $source
+		}
+	    }
+	}
+	return 1
+    }    
+}

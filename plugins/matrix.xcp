@@ -1,0 +1,116 @@
+# xchatter-0.4.07 ~matrix~1.0~407~The matrix plug-in
+# XChatter plugin - adds '/matrix' command.
+# $Id: matrix.xcp,v 1.1 2001-07-25 15:32:13 uri Exp $
+
+putchat "*** Matrix plugin was loaded !!! THIS IS A BETA PLUGIN !!!."
+putchat "*** IT _USED_ to work well but I SCREWED IT UP !!!."
+
+global plugins
+if {[lsearch $plugins matrix] == -1} {
+    lappend plugins "matrix"
+}
+
+proc matrix {cmd uargs} {
+    if {[string toupper $cmd] == "MATRIX"} {
+	catch do_matrix err
+	putchat $err
+	return 1
+    }
+    return 0
+}
+
+proc matrix_random {start end} {
+    return [expr int(rand() * ($end - $start) + $start)]
+}
+    
+proc do_matrix {} {
+    global matrix_counter matrix_updated
+    expr srand([clock clicks])
+    if ![info exists matrix_counter] {
+	clear_chat
+	set matrix_counter 1
+	set chars 0
+        .chat config -state normal -wrap char
+	while {1} {
+	    for {set i 0} {$i < 25} {incr i} {
+		.chat insert 1.$i [string index "0 12345 6789     " [matrix_random 0 13]]
+	    }
+	    incr chars 24
+    	    after idle {set matrix_updated 1}
+	    vwait matrix_updated
+	    unset matrix_updated
+	    if ![llength [.chat bbox "1.0 + $chars chars"]] {
+	        break
+	    }
+	    incr chars
+	}
+        .chat config -state disabled -wrap word
+	after 20 do_matrix
+	return
+    }
+    incr matrix_counter
+    set chars 0
+    set ctext [.chat get 1.0 2.0]
+    set ctext [split $ctext ""]
+    set len [llength $ctext]
+    while {$len} {
+	set rand [matrix_random 0 [incr len -1]]
+	append copytext [lindex $ctext $rand]
+	set ctext [lreplace $ctext $rand $rand]
+    } 
+    .chat config -state normal -wrap char
+    .chat insert 1.0 "$copytext\n"
+    .chat see 1.0
+    .chat config -state disabled -wrap word
+    if {$matrix_counter < 150} {
+	after 100 do_matrix
+    } else {
+	unset matrix_counter
+#	after 20 do_matrix2
+    }
+}
+
+proc do_matrix2 {} {
+    global matrix_string_ptr matrix_string
+    if ![info exists matrix_string_ptr] {
+        clear_chat
+	set matrix_string_ptr 0
+        set matrix_string "Hello, Neo!\ni'm know - you here...\n \n \n \n \n \nTUK-TUK!\n"
+	matrix_cursor
+        .chat config -state normal
+	.chat insert end "_" matrix_blink
+    }
+    .chat config -state normal
+    .chat insert "end - 2 chars" "[string index $matrix_string $matrix_string_ptr]"
+    .chat see end
+    .chat config -state disabled	
+    incr matrix_string_ptr	
+    if {$matrix_string_ptr == [string length $matrix_string]} {
+	unset matrix_string
+	unset matrix_string_ptr
+	putchat ""
+    } else {
+	after 150 do_matrix2
+    }
+}
+
+proc matrix_cursor {} {
+    global matrix_string_ptr matrix_cursor_state matrix_cursor_store
+    if ![info exists matrix_cursor_state] {
+	set matrix_cursor_state 1
+	set matrix_cursor_store [.chat cget -foreground]
+    } else {
+	set matrix_cursor_state [expr 1 - $matrix_cursor_state]
+    }
+    if {$matrix_cursor_state && [info exists matrix_string_ptr]} {
+	.chat tag configure matrix_blink -foreground $matrix_cursor_store
+    } else {
+	.chat tag configure matrix_blink -foreground [.chat cget -background]
+    }
+    if [info exists matrix_string_ptr] {
+	after 250 matrix_cursor
+    } else {
+	unset matrix_cursor_state
+	unset matrix_cursor_store
+    }
+}

@@ -1,0 +1,27 @@
+<!-- $Id: msg.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<XCHELP topic=cmd_msg>
+<CENTER><FONT size=32 color=blue><B>/MSG</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /MSG user message
+
+<B><U>Description:</U></B>
+The /MSG command is used to send a private message to another user.
+Unlike a normal message, which can be seen by everyone, a private message can only be seen by its recipient.
+
+<B><U>Examples:</U></B>
+To send a private message to a user named john, simply hit:
+<I>/MSG john hello</I>
+Then you'll see on your xchatter buffer:
+<I>-> [john] hello<I>
+If you recive a private message from john, it'll look like:
+<I>[john] Hi, what's up ?</I>
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nouser">No such user.</LINK>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+<LINK topic="error_linetoolong">Line too long.</LINK>
+
+<B><U>History:</U></B>
+The /MSG command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

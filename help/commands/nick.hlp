@@ -1,0 +1,19 @@
+<!-- $Id: nick.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<XCHELP topic=cmd_nick>
+<CENTER><FONT size=32 color=blue><B>/NICK</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /NICK nickname
+
+<B><U>Description:</U></B>
+The /NICK command is used to set your nick.
+You must set your nick once connected to server. Otherwise, you won't be able to send or recive any messages. Before you set your nick, you are marked as an 'unregistered user' on the server, means that you can only use the <LINK topic=cmd_list>/LIST</LINK> or the <LINK topic=cmd_version>/VERSION</LINK> (without any arguments) commands.
+After you set your nick, and you are registered on server, you may use the /NICK command to change your nickname to another nick.
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nickalready">Nick is already in use.</LINK>
+<LINK topic="error_nickinvalid">Invalid nick.</LINK>
+
+<B><U>History:</U></B>
+The /NICK command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

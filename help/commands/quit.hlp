@@ -1,0 +1,14 @@
+<!-- $Id: quit.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<XCHELP topic=cmd_quit>
+<CENTER><FONT size=32 color=blue><B>/QUIT</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /QUIT [reason]
+
+<B><U>Description:</U></B>
+The /QUIT command is used to terminate xchatter.
+A reason for leaving can be speicified, for other users to know why you left.
+
+<B><U>History:</U></B>
+The /QUIT command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

@@ -1,0 +1,23 @@
+<!-- $Id: commands.hlp,v 1.1 2001-07-25 15:32:09 uri Exp $ -->
+<XCHELP topic=commands>
+<CENTER><FONT size=32 color=blue><B>Basic Commands</B></FONT></CENTER><BR><BR>
+<PRE>
+<LINK topic=cmd_away>AWAY</LINK>
+<LINK topic=cmd_back>BACK</LINK>
+<LINK topic=cmd_beep>BEEP</LINK>
+<LINK topic=cmd_bell>BELL</LINK>
+<LINK topic=cmd_clear>CLEAR</LINK>
+<LINK topic=cmd_help>HELP</LINK>
+<LINK topic=cmd_list>LIST</LINK>
+<LINK topic=cmd_me>ME</LINK>
+<LINK topic=cmd_msg>MSG</LINK>
+<LINK topic=cmd_nick>NICK</LINK>
+<LINK topic=cmd_ping>PING</LINK>
+<LINK topic=cmd_quit>QUIT</LINK>
+<LINK topic=cmd_server>SERVER</LINK>
+<LINK topic=cmd_skin>SKIN</LINK>
+<LINK topic=cmd_time>TIME</LINK>
+<LINK topic=cmd_version>VERSION</LINK>
+<LINK topic=cmd_whois>WHOIS</LINK>
+</PRE>
+</XCHELP>

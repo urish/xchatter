@@ -1,0 +1,4 @@
+# $Id: bigfont.skin,v 1.1 2001-07-25 15:32:15 uri Exp $
+print Bigger font skin by allow.
+item chat	font -*-Times-*-Normal-*-*-*-180-*-*-*-*-*-*
+item inputbox	font -*-Times-*-*-*-*-*-180-*-*-*-*-*-*

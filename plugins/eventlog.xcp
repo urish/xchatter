@@ -1,0 +1,70 @@
+# xchatter-0.5beta2 ~eventlog~1.0~492~extended event/logging support
+# $Id: eventlog.xcp,v 1.1 2001-07-25 15:32:12 uri Exp $
+
+putchat "*** Event/logging support plugin loaded."
+global plugins
+catch {rename putchat xc50_eventlog_old_putchat}
+catch {rename process_command xc50_eventlog_old_process_command}
+catch {rename server_glob xc50_eventlog_old_server_glob}
+	    
+if {[lsearch $plugins eventlog] == -1} {
+    lappend plugins "eventlog"
+}
+
+proc putchat {what} {
+    process_alias onecho [split $what]
+    xc50_eventlog_old_putchat $what
+}
+
+proc process_command {what} {
+    process_alias oncommand [split $what]
+    xc50_eventlog_old_process_command $what
+}
+
+proc server_glob {sargs} {
+    process_alias onglob $sargs
+    xc50_eventlog_old_server_glob $sargs
+}
+
+proc eventlog_log {what} {
+    global eventlog_logfile
+    if ![info exists eventlog_logfile] {
+	return
+    }
+    set logfd [open $eventlog_logfile a+]
+    puts $logfd $what
+    close $logfd
+}
+
+proc eventlog {cmd uargs} {
+    global eventlog_logfile
+    switch -- [string toupper $cmd] {
+	CLEARLOG {
+	    if [info exists eventlog_logfile] {
+		file delete $eventlog_logfile
+		eventlog_log "---> Logging started at [clock format [clock seconds] -format "%d/%m/%Y"]\n"
+	    }
+	}
+	TSLOG {
+	    eventlog_log "\[[clock format [clock seconds] -format "%H:%M"]\] [string trim [join $uargs]]"
+	}
+	LOG {
+	    eventlog_log "[string trim [join $uargs]]"
+	}
+	LOGFILE {
+	    set uargs [string trim $uargs]
+	    if {$uargs == ""} {
+		unset eventlog_logfile
+		putchat "*** Logging disabled."
+	    } else {
+		set eventlog_logfile $uargs
+		eventlog_log "\n---> Logging started at [clock format [clock seconds] -format "%d/%m/%Y"]\n"
+		putchat "*** Logfile is now '$uargs'."
+	    }
+	}
+	default {
+	    return 0
+	}
+    }
+    return 1
+}

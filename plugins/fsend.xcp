@@ -1,0 +1,48 @@
+# xchatter-0.4.08 ~matrix~1.0~408~Direct file transfer plugin
+# XChatter plugin - adds '/fsend' command.
+# $Id: fsend.xcp,v 1.1 2001-07-25 15:32:12 uri Exp $
+
+global plugins fsend_socket
+
+if {[lsearch $plugins fsend] == -1} {
+    lappend plugins "fsend"
+}
+
+for {set i 40000} {$i < 65000} {incr i} {
+    if ![catch {socket -server fsend_connect $i} fsend_sock] {
+	break
+    }
+}
+
+proc fsend_fsend {cmd uargs} {
+    global fsend_offers fsend_sock
+    set user [lindex $uargs 0]
+    set fname [join [lrange $uargs 1 end]
+    if {![file readable $fname] || [catch {file size $fname} size]}{
+	putchat "*** FSend: unable to read from file \"$fname\"."
+	return
+    }
+    set sockname [fconfigure $fsend_sock -sockname]
+    set magic "xc[clock clicks][clock seconds][clock clicks][expr rand()]"
+    putsock "CMD $uargs FSEND [lindex $sockname 0] [lindex $sockname 2] $magic $size $fname"
+    lappend fsend_offers "[lindex $sockname 0] [lindex $sockname 2] $magic $size $fname"
+}
+
+proc fsend_fget {cmd uargs} {
+}
+
+proc fsend {cmd uargs} {
+    global timestamp
+    switch -- [string toupper $cmd] {
+	FSEND {
+	    fsend_fsend $uargs
+	}
+	FGET {
+	    fsend_fgets $uargs
+	}
+	default {
+	    return 0
+	}
+    }
+    return 1
+}

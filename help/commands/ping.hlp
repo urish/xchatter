@@ -1,0 +1,27 @@
+<!-- $Id: ping.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<XCHELP topic=cmd_ping>
+<CENTER><FONT size=32 color=blue><B>/PING</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /PING [client]
+
+<B><U>Description:</U></B>
+The /PING command is used to measure the LAG (network delay) between you and the specified client. If you don't specify a client name, or specify '@' as the client name, the /PING command will measure the LAG between you and the chatting server.
+The result will be calculated in seconds, and is representing the time that takes a command to pass from you to the client (or the server), plus the time for the reply to pass back to you.
+If you don't recive a ping reply from a client within a reasonable time, this probably means that the client's network connection is dead.
+If you don't recive a ping reply from the server within a reasonable time, it's possible that your network connection is dead.
+
+<B><U>Examples:</U></B>
+After issuing a /PING command, without any arguments, you will see an output like this:
+<I>*** Pinging server...
+*** Ping reply from @SERVER: <FONT color=red>2</FONT>.</I>
+
+In the example, the number 2 (colored <FONT color=red>red</FONT>) means that it takes two seconds for a command to pass from you to the server, and for the server reply to arrive you back.
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nouser">No such user.</LINK>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+
+<B><U>History:</U></B>
+The /PING command first appeared in XChatter version 0.1.
+</PRE>
+</XCHELP>

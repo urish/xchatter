@@ -1,0 +1,14 @@
+<!-- $Id: bell.hlp,v 1.1 2001-07-25 15:32:09 uri Exp $ -->
+<XCHELP topic=cmd_bell>
+<CENTER><FONT size=32 color=blue><B>/BELL</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /BELL
+
+<B><U>Description:</U></B>
+The /BELL commands rings the system BELL.
+It may also cause some screen savers to terminate, and activate the display again, depends on the screen-saver program.
+
+<B><U>History:</U></B>
+The /BELL command first appeared in XChatter version 0.5beta2.
+</PRE>
+</XCHELP>
