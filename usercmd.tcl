@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.15 2002-03-18 20:22:41 urish Exp $
+# $Id: usercmd.tcl,v 1.16 2002-03-19 10:10:07 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -50,6 +50,7 @@ proc usercmd_init {} {
 	ECHO	user_echo
 	PLUS	user_plus
 	LOAD	user_load
+	UNLOAD	user_unload
 	ALIAS	user_alias
 	TIMER   user_timer
 	TIMERS	user_timers
@@ -487,6 +488,17 @@ proc user_load {uargs} {
     }
     foreach ext $uargs {
 	load_extension $ext
+    }
+    return 1
+}
+
+proc user_unload {uargs} {
+    if ![llength [info commands unload_extension]] {
+	putcmsg no_plugins_loader
+	return 1
+    }
+    foreach ext $uargs {
+	unload_extension $ext
     }
     return 1
 }
