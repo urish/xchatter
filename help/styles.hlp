@@ -1,21 +1,21 @@
-<!-- $Id: styles.hlp,v 1.3 2001-09-29 00:21:35 urish Exp $ -->
+<!-- $Id: styles.hlp,v 1.4 2001-09-29 10:33:42 urish Exp $ -->
 <XCHELP topic=styles>
 <CENTER><FONT size=32 color=blue><B>XChatter Text Styles</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Description:</U></B>
 XChatter has a builtin support for text styles.
-The following styles are available:
-<B>BOLD text</B> - a text containing this style will look differently than a normal text.
-    To apply this style on some text, hit Ctrl+B before typing the text you want to be bold,
-    and an additional Ctrl+B after it, the cancel the bold effect to the following text (That is, surround the text you want to be bold with two Ctrl+B's).
-<B>BLINKING text</B> - this style will make your text blinking. XChatter provides a very nice fading effect for a blinking text.
-    To apply this style on some text, use the same method for applying bold text style, but using Ctrl+K instead Ctrl+S.
+The following text styles are supported:
+<B>BOLD text</B> - A text with this style applied on will look differently than a normal text.
+    To apply this style on some text, simply hit the Ctrl+B key-pair twice: once before typing the text you want to be bold, and once after it (That is, surround the text you want to be bold with two Ctrl+B's).
+<B>BLINKING text</B> - Applying this style on some text will make it blink. XChatter provides a very nice fading effect for a blinking text. Other clients may display it differently, or may even not support it.
+    To apply this style on some text, use the same method for applying bold text style, but using the Ctrl+K key-pair instead of using Ctrl+B.
+<B>Important note</B> - The text won't appear bold nor blinking in the XChatter input line. Instead, strange characters may appear whenever you'll hit Ctrl+K/Ctrl+B. Those characters will be converted to bold/blinking text effects once you finish typing the line, and press enter.
 
-Note that the XChatter Plus Styles extention provides a much more wider range of text styles (such as colored text, underlined text, and so on).
+Note that the XChatter Plus Styles extention provides a much wider range of text styles (such as colored text, underlined text, superscript, and much more).
 
 <B><U>History:</U></B>
-The bold/blinking text support first appeared in XChatter 0.2 (as read-only).
-The support for adding bold/blink effect using Ctrl+B, Ctrl+K first appeared in XChatter 0.3.
-A few bugs with the Ctrl+K, Ctrl+B keys where fixed in XChatter 0.5.
+The bold/blinking text support first appeared in XChatter 0.2 (read-only).
+The support for inserting bold/blink effect using Ctrl+B, Ctrl+K first appeared in XChatter 0.3.
+A few bugs with the Ctrl+K, Ctrl+B keys (when inserted in the middle of a line) where fixed in XChatter 0.5.
 </PRE>
 </XCHELP>
