@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.8 2001-10-07 12:34:28 urish Exp $
+# $Id: styles.ext,v 1.9 2001-10-26 22:29:13 amirs Exp $
 
 namespace eval styles {
     variable stylemap
@@ -97,7 +97,7 @@ namespace eval styles {
     proc destroy {} {
 	rm_timer disappear_timer
 	unevent usercmd [list [namespace current]::ucmd_snick	\
-			[namespace current]::user_action]
+			[namespace current]::ucmd_action]
 	unevent servercmd [list [namespace current]::servercmd_nick_style	\
 			  [namespace current]::servercmd_nick_style_search \
 			  [namespace current]::servercmd_action]
