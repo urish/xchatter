@@ -1,4 +1,4 @@
-<!-- $Id: help.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
+<!-- $Id: help.hlp,v 1.2 2001-09-01 12:27:59 urish Exp $ -->
 <XCHELP topic=cmd_help>
 <CENTER><FONT size=32 color=blue><B>/HELP</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -7,7 +7,7 @@
 <B><U>Description:</U></B>
 The /HELP command displays a requested topic from XChatter's online help.
 If no topic is given, then the help index is displayed.
-If the requested topic could not be found, then an error message is displayed.
+If the requested topic could not be found, an error message is displayed.
 
 <B><U>History:</U></B>
 The /HELP command first appeared in XChatter version 0.2.

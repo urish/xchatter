@@ -1,6 +1,6 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.2 2001-08-11 11:54:04 uri Exp $
+# $Id: compile.tcl,v 1.3 2001-09-01 12:27:59 urish Exp $
 
 proc process_text {text} {
     global tags help
@@ -233,7 +233,9 @@ proc process_file {fname} {
 	    }
 	    1 {
 		if {$ch == ">"} {
-		    if {[string tolower [lindex [split $tagdata] 0]] == "br"} {
+		    if {[string index $tagdata 0] == "."} {
+			append result "<[string range $tagdata 1 end]>"
+		    } elseif {[string tolower [lindex [split $tagdata] 0]] == "br"} {
 			append result \n
 		    } else {
 			process_text $result

@@ -1,4 +1,4 @@
-<!-- $Id: nickinvalid.hlp,v 1.1 2001-07-25 15:32:11 uri Exp $ -->
+<!-- $Id: nickinvalid.hlp,v 1.2 2001-09-01 12:27:59 urish Exp $ -->
 <XCHELP topic=error_nickinvalid>
 <CENTER><FONT size=32 color=blue><B>'Invalid nick' error</B></FONT></CENTER><BR><BR>
 <PRE>
@@ -12,6 +12,6 @@ As for AICP protocol version 205, the following rules apply for a valid nickname
 Nicknames can't contain <LINK topic="styles">style characters</LINK>.
 
 <B><U>Error code:</U></B>
-The code for this error is 105.
+The AICP code for this error is 105.
 </PRE>
 </XCHELP>

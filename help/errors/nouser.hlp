@@ -1,10 +1,11 @@
-<!-- $Id: nouser.hlp,v 1.1 2001-07-25 15:32:12 uri Exp $ -->
+<!-- $Id: nouser.hlp,v 1.2 2001-09-01 12:27:59 urish Exp $ -->
 <XCHELP topic=error_nouser>
 <CENTER><FONT size=32 color=blue><B>'No such user' error</B></FONT></CENTER><BR><BR>
 <PRE>
 
 <B><U>Description:</U></B>
-This error occurs when you sent a 
+This error occurs when you sent a request to some user (e.g. PING, TIME, MESSAGE, BEEP, ...) that does not exists on the server.
+It can also happen if you are using the XChatter plus text-styles extention, in case that a user connected and immediately disconnected.
 
 <B><U>Error code:</U></B>
 The code for this error is 105.
