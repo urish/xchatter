@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.7 2001-09-02 08:39:20 amirs Exp $
+# $Id: usercmd.tcl,v 1.8 2001-09-02 08:49:23 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -306,9 +306,8 @@ proc user_admin {uargs} {
 }
 
 proc user_away_timer {} {
-    global away_timer away_reason away_since
-    user_act "is still away ($away_reason) since [duration [expr [clock seconds] - $away_since]]"
-    set away_timer [after [expr 15 * 60 * 1000] user_away_timer]
+    global away
+    user_act "is still away ($away(reason)) since [duration [expr [clock seconds] - $away(since)]]"
     return 1
 }
 
@@ -318,30 +317,31 @@ proc user_away {uargs} {
     if {$uargs == ""} {
 	if ![info exists away(reason)] {
 	    putcmsg back_not_away
-	    return
+	    return 1
 	}
 	putsock "GCMD ACTION is back from death: was away for [duration [expr [clock seconds] - $away(since)]]."
 	putcmsg away_back t [duration [expr [clock seconds] - $away(since)]]
-	after cancel $away(timer)
+	rm_timer away
 	unset away
-	return
+	return 1
     }
     if [info exists away_reason] {
 	set away(reason) $uargs
 	putsock "GCMD ACTION has changed his away reason ($uargs)"
 	putcmsg away_reason_changed t $uargs
-	return
+	return 1
     }
     set away(reason) $uargs
     set away(since) [clock seconds]
-    set away(timer) [after [expr 15 * 60000] user_away_timer]
-    putsock "GCMD ACTION is away ($uargs)"
+    timer away tcl [expr 15 * 60000] 0 user_away_timer
+    timer away tcl 1000 0 user_away_timer
+    user_act "is away ($uargs)"
     putcmsg away_set t $uargs
     return 1
 }
 
 proc user_back {args} {
-    user_away ""
+    return [user_away ""]
 }
 
 proc user_plugin {uargs} {
