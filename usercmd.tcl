@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.9 2001-09-02 09:06:12 amirs Exp $
+# $Id: usercmd.tcl,v 1.10 2001-09-02 09:07:40 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -325,7 +325,7 @@ proc user_away {uargs} {
 	unset away
 	return 1
     }
-    if [info exists away_reason] {
+    if [info exists away(reason)] {
 	set away(reason) $uargs
 	putsock "GCMD ACTION has changed his away reason ($uargs)"
 	putcmsg away_reason_changed t $uargs
