@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.6 2002-03-23 15:36:47 amirs Exp $
+# $Id: main.tcl,v 1.7 2002-03-25 12:35:11 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -27,6 +27,7 @@ EXTENTION canvas VERSION 1.1 BUILD 6
     
     proc unload {} {
 	unevent servercmd [namespace current]::server_cmd_draw
+	unevent usercmd [namespace current]::ucmd_canvas_lock
 	destroy .drawing_canvas
     }
 
