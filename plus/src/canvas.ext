@@ -1,10 +1,14 @@
-EXTENTION canvas-1.1-2
-# $Id: canvas.ext,v 1.1 2001-07-25 15:32:14 uri Exp $
+EXTENTION canvas-1.1-3
+# $Id: canvas.ext,v 1.2 2001-07-31 10:21:24 uri Exp $
 
 namespace eval canvas {
     variable last_active_color
     variable linewidth 1 color
+    variable gridsize
     variable canvas_lock "*"
+    variable align_angle 22.5
+    set gridsize(x) 5
+    set gridsize(y) 5
 
     proc init {} {
 	onevent servercmd DRAW [namespace current]::server_cmd_draw
@@ -37,9 +41,9 @@ namespace eval canvas {
     proc canvas_init {} {
 	canvas .drawing_canvas.canvas -cursor pencil -relief raised -border 2 -height 20 -width 50
 	grid configure .drawing_canvas.canvas -in .drawing_canvas.topframe -row 1 -column 1 -sticky nswe
-	bind .drawing_canvas.canvas <B1-Motion> "[namespace current]::canvas_motion %x %y"
-	bind .drawing_canvas.canvas <ButtonPress-1> "[namespace current]::canvas_press %x %y"
-	bind .drawing_canvas.canvas <ButtonRelease-1> "[namespace current]::canvas_release %x %y"
+	bind .drawing_canvas.canvas <B1-Motion> "[namespace current]::canvas_motion %x %y %s"
+	bind .drawing_canvas.canvas <ButtonPress-1> "[namespace current]::canvas_press %x %y %s"
+	bind .drawing_canvas.canvas <ButtonRelease-1> "[namespace current]::canvas_release %x %y %s"
 	grid rowconfigure .drawing_canvas.topframe 1 -weight 1
 	grid columnconfigure .drawing_canvas.topframe 1 -weight 1
     }
@@ -111,6 +115,36 @@ namespace eval canvas {
 	}
     }
     
+    proc align_to_grid_x {x} {
+	variable gridsize
+	return [expr round(double($x) / $gridsize(x)) * $gridsize(x)]
+    }
+    
+    proc align_to_grid_y {y} {
+	variable gridsize
+	return [expr round(double($y) / $gridsize(y)) * $gridsize(y)]
+    }
+    
+    # The following proc was written by doomzday <d00mzy@hotmail.com>
+    proc align_line {sx sy ex ey} {
+	variable align_angle
+	set radius [expr sqrt(abs($sy-$ey)*abs($sy-$ey)+abs($sx-$ex)*abs($sx-$ex))]
+	set angle [expr asin(double(abs($ey-$sy)/$radius)) * 180.0 / acos(-1)]
+	set bound [expr int($angle / $align_angle) * $align_angle]
+	if {$angle - $bound > $bound + $align_angle - $angle} {
+	    set bound [expr $bound + $align_angle]
+	}
+	set addx [expr cos(double($bound*acos(-1)/180))*$radius]
+	set addy [expr sin(double($bound*acos(-1)/180))*$radius]
+	if {$sx > $ex} {
+	    set addx [expr $addx*-1]
+	}
+	if {$sy > $ey} {
+	    set addy [expr $addy*-1]
+	}
+	return [list [expr round($sx + $addx)] [expr round($sy + $addy)]]
+    }
+			
     proc select_color {widget} {
 	variable color
 	variable last_active_color
@@ -122,36 +156,65 @@ namespace eval canvas {
 	}
     }
     
-    proc canvas_press {x y} {
+    proc canvas_press {x y shift} {
 	variable start_coords
-	set start_coords(x) $x
-	set start_coords(y) $y
+	if {$shift & 0x4} {
+	    set start_coords(x) [align_to_grid_x $x]
+	    set start_coords(y) [align_to_grid_y $y]
+	} else {
+	    set start_coords(x) $x
+	    set start_coords(y) $y
+	}
     }
     
-    proc canvas_motion {x y} {
+    proc canvas_motion {x y shift} {
 	variable start_coords
 	variable color
 	variable linewidth
+	variable tempitem
 	if ![info exists start_coords] {
 	    return
 	}
-	if [info exists start_coords(tempitem)] {
-	    .drawing_canvas.canvas delete $start_coords(tempitem)
+	if {$shift & 0x1} {
+	    set xy [align_line $start_coords(x) $start_coords(y) $x $y]
+	    set x [lindex $xy 0]
+	    set y [lindex $xy 1]
 	}
-	set start_coords(tempitem) [.drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth]
+	if {$shift & 0x4} {
+	    set x [align_to_grid_x $x]
+	    set y [align_to_grid_y $y]
+	}
+	if [info exists tempitem] {
+	    .drawing_canvas.canvas coords $tempitem $start_coords(x) $start_coords(y) $x $y
+	} else {
+	    lappend item line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
+	    set tempitem [eval .drawing_canvas.canvas create $item]
+	}
     }
     
-    proc canvas_release {x y} {
+    proc canvas_release {x y shift} {
 	variable start_coords
 	variable color
 	variable linewidth
+	variable tempitem
 	if ![info exists start_coords] {
 	    return
 	}
-	if [info exists start_coords(tempitem)] {
-	    .drawing_canvas.canvas delete $start_coords(tempitem)
+	if {$shift & 0x1} {
+	    set xy [align_line $start_coords(x) $start_coords(y) $x $y]
+	    set x [lindex $xy 0]
+	    set y [lindex $xy 1]
 	}
-	.drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
+	if {$shift & 0x4} {
+	    set x [align_to_grid_x $x]
+	    set y [align_to_grid_y $y]
+	}
+	if [info exists tempitem] {
+	    .drawing_canvas.canvas coords $start_coords(x) $start_coords(y) $x $y
+	    unset tempitem
+	} else {
+	    .drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
+	}
 	set args ""
 	if {$color(fg) != "black"} {
 	    lappend args -fill $color(fg)
@@ -159,7 +222,7 @@ namespace eval canvas {
 	if {$linewidth != 1} {
 	    lappend args -width $linewidth
 	}
-	putsock "GCMD DRAW line $start_coords(x) $start_coords(y) $x $y $args"
+	putsock "GCMD DRAW line $start_coords(x) $start_coords(y) $x $y $args" 1
 	unset start_coords
     }
     
