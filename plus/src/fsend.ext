@@ -24,9 +24,9 @@ namespace eval fsend {
 	    xcplus_fsend_closed "*** Closed file transfer with %n of file '%f'."
 	    xcplus_fsend_list_header "Transfer list:"
 	    xcplus_fsend_list_send "%x. Waiting for %n to accept '%f'"
-	    xcplus_fsend_list_send_e "%x. Sending '%f' to %n"
+	    xcplus_fsend_list_send_e "%x. Sending '%f' to %n: %d%% (%kkb/sec)"
 	    xcplus_fsend_list_get "%x. Incoming transfer of '%f' from %n"
-	    xcplus_fsend_list_get_e "%x. Getting file '%f' from %n"
+	    xcplus_fsend_list_get_e "%x. Receiving '%f' from %n: %d%% (%kkb/sec)"
 	}
     }
     
@@ -70,10 +70,16 @@ namespace eval fsend {
 	    } else {
 		set type xcplus_fsend_list_get
 	    }
+	    set kbs ""
+	    set done ""
 	    if {$dcc($num,working)} {
 		set type ${type}_e
+		set time [expr [clock seconds] - $dcc($num,started)]
+		if {$time < 1} { set time 1 }	
+		set kbs [expr $dcc($num,nowsize) / 1024 / $time]
+		set done [expr (($dcc($num,nowsize) / 1024) * 100) / ($dcc($num,filesize) / 1024)]
 	    }
-	    putcmsg $type x $num n $dcc($num,nick) f $dcc($num,file)
+	    putcmsg $type x $num n $dcc($num,nick) f $dcc($num,file) d $done k $kbs
 	}
 	return 1
     }
@@ -165,12 +171,13 @@ namespace eval fsend {
 	}
 	set num [allocate_dcc SEND $nick [strip_file $file] $fd]
 	set dcc($num,realfile) $file
+	set dcc($num,filesize) [file size $file]
 	if {![dcc_listen $num]} {
 	    free_dcc $num
 	    putcmsg xcplus_fsend_error_init
 	    return
 	}
-	dcc_informuser $num [file size $file]
+	dcc_informuser $num $dcc($num,filesize)
     }
     
     proc dcc_get {num file} {
@@ -195,6 +202,7 @@ namespace eval fsend {
 	unset dcc($num,magickey)
 	flush $dcc($num,myfd)
 	set dcc($num,working) 1
+	set dcc($num,started) [clock seconds]
 	fconfigure $dcc($num,myfd) -blocking 0 -translation binary -buffering none
 	putcmsg xcplus_fsend_established n $dcc($num,nick) f $dcc($num,file)
 	fcopy $dcc($num,myfd) $dcc($num,fd) -command [list [namespace current]::dcc_client_in $num $dcc($num,myfd)] -size 1024
@@ -217,6 +225,7 @@ namespace eval fsend {
 	set dcc($x,nick) $nick
 	set dcc($x,file) $file
 	set dcc($x,working) 0
+	set dcc($x,nowsize) 0
 	if {$fd != -1} { set dcc($x,fd) $fd }
 	return $x
     }
@@ -269,6 +278,8 @@ namespace eval fsend {
 	}
 	unset dcc($num,magickey)
 	set dcc($num,working) 1
+	set dcc($num,nowsize) 0
+	set dcc($num,started) [clock seconds]
 	fconfigure $idx -blocking 0 -translation binary -buffering none
 	fileevent $idx readable ""
 	fcopy $dcc($num,fd) $idx -command [list [namespace current]::dcc_server_out $num $idx] -size 1024
@@ -277,6 +288,7 @@ namespace eval fsend {
     proc dcc_server_out {num idx bytes {error {}}} {
 	variable dcc
 	flush $idx
+	incr dcc($num,nowsize) $bytes
 	if {[string length $error] != 0 || [eof $dcc($num,fd)]} {
 	    putcmsg xcplus_fsend_completed f $dcc($num,file) n $dcc($num,nick)
 	    free_dcc $num
