@@ -1,4 +1,4 @@
-<!-- $Id: index.hlp,v 1.3 2001-09-15 13:23:33 urish Exp $ -->
+<!-- $Id: index.hlp,v 1.4 2001-09-29 00:20:34 urish Exp $ -->
 <XCHELP topic=index>
 <CENTER><FONT size=32 color=blue><B>XChatter HELP</B></FONT></CENTER><BR><BR>
 Welcome to XChatter 0.5 online HELP.<BR>
@@ -8,5 +8,6 @@ Please choose a topic from the list below:<BR>
 <LINK topic="scripting">Scripting Commands</LINK>
 <LINK topic="aicp">The chatting protocol (AICP)</LINK>
 <LINK topic="xcplus">XChatter plus extention</LINK>
+<LINK topic="styles">Text styles</LINK>
 </PRE>
 </XCHELP>
