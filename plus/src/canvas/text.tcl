@@ -1,7 +1,11 @@
-# $Id: text.tcl,v 1.2 2002-03-31 19:15:39 amirs Exp $
+# $Id: text.tcl,v 1.3 2002-04-01 10:39:20 amirs Exp $
 
 namespace eval texttool {
-    namespace import    [namespace parent]::putcmd
+    namespace import    [namespace parent]::putcmd 		\
+			[namespace parent]::register_tool
+
+    register_tool text 	texttool {text 6 2 -anchor nw -font {Helvetica 24} -justify left -text "A"}
+    
     # register tools
     variable font {-family times -size 12}
     variable shape ""

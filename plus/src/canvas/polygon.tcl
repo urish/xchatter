@@ -1,11 +1,17 @@
-# $Id: polygon.tcl,v 1.5 2002-03-31 19:15:39 amirs Exp $
+# $Id: polygon.tcl,v 1.6 2002-04-01 10:39:20 amirs Exp $
 
 # polygons (multi-line based tools)
 namespace eval polygon {
     namespace import	[namespace parent]::align_to_grid_x	\
 			[namespace parent]::align_to_grid_y	\
 			[namespace parent]::align_line		\
-			[namespace parent]::putcmd		
+			[namespace parent]::putcmd		\
+			[namespace parent]::register_tool
+    
+    register_tool polygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill ""}
+    register_tool fpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white}
+    register_tool cpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill "" -smooth 1}
+    register_tool cfpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white -smooth 1}
 
     proc press {x y shift} {
 	variable coords

@@ -1,11 +1,18 @@
-# $Id: rect.tcl,v 1.5 2002-03-31 19:15:39 amirs Exp $
+# $Id: rect.tcl,v 1.6 2002-04-01 10:39:20 amirs Exp $
 
 namespace eval recttool {
     namespace import	[namespace parent]::align_to_grid_x	\
 			[namespace parent]::align_to_grid_y	\
 			[namespace parent]::align_line		\
-			[namespace parent]::putcmd		
+			[namespace parent]::putcmd		\
+			[namespace parent]::register_tool
 
+    register_tool line	recttool {line 3 25 25 3 -fill black} 
+    register_tool rectangle recttool {rectangle 25 25 4 4 -outline black}
+    register_tool frectangle recttool {rectangle 25 25 4 4 -outline black -fill white}
+    register_tool oval	recttool {oval 25 25 4 4 -outline black}
+    register_tool foval	recttool {oval 25 25 4 4 -outline black -fill white}
+    
     proc press {x y shift} {
 	variable coords
 	if {$shift & 0x4} {
