@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.13 2001-10-02 10:04:22 amirs Exp $
+# $Id: usercmd.tcl,v 1.14 2002-03-16 11:31:41 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -19,7 +19,7 @@ proc usercmd_init {} {
 	RAW	user_raw
 	CLEAR	user_clear
 	TCL	user_tcl
-	PLUGIN	user_plugin
+	PLUGIN	user_plus
 	CONN	user_server
 	CONNECT	user_server
 	S	user_server
@@ -48,6 +48,7 @@ proc usercmd_init {} {
 	EXEC	user_exec
 	ECHO	user_echo
 	PLUS	user_plus
+	LOAD	user_load
 	ALIAS	user_alias
 	TIMER   user_timer
 	TIMERS	user_timers
@@ -133,7 +134,7 @@ proc process_alias {name aargs} {
 }
 
 proc user_cmd {text} {
-    global aliases aliaslevel plugins errorInfo
+    global aliases aliaslevel errorInfo
     set cmd [lindex $text 0]
     set args [lrange $text 1 end]
     if {[incr aliaslevel] > 100} {
@@ -143,18 +144,6 @@ proc user_cmd {text} {
     }
     if [process_alias $cmd $args] {
 	return
-    }
-    foreach i $plugins {
-	if ![catch {$i $cmd $args} result] {
-	    if {$result == 1} {
-		set aliaslevel 0
-		return
-	    }
-	} else {
-	    putcmsg plugin_err p $i t $result
-	    set aliaslevel 0
-	    return
-	}
     }
     if ![process_event usercmd [string toupper $cmd] $args] {
 	putcmsg invalid_cmd t $cmd
@@ -344,14 +333,6 @@ proc user_back {args} {
     return [user_away ""]
 }
 
-proc user_plugin {uargs} {
-    global plugins
-    if [catch {source $uargs} err] {
-	putcmsg plugin_error t $err
-    }
-    return 1
-}
-
 proc user_list {uargs} {
     putsock "LIST"
     return 1
@@ -494,45 +475,17 @@ proc user_echo {uargs} {
 }
 
 proc user_plus {uargs} {
-    global errorInfo numver
-    foreach dir {{} plugins/ plus/ xcplus/} {
-	foreach file {xcplus.xcp xcplus.tcl xchatter+.tcl xchatter+.xcp} {
-	    if [file readable $dir$file] {
-		set fname $dir$file
-	    }
-	}
-    }
-    if ![info exists fname] {
-	putcmsg no_xchatter_plus
+    putcmsg no_plus
+    return 1
+}
+
+proc user_load {uargs} {
+    if ![llength [info commands load_extension]] {
+	putcmsg no_plugins_loader
 	return 1
     }
-    set xcplusfd [open $fname r]
-    while {![eof $xcplusfd]} {
-	set line [gets $xcplusfd]
-	if [string match "# xchatter-plus*" $line] {
-	    set header [split $line ~]
-	    set minver [lindex $header 3]
-	    set maxver [lindex $header 4]
-	    if [catch {expr ($numver <= $maxver || !$maxver) && $numver >= $minver} result] {
-		unset header
-		continue
-	    }
-	    if !$result {
-		putcmsg xchatter_plus_badver v $numver m $maxver n $minver f $fname
-		return 1
-	    }
-	    break
-	}
-    }
-    close $xcplusfd
-    if ![info exists header] {
-	putcmsg bad_xchatter_plus f $fname
-	return 1
-    }
-    if [catch {source $fname} err] {
-	putcmsg xchatter_plus_tclerror t $errorInfo
-    } elseif {[string trim [join $uargs]] != ""} {
-	process_command "/LOAD $uargs"
+    foreach ext $uargs {
+	load_extension $ext
     }
     return 1
 }
