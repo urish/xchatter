@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.11 2001-10-01 08:07:07 urish Exp $
+# $Id: usercmd.tcl,v 1.12 2001-10-02 09:38:36 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -49,7 +49,7 @@ proc usercmd_init {} {
 	ECHO	user_echo
 	PLUS	user_plus
 	ALIAS	user_alias
-	TIMER   user_timers
+	TIMER   user_timer
 	TIMERS	user_timers
 	TIMESTAMP user_timestamp
     }
@@ -550,11 +550,11 @@ proc get_interval {interval} {
 	set tudigits 1
     }
     *s {
-        set timeunit 
+        set timeunit 1000
 	set tudigits 1
     }
     *h {
-        set timeunit 36000000
+        set timeunit 3600000
 	set tudigits 1
     }
     }
@@ -582,61 +582,29 @@ proc get_interval_name {i} {
 }
 
 proc user_timers {uargs} {
+    putcmsg timer_list_start
+    set timer_cnt 0
+    foreach i [timers tcl *] {
+	set int [timer_info $i interval]
+	putcmsg timer_list_tclentry n $i t [timer_info $i command] i $int I [get_interval_name $int]
+	incr timer_cnt
+    }
+    foreach i [timers script *] {
+	set int [timer_info $i interval]
+	putcmsg timer_list_entry n $i t [timer_info $i command] i $int I [get_interval_name $int]
+	incr timer_cnt
+    }
+    putcmsg timer_list_end d $timer_cnt
+    return 1
+}
+
+proc user_timer {uargs} {
     global timers
-    set cmd [strtok uargs]
-    switch -glob -- [string toupper $cmd] {
-	LIST - {\?} - {} {
-	    putcmsg timer_list_start
-	    set timer_cnt 0
-	    foreach i [timers tcl *] {
-		set int [timer_info $i interval]
-		putcmsg timer_list_tclentry n $i t [timer_info $i command] i $int I [get_interval_name $int]
-		incr timer_cnt
-	    }
-	    foreach i [timers script *] {
-		set int [timer_info $i interval]
-		putcmsg timer_list_entry n $i t [timer_info $i command] i $int I [get_interval_name $int]
-		incr timer_cnt
-	    }
-	    putcmsg timer_list_end d $timer_cnt
-	}
-	ADD - CREATE - +* {
-	    if [string match "+?*" $cmd] {
-		set name [string range $cmd 1 end]
-	    } else {
-		set name [strtok uargs]
-	    }
-	    set interval [strtok uargs]
-	    set command [strrest uargs]
-	    if {$name == ""} {
-		putcmsg timer_error_noname
-		return 1
-	    }
-	    if {$interval == ""} {
-		putcmsg timer_error_nointerval
-		return 1
-	    }
-	    set interval [get_interval $interval]
-	    if {$interval == ""} {
-		putcmsg timer_error_badinterval
-		return 1
-	    } 
-	    if {$command == ""} {
-		putcmsg timer_error_nocmd
-		return 1
-	    }
-	    if {[string tolower [string range $name 0 1]] == "t#"} {
-		putcmsg timer_error_badname
-		return 1
-	    }
-	    if {[string tolower $name] == "auto"} {
-		set name "t#[incr timers(auto_counter)]"
-	    }
-	    timer $name script $interval 0 $command
-	}
-	DEL - DELETE - REMOVE - RM - -* {
-	    if [string match "-?*" $cmd] {
-		set name [string range $cmd 1 end]
+    set name [strtok uargs]
+    switch -glob -- [string toupper $name] {
+	-* {
+	    if [string match "-?*" $name] {
+		set name [string range $name 1 end]
 	    } else {
 	    	set name [strtok uargs]
 	    }	
@@ -650,8 +618,46 @@ proc user_timers {uargs} {
 		putcmsg timer_del_error n $name
 	    }
 	}
-	default {
-	    putcmsg timer_bad_subcmd t $cmd
+	* {
+	    if [string match "+?*" $name] {
+		set name [string range $name 1 end]
+	    }
+	    set interval [split [strtok uargs] :]
+	    set count [lindex $interval 1]
+	    set interval [lindex $interval 0]
+	    set command [strrest uargs]
+	    if {$name == ""} {
+		putcmsg timer_error_noname
+		return 1
+	    }
+	    if {[string tolower [string range $name 0 1]] == "t#"} {
+		putcmsg timer_error_badname
+		return 1
+	    }
+	    if {[string tolower $name] == "auto"} {
+		set name "t#[incr timers(auto_counter)]"
+	    }
+	    if {$interval == ""} {
+		putcmsg timer_error_nointerval
+		return 1
+	    }
+	    set interval [get_interval $interval]
+	    if {$interval == ""} {
+		putcmsg timer_error_badinterval
+		return 1
+	    }
+	    if {$command == "" && [timer_info $name type] == ""} {
+		putcmsg timer_error_nocmd
+		return 1
+	    }
+	    if {$count == ""} {
+		set count 0
+	    }
+	    if [catch {expr $count + 1}] {
+		putcmsg timer_error_badcount
+		return 1
+	    }
+	    timer $name script $interval $count $command
 	}
     }
     return 1

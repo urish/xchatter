@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.6 2001-09-30 18:38:26 amirs Exp $
+# $Id: xchatter.tcl,v 1.7 2001-10-02 09:38:36 amirs Exp $
 
 set version 0.5
 set numver 50.0
@@ -210,6 +210,7 @@ proc exechook {hook args} {
 # Timer system
 proc timer_proc {name} {
     global timers
+    unset timers($name,timer)
     if {$timers($name,type) == "tcl"} {
         eval $timers($name,command)
     } else {
@@ -218,6 +219,7 @@ proc timer_proc {name} {
     if {$timers($name,count)} {
 	incr timers($name,count) -1
 	if {$timers($name,count) == 0} {
+	    rm_timer $name
 	    return
 	}
     }
@@ -231,14 +233,16 @@ proc timer {name type interval count command} {
     set timers($name,timer) [after $interval "timer_proc [list $name]"]
     set timers($name,interval) $interval
     set timers($name,count) $count
-    set timers($name,command) $command
     set timers($name,type) $type
+    if {$command != "" || ![info exists timers($name,command)]} {
+	set timers($name,command) $command
+    }
 }
 
 proc rm_timer {name} {
     global timers
     set name [string tolower $name]
-    if [catch {after cancel $timers($name,timer)}] {
+    if {[info exists timers($name,timer)] && [catch {after cancel $timers($name,timer)}]} {
 	return 0
     }
     foreach i [array names timers $name,*] {
