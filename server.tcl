@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.4 2001-08-13 11:53:52 uri Exp $
+# $Id: server.tcl,v 1.5 2001-08-14 13:48:12 amir Exp $
 
 proc server_init {} {
     # register events
@@ -108,14 +108,14 @@ proc disconnect {} {
 proc server_glob {sargs} {
     set nick [lindex $sargs 0]
     set text [join [lrange $sargs 1 end]]
-    putcmsg -user $nick -type global glob_msg n $nick t $text
+    putcmsg glob_msg -nick $nick -type global n $nick t $text
     return 1
 }
 
 proc server_msg {sargs} {
     set nick [lindex $sargs 0]
     set text [join [lrange $sargs 1 end]]
-    putcmsg -user $nick -type in priv_msg n $nick t $text
+    putcmsg priv_msg -nick $nick -type in n $nick t $text
     return 1
 }
 
@@ -128,10 +128,10 @@ proc server_pong {sargs} {
     set source [lindex $sargs 0]
     set data [join [lrange $sargs 1 end]]
     if [catch {set ptime [expr [clock seconds] - [lindex $data 0]]}] {
-	putcmsg -user $nick -type in invalid_ping_reply n $source t $data
+	putcmsg invalid_ping_reply -nick $nick -type in n $source t $data
 	return
     }
-    putcmsg -user $nick -type in ping_reply n $source t $ptime
+    putcmsg ping_reply -nick $nick -type in n $source t $ptime
     return 1
 }
 
@@ -153,7 +153,7 @@ proc server_nick {sargs} {
 	return
     }
     if {[string tolower $oldnick] == [string tolower $nick]} {
-	putcmsg -nick $oldnick -type server nick_change o $oldnick n $newnick
+	putcmsg nick_change -nick $oldnick -type server o $oldnick n $newnick
 	set nick $newnick
     } else {
         putcmsg user_nick_change o $oldnick n $newnick
@@ -167,14 +167,14 @@ proc server_admin {sargs} {
 }
 
 proc server_join {sargs} {
-    putcmsg -nick [lindex $sargs 0] -type server user_join n [lindex $sargs 0]
+    putcmsg user_join -nick [lindex $sargs 0] -type server n [lindex $sargs 0]
     return 1
 }
 
 proc server_quit {sargs} {
     set user [lindex $sargs 0]
     set reason [join [lrange $sargs 1 end]]
-    putcmsg -nick $user -type server user_quit n $user t $reason
+    putcmsg user_quit -nick $user -type server n $user t $reason
     return 1
 }
 
@@ -182,7 +182,7 @@ proc server_err {sargs} {
     if [process_alias [list onError[lindex $sargs 0]] [lrange $sargs 1 end]] {
         return
     }
-    putcmsg -type error server_error d [lindex $sargs 0] t [join [lrange $sargs 1 end]]
+    putcmsg server_error -type error d [lindex $sargs 0] t [join [lrange $sargs 1 end]]
     return 1
 }
 
@@ -194,11 +194,11 @@ proc server_ver {sargs} {
 proc server_list {sargs} {
     global slist
     if ![info exists slist] {
-	putcmsg -type list user_list_start
+	putcmsg user_list_start -type list 
 	set slist 0
     }
     if {[string toupper $sargs] == "END"} {
-	putcmsg -type list user_list_end d $slist
+	putcmsg user_list_end -type list d $slist
 	unset slist
 	return
     }
@@ -209,7 +209,7 @@ proc server_list {sargs} {
     } else {
 	set ip ""
     }
-    putcmsg -type list user_list_entry n $user i $ip
+    putcmsg user_list_entry -type list n $user i $ip
     incr slist
     return 1
 }
@@ -219,7 +219,7 @@ proc server_info {sargs} {
     set ip   [lindex $sargs 3]
     set idle [lindex $sargs 5]
     set conn [lindex $sargs 7]
-    putcmsg -user $user -type info user_info n $user i $ip l [duration $idle] s [clock format $conn]
+    putcmsg user_info -nick $user -type info n $user i $ip l [duration $idle] s [clock format $conn]
     return 1
 }
 
@@ -258,7 +258,7 @@ proc server_gcmd {sargs} {
 }
 
 proc server_cmd_action {source cargs} {
-    putcmsg -user $source -type global user_action n $source t [join $cargs]
+    putcmsg user_action -nick $source -type global n $source t [join $cargs]
     return 1
 }
 
