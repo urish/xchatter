@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.5 2001-08-11 15:18:19 uri Exp $
+# $Id: xchatter.tcl,v 1.6 2001-09-30 18:38:26 amirs Exp $
 
 set version 0.5
 set numver 50.0
@@ -188,7 +188,7 @@ proc unhook {args} {
     global hooks
     foreach proc $args {
 	foreach {hook procs} [array get hooks] {
-	    if {[set i [lsearch -exact $procs $proc]]} {
+	    if {[set i [lsearch -exact $procs $proc]] >= 0} {
 		set hooks($hook) [lreplace $procs $i $i]
 		if ![llength $hooks($hook)] {
 		    unset hooks($hook)
