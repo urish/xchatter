@@ -1,6 +1,6 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.1 2001-07-25 15:32:08 uri Exp $
+# $Id: compile.tcl,v 1.2 2001-08-11 11:54:04 uri Exp $
 
 proc process_text {text} {
     global tags help
@@ -289,11 +289,15 @@ proc find_help_files {dir} {
     }
 }
 
+if [info exists no_standalone] {
+    return
+}
+
 puts "Compiling help files, please hold on..."
-init_tags
 find_help_files .
 foreach i $helpfiles {
     puts "* $i"
+    init_tags
     process_file $i
 }
 
