@@ -1,5 +1,5 @@
-EXTENTION chess-0.9-1
-# $Id: chess.ext,v 1.2 2001-07-27 12:32:57 uri Exp $
+EXTENTION chess-0.9-3
+# $Id: chess.ext,v 1.3 2001-07-27 21:27:08 uri Exp $
 
 namespace eval chess {
     variable colors
@@ -35,6 +35,13 @@ namespace eval chess {
 	grid configure .chess.canvas -row 1 -column 1
 	draw_board 32 32
     }
+    
+    proc get_square_by_coords {x y} {
+	variable board
+	return [list \
+	    [expr ($x - $board(hoffs)) / $board(hsize)] \
+	    [expr ($y - $board(voffs)) / $board(vsize)]]
+    }
 
     proc get_square_coords {h v} {
 	variable board
@@ -43,13 +50,6 @@ namespace eval chess {
 	    [expr $board(voffs) + $v * $board(vsize)]	\
 	    [expr $board(hoffs) + $h * $board(hsize) + $board(hsize) - 1]\
 	    [expr $board(voffs) + $v * $board(vsize) + $board(vsize) - 1]]
-    }
-    
-    proc get_square_by_coords {x y} {
-	variable board
-	return [list \
-	    [expr ($x - $board(hoffs)) / $board(hsize)] \
-	    [expr ($y - $board(voffs)) / $board(vsize)]]
     }
     
     proc get_piece_coords {h v} {
@@ -215,7 +215,7 @@ namespace eval chess {
 	.chess.canvas bind pieces <Any-Enter> "[namespace current]::piece_enter"
 	.chess.canvas bind pieces <Any-Leave> "[namespace current]::piece_leave"
 	.chess.canvas bind pieces <ButtonPress-1> "[namespace current]::piece_press %x %y"
-	.chess.canvas bind pieces <ButtonRelease-1> "[namespace current]::piece_release %x %y %s"
+	.chess.canvas bind pieces <ButtonRelease-1> "[namespace current]::piece_release %x %y"
 	.chess.canvas bind pieces <B1-Motion> "[namespace current]::piece_drag %x %y"
     }
     
@@ -356,25 +356,8 @@ namespace eval chess {
     proc move_piece {piece source target player with_multi} {
 	variable board
 	variable game
-	set multi [info exists game(inmulti)]
-	if $multi {
-	    unset game(inmulti)
-	}
-	switch -- [can_move $piece $source $target $player $multi] {
-	    0 {
-		return 0
-	    }
-	    1 {
-		set multi 0
-	    }
-	    2 {
-		if $with_multi {
-		    set game(inmulti) 1
-		    set multi 1
-		} else {
-		    set multi 0
-		}
-	    }
+	if ![can_move $piece $source $target $player $multi] {
+	    return 0
 	}
 	# check - should item turn into queen ?
 	if {[lindex $target 1] == ($player ? 7 : 0)} {
@@ -423,10 +406,12 @@ namespace eval chess {
 	    return
 	}
 	.chess.canvas raise $piece
+	set coords [eval get_square_coords [get_square_by_coords $x $y]]
 	set current_piece(name) $piece
-	set current_piece(coords) [get_square_by_coords $x $y]
 	set current_piece(lastx) $x
 	set current_piece(lasty) $y
+	set current_piece(xoffs) [expr $x - [lindex $coords 0]]
+	set current_piece(yoffs) [expr $y - [lindex $coords 1]]
     }
     
     proc piece_drag {x y} {
@@ -440,17 +425,22 @@ namespace eval chess {
 	set current_piece(lasty) $y
     }
 
-    proc piece_brelease {x y state} {
+    proc piece_release {x y} {
 	variable current_piece
 	variable board
 	variable game
-	set with_multi [expr $state & 0x1]
 	if ![info exists current_piece] {
 	    return
 	}
 	set square [get_square_by_coords $x $y]
+	set coords [eval get_square_coords $square]
+	set xmove [expr [lindex $coords 0] + $current_piece(xoffs) - $current_piece(lastx)]
+	set ymove [expr [lindex $coords 1] + $current_piece(yoffs) - $current_piece(lasty)]
+	eval .chess.canvas move $current_piece(name) $xmove $ymove
+	return
 	if {$square == $current_piece(name)} {
-	    eval .chess.canvas coords $current_piece(name) [eval get_piece_coords $current_piece(coords)]
+	    
+	    eval .chess.canvas moveto $current_piece(name) [eval get_piece_coords $current_piece(coords)]
 	    return
 	}
 	if [set ret [move_piece $current_piece(name) $current_piece(coords) $square $board(u$current_piece(name)) $with_multi]] {
@@ -621,6 +611,5 @@ namespace eval chess {
 	    }
 	}
 	return 1
-    }
-    
+    }    
 }
