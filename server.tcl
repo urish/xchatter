@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.8 2001-12-02 22:55:05 urish Exp $
+# $Id: server.tcl,v 1.9 2002-03-16 11:36:40 urish Exp $
 
 proc server_init {} {
     # register events
@@ -142,6 +142,7 @@ proc server_reg {sargs} {
     global nick
     set nick [lindex $sargs 0]
     putcmsg nick_registered n $nick
+    userlist_add $nick
     return 1
 }
 
@@ -155,6 +156,8 @@ proc server_nick {sargs} {
     if {$oldnick == $newnick} {
 	return
     }
+    userlist_del $oldnick
+    userlist_add $newnick
     if {[string tolower $oldnick] == [string tolower $nick]} {
 	putcmsg nick_change -nick $oldnick -type server o $oldnick n $newnick
 	set nick $newnick
@@ -171,6 +174,7 @@ proc server_admin {sargs} {
 
 proc server_join {sargs} {
     putcmsg user_join -nick [lindex $sargs 0] -type server n [lindex $sargs 0]
+    userlist_add [lindex $args 0]
     return 1
 }
 
@@ -178,6 +182,7 @@ proc server_quit {sargs} {
     set user [lindex $sargs 0]
     set reason [join [lrange $sargs 1 end]]
     putcmsg user_quit -nick $user -type server n $user t $reason
+    userlist_del [lindex $args 0]
     return 1
 }
 
@@ -198,7 +203,20 @@ proc server_list {sargs} {
     global slist
     if ![info exists slist] {
 	putcmsg user_list_start -type list 
+	userlist_empty
 	set slist 0
+    }
+    if {$slist == "hidden1"} {
+	userlist_empty
+	incr slist
+	return 1
+    } elseif {$slist == "hidden2"} {
+	if {[string toupper $sargs] == "END"} {
+	  unset slist
+	  return 1
+	}
+	userlist_add [strtok sargs]
+	return 1
     }
     if {[string toupper $sargs] == "END"} {
 	putcmsg user_list_end -type list d $slist
@@ -215,6 +233,7 @@ proc server_list {sargs} {
 	}
     }
     putcmsg user_list_entry -type list n $user i $ip
+    userlist_add $user
     incr slist
     return 1
 }
