@@ -1,16 +1,16 @@
-EXTENTION canvas-1.1-5
-# $Id: canvas.ext,v 1.6 2001-08-13 23:36:12 uri Exp $
+EXTENTION canvas-1.1-6
+# $Id: main.tcl,v 1.1 2001-08-15 07:38:46 uri Exp $
 
 namespace eval canvas {
     variable last_active_color
     variable linewidth 1 color
-    variable tool 
-    variable last_active_tool
+    variable tools
     variable gridsize
     variable canvas_lock "*"
     variable align_angle 22.5
     set gridsize(x) 5
     set gridsize(y) 5
+    set tools(list) ""
 
     proc init {} {
 	onevent servercmd DRAW [namespace current]::server_cmd_draw
@@ -43,9 +43,12 @@ namespace eval canvas {
     proc canvas_init {} {
 	canvas .drawing_canvas.canvas -cursor pencil -relief raised -border 2 -height 20 -width 50
 	grid configure .drawing_canvas.canvas -in .drawing_canvas.topframe -row 1 -column 1 -sticky nswe
-	bind .drawing_canvas.canvas <B1-Motion> "[namespace current]::canvas_motion %x %y %s"
-	bind .drawing_canvas.canvas <ButtonPress-1> "[namespace current]::canvas_press %x %y %s"
-	bind .drawing_canvas.canvas <ButtonRelease-1> "[namespace current]::canvas_release %x %y %s"
+	bind .drawing_canvas.canvas <B1-Motion> "[namespace current]::tool_call motion %x %y %s"
+	bind .drawing_canvas.canvas <ButtonPress-1> "[namespace current]::tool_call press %x %y %s"
+	bind .drawing_canvas.canvas <ButtonRelease-1> "[namespace current]::tool_call release %x %y %s"
+	bind .drawing_canvas.canvas <B3-Motion> "[namespace current]::tool_call rmotion %x %y %s"
+	bind .drawing_canvas.canvas <ButtonPress-3> "[namespace current]::tool_call rpress %x %y %s"
+	bind .drawing_canvas.canvas <ButtonRelease-3> "[namespace current]::tool_call rrelease %x %y %s"
 	grid rowconfigure .drawing_canvas.topframe 1 -weight 1
 	grid columnconfigure .drawing_canvas.topframe 1 -weight 1
     }
@@ -86,38 +89,62 @@ namespace eval canvas {
 	set nexty 0
     }
     
+    proc register_tool {name namespace icondef} {
+	variable tools
+	if ![info exists tools(tool)] {
+	    set tools(tool) $name
+	}
+	lappend tools(list) $name
+	set tools($name.icondef) $icondef
+	set tools($name.namespace) $namespace
+    }
+    
     proc toolbox_init {} {
-	variable last_active_tool
-	variable tool
+	variable tools
+	# tool registration
+	register_tool line	recttool {line 3 25 25 3 -fill black} 
+	register_tool rectangle recttool {rectangle 25 25 4 4 -outline black}
+	register_tool frectangle recttool {rectangle 25 25 4 4 -outline black -fill white}
+	register_tool oval	recttool {oval 25 25 4 4 -outline black}
+	register_tool foval	recttool {oval 25 25 4 4 -outline black -fill white}
+	register_tool polygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill ""}
+	register_tool fpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white}
+	register_tool cpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill "" -smooth 1}
+	register_tool cfpolygon	polygon {polygon 4 4 4 22 22 25 22 4 14 16 -outline black -fill white -smooth 1}
+	# tool creation
 	frame .drawing_canvas.toolbox -relief raised -border 1 -width 200
 	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2 -sticky e
 	set counter 0
-	foreach {name create} {
-		line 		{line 3 25 25 3 -fill black} 
-		rectangle	{rectangle 25 25 4 4 -outline black}
-		frectangle	{rectangle 25 25 4 4 -outline black -fill white}
-		oval		{oval 25 25 4 4 -outline black}
-		foval		{oval 25 25 4 4 -outline gray -outline black -fill white}
-	} {
+	foreach name $tools(list) {
+	    set tools($name.id) $counter
 	    canvas .drawing_canvas.toolbox.tool#$counter -height 25 -width 25 -border 2
 	    grid configure .drawing_canvas.toolbox.tool#$counter -column [expr $counter % 2] -row [expr $counter / 2] -sticky n
-	    eval .drawing_canvas.toolbox.tool#$counter create $create 
-	    bind .drawing_canvas.toolbox.tool#$counter <Button-1> "[namespace current]::set_tool %W $name"
+	    eval .drawing_canvas.toolbox.tool#$counter create $tools($name.icondef)
+	    bind .drawing_canvas.toolbox.tool#$counter <Button-1> "[namespace current]::set_tool $name %W"
 	    incr counter
 	}
-	set last_active_tool .drawing_canvas.toolbox.tool#0
-	set tool line
-	$last_active_tool configure -relief raised 
+	set tools(prefix) ".drawing_canvas.toolbox.tool#"
+	$tools(prefix)$tools($tools(tool).id) configure -relief raised 
     }
     
-    proc set_tool {widget mytool} {
-	variable last_active_tool
-	variable tool
-	if {$widget != $last_active_tool} {
-	    $last_active_tool configure -relief flat 
-	    set last_active_tool $widget
-	    set tool $mytool
-	    $widget configure -relief raised 
+    proc tool_call {args} {
+	variable tools
+	set procname [lindex $args 0]
+	set args [lrange $args 1 end]
+	set proc $tools($tools($tool).namespace)::$procname
+	if [llength [info commands $procprefix]] {
+	    eval [list $proc] $args
+	}
+    }
+    
+    proc set_tool {tool widget} {
+	variable tools
+	if {$tool != $tools(tool)} {
+	    tool_call deselect
+	    $tools($prefix)$tools($tools(tool).id) configure -relief flat
+	    set tools(tool) $tool
+	    $widget configure -relief raised
+	    tool_call select
 	}
     }
     
@@ -186,90 +213,6 @@ namespace eval canvas {
 	}
     }
     
-    proc canvas_press {x y shift} {
-	variable start_coords
-	if {$shift & 0x4} {
-	    set start_coords(x) [align_to_grid_x $x]
-	    set start_coords(y) [align_to_grid_y $y]
-	} else {
-	    set start_coords(x) $x
-	    set start_coords(y) $y
-	}
-    }
-    
-    proc canvas_getcoords {x y} {
-	variable start_coords
-	return "$start_coords(x) $start_coords(y) $x $y"
-#	switch $tool {
-#	}
-    }
-    
-    proc canvas_getdata {x y} {
-	variable tool
-	variable start_coords
-	variable linewidth
-	variable colors
-	variable polycoords
-	set coords [canvas_getcoords $x $y]
-	set lnc [list $colors(line)]
-	set flc [list $colors(fill)]
-	switch $tool {
-	    line { 
-		return "line $coords -fill $lnc -width $linewidth"
-	    }
-	    rectangle {
-		return "rectangle $coords -outline $lnc -width $linewidth"
-	    }
-	    frectangle {
-		return "rectangle $coords -fill $flc -outline $lnc -width $linewidth"
-	    }
-	    oval {
-		return "oval $coords -outline $lnc -width $linewidth"
-	    }
-	    foval {
-		return "oval $coords -fill $flc -outline $lnc -width $linewidth"
-	    }
-	}
-    }
-    
-    proc canvas_motion {x y shift} {
-	variable start_coords
-	variable tempitem
-	if ![info exists start_coords] {
-	    return
-	}
-	if {$shift & 0x1} {
-	    set xy [align_line $start_coords(x) $start_coords(y) $x $y]
-	    set x [lindex $xy 0]
-	    set y [lindex $xy 1]
-	}
-	if {$shift & 0x4} {
-	    set x [align_to_grid_x $x]
-	    set y [align_to_grid_y $y]
-	}
-	if [info exists tempitem] {
-	    eval .drawing_canvas.canvas coords $tempitem [canvas_getcoords $x $y]
-	} else {
-	    set tempitem [eval .drawing_canvas.canvas create [canvas_getdata $x $y]]
-	}
-    }
-    
-    proc canvas_release {x y shift} {
-	variable start_coords
-	variable colors
-	variable linewidth
-	variable tempitem
-	variable tool
-	if ![info exists start_coords] {
-	    return
-	}
-	if [info exists tempitem] {
-	    unset tempitem
-	}
-	putsock "GCMD DRAW [canvas_getdata $x $y]" 0
-	unset start_coords
-    }
-    
     proc linewidth_enter {} {
 	.drawing_canvas.linewbox itemconfigure current -fill red
     }
@@ -332,4 +275,11 @@ namespace eval canvas {
 	set canvas_lock $uargs
 	return 1
     }
+
+    #########
+    # Tools #
+    #########
+    
+    <@INCLUDE rect.tcl>
+    <@INCLUDE polygon.tcl>
 }
