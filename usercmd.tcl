@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.14 2002-03-16 11:31:41 urish Exp $
+# $Id: usercmd.tcl,v 1.15 2002-03-18 20:22:41 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -24,6 +24,7 @@ proc usercmd_init {} {
 	CONNECT	user_server
 	S	user_server
 	SERVER	user_server
+	DISC	user_disconnect
 	DISCONNECT user_disconnect
 	N	user_nick
 	NICK	user_nick
