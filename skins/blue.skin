@@ -1,10 +1,11 @@
-# $Id: blue.skin,v 1.1 2001-07-25 15:32:15 uri Exp $
-print Blue skin 1.2 by riddle.
+# $Id: blue.skin,v 1.2 2002-03-18 19:48:36 urish Exp $
+print Blue skin 1.3 by riddle.
 style chat:bold background white foreground blue underline 1
 item mainframe	background blue
 item menu	background blue
 item label#1	background white foreground blue
-item chat	background blue foreground white highlightcolor white selectforeground blue selectbackground white
+item chat	background blue foreground white highlightcolor white selectforeground blue selectbackground white insertbackground white
+item userlist	background blue foreground white highlightcolor white selectforeground blue selectbackground white
 item helpmenu	background blue foreground white activebackground white activeforeground black
 item commandmenu background blue foreground white activebackground white activeforeground black
 item helpmenu:m	background blue foreground white activebackground white activeforeground black

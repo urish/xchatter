@@ -1,10 +1,11 @@
-# $Id: default.skin,v 1.1 2001-07-25 15:32:16 uri Exp $
-print Default skin 1.2 by allow.
+# $Id: default.skin,v 1.2 2002-03-18 19:46:00 urish Exp $
+print Default skin 1.3 by allow.
 style chat:bold background black foreground #d9d9d9 underline 1
 item mainframe		background #d9d9d9
 item menu		background #d9d9d9
 item label#1		background #d9d9d9 foreground black
-item chat		background #d9d9d9 foreground black highlightcolor black selectforeground #d9d9d9 selectbackground black
+item chat		background #d9d9d9 foreground black highlightcolor black selectforeground #d9d9d9 selectbackground black insertbackground black
+item userlist		background #d9d9d9 foreground black highlightcolor black selectforeground #d9d9d9 selectbackground black
 item helpmenu		background #d9d9d9 foreground black activebackground #ececec activeforeground black
 item commandmenu	background #d9d9d9 foreground black activebackground #ececec activeforeground black
 item helpmenu:m		background #d9d9d9 foreground black activebackground #ececec activeforeground black
