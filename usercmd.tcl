@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.10 2001-09-02 09:07:40 amirs Exp $
+# $Id: usercmd.tcl,v 1.11 2001-10-01 08:07:07 urish Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -49,6 +49,7 @@ proc usercmd_init {} {
 	ECHO	user_echo
 	PLUS	user_plus
 	ALIAS	user_alias
+	TIMER   user_timers
 	TIMERS	user_timers
 	TIMESTAMP user_timestamp
     }
@@ -567,25 +568,44 @@ proc get_interval {interval} {
     return $interval
 }
 
+proc get_interval_name {i} {
+    if {$i % 1000} {
+	return "${i}ms"
+    }
+    if {$i % 60000} {
+	return "[expr $i / 1000]s"
+    }
+    if {$i % 3600000} {
+	return "[expr $i / 60000]m"
+    }
+    return "[expr $i / 3600000]h"
+}
+
 proc user_timers {uargs} {
     global timers
     set cmd [strtok uargs]
-    switch -exact -- [string toupper $cmd] {
-	LIST - ? {
+    switch -glob -- [string toupper $cmd] {
+	LIST - {\?} - {} {
 	    putcmsg timer_list_start
 	    set timer_cnt 0
 	    foreach i [timers tcl *] {
-		putcmsg timer_list_tclentry n $i t [timer_info $i command] i [timer_info $i interval]
+		set int [timer_info $i interval]
+		putcmsg timer_list_tclentry n $i t [timer_info $i command] i $int I [get_interval_name $int]
 		incr timer_cnt
 	    }
 	    foreach i [timers script *] {
-		putcmsg timer_list_entry n $i t [timer_info $i command] i [timer_info $i interval]
+		set int [timer_info $i interval]
+		putcmsg timer_list_entry n $i t [timer_info $i command] i $int I [get_interval_name $int]
 		incr timer_cnt
 	    }
 	    putcmsg timer_list_end d $timer_cnt
 	}
-	ADD - CREATE - + {
-	    set name [strtok uargs]
+	ADD - CREATE - +* {
+	    if [string match "+?*" $cmd] {
+		set name [string range $cmd 1 end]
+	    } else {
+		set name [strtok uargs]
+	    }
 	    set interval [strtok uargs]
 	    set command [strrest uargs]
 	    if {$name == ""} {
@@ -614,8 +634,12 @@ proc user_timers {uargs} {
 	    }
 	    timer $name script $interval 0 $command
 	}
-	DEL - DELETE - REMOVE - RM - - {
-	    set name [strtok uargs]
+	DEL - DELETE - REMOVE - RM - -* {
+	    if [string match "-?*" $cmd] {
+		set name [string range $cmd 1 end]
+	    } else {
+	    	set name [strtok uargs]
+	    }	
 	    if {$name == ""} {
 		putcmsg timer_error_noname
 		return 1

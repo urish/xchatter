@@ -1,5 +1,5 @@
 # English language messages for XChatter.
-# $Id: english.lang,v 1.4 2001-08-11 15:18:19 uri Exp $
+# $Id: english.lang,v 1.5 2001-10-01 08:07:07 urish Exp $
 norm_text_style		normal
 item inputbox		justify left
 # interface.tcl
@@ -77,10 +77,10 @@ text xchatter_plus_badver *** Error: Incompatibe XChatter plus version.
 text bad_xchatter_plus	*** Error: Bad xchatter plus file '%f'.
 text xchatter_plus_tclerror *** Error: In xchatter plus init script: Tcl error: %t
 text timer_list_start	*** XChatter timers:
-text timer_list_tclentry   *** %n = <Internal>
-text timer_list_entry   *** %n = %t
+text timer_list_tclentry   *** %n (interval: %I) = <Internal>
+text timer_list_entry   *** %n (interval: %I) = %t
 text timer_list_end	*** End of timer list (total %d timers).
-text timer_del_done	*** Error: Timer %n deleted.
+text timer_del_done	*** Timer %n deleted.
 text timer_del_error	*** Error: No such timer %n.
 text timer_error_noname *** Error: no timer name specified. /HELP TIMER for more information.
 text timer_error_badname *** Error: Invalid timer name specified. /HELP TIMER for more information.
