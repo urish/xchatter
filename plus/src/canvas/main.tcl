@@ -1,5 +1,5 @@
 EXTENTION canvas-1.1-6
-# $Id: main.tcl,v 1.2 2001-08-15 13:40:46 uri Exp $
+# $Id: main.tcl,v 1.3 2001-08-29 21:09:17 urish Exp $
 
 namespace eval canvas {
     variable last_active_color
@@ -11,6 +11,10 @@ namespace eval canvas {
     set gridsize(x) 5
     set gridsize(y) 5
     set tools(list) ""
+    
+    namespace export	align_to_grid_x \
+			align_to_grid_y \
+			align_line
 
     proc init {} {
 	onevent servercmd DRAW [namespace current]::server_cmd_draw

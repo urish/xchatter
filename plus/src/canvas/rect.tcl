@@ -1,4 +1,8 @@
 namespace eval recttool {
+    namespace import	[namespace parent]::align_to_grid_x	\
+			[namespace parent]::align_to_grid_y	\
+			[namespace parent]::align_line
+
     proc press {x y shift} {
 	variable coords
 	if {$shift & 0x4} {
