@@ -1,5 +1,5 @@
-<!-- $Id: commands.hlp,v 1.1 2001-07-25 15:32:09 uri Exp $ -->
-<XCHELP topic=commands>
+<!-- $Id: commands.hlp,v 1.2 2001-10-01 12:24:26 urish Exp $ -->
+<XCHELP topic=commands alias=cmds>
 <CENTER><FONT size=32 color=blue><B>Basic Commands</B></FONT></CENTER><BR><BR>
 <PRE>
 <LINK topic=cmd_away>AWAY</LINK>

@@ -1,5 +1,5 @@
-<!-- $Id: whois.hlp,v 1.1 2001-07-31 11:01:22 uri Exp $ -->
-<XCHELP topic=cmd_whois>
+<!-- $Id: whois.hlp,v 1.2 2001-10-01 12:24:26 urish Exp $ -->
+<XCHELP topic=cmd_whois aliases="whois,info">
 <CENTER><FONT size=32 color=blue><B>/WHOIS, /INFO</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> /WHOIS user

@@ -1,6 +1,6 @@
 #! /usr/local/bin/tclsh8.0
 # XChatter help compiler v1.0
-# $Id: compile.tcl,v 1.3 2001-09-01 12:27:59 urish Exp $
+# $Id: compile.tcl,v 1.4 2001-10-01 12:24:26 urish Exp $
 
 proc process_text {text} {
     global tags help
@@ -106,15 +106,28 @@ proc splitargs {tagargs} {
 }
 
 proc process_tag_xchelp {closer targs} {
-    global tags
+    global tags help
     if {$closer} {
 	set tags(topic) ""
 	return
     }
     foreach {name value} [splitargs $targs] {
-	if {[string tolower $name] == "topic"} {
-	    set tags(topic) [string tolower $value]
-	}
+	switch -exact -- [string tolower $name] {
+	    topic {
+		set tags(topic) [string tolower $value]
+	    }
+	    alias {
+		lappend aliases $value
+	    }
+	    aliases {
+		eval lappend aliases [split $value ","]
+	    }
+    	}
+    }
+    if [info exists aliases] {
+	foreach i $aliases {
+	    set help($i) "@$tags(topic)"
+        }
     }
 }
 

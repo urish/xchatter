@@ -1,5 +1,5 @@
-<!-- $Id: list.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
-<XCHELP topic=cmd_list>
+<!-- $Id: list.hlp,v 1.2 2001-10-01 12:24:26 urish Exp $ -->
+<XCHELP topic=cmd_list alias=list>
 <CENTER><FONT size=32 color=blue><B>/LIST</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> /LIST

@@ -1,5 +1,5 @@
 # XChatter's online help system
-# $Id: help.tcl,v 1.4 2001-08-25 12:09:43 urish Exp $
+# $Id: help.tcl,v 1.5 2001-10-01 12:24:25 urish Exp $
 
 proc init_help {} {
     global helptext helpfont
@@ -33,6 +33,7 @@ proc init_help {} {
     pack .xchelp.scrollbar -fill y -side right -anchor ne
     pack .xchelp.help -fill both -expand yes -side left -padx 2 -anchor nw -before .xchelp.scrollbar
     set helptext(unknown) "{} {Error: No help file loaded.}"
+    set helptext(alias_too_many) "{} {Error: Too many levels of aliases.}"
     set helpfont [font actual default]
     catch {
 	set helpfile [open xchatter.hlp r]
@@ -51,11 +52,18 @@ proc show_help {topic} {
     raise .xchelp
     .xchelp.help del 1.0 end
     if ![info exists helptext($topic)] {
-	if [info exists helptext(cmd_$topic)] {
-	    set topic cmd_$topic
-	} else {
+	set topic unknown
+    }
+    set aliaslevel 0
+    while {[string index $helptext($topic) 0] == "@"} {
+	set topic [string range $helptext($topic) 1 end]
+	if ![info exists helptext($topic)] {
 	    set topic unknown
 	}
+	incr aliaslevel
+	if {$aliaslevel == 100} {
+	    set topic alias_too_many
+        }
     }
     lappend helptopics $topic
     .xchelp.help tag configure default -font $helpfont

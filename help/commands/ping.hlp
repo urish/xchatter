@@ -1,5 +1,5 @@
-<!-- $Id: ping.hlp,v 1.1 2001-07-25 15:32:10 uri Exp $ -->
-<XCHELP topic=cmd_ping>
+<!-- $Id: ping.hlp,v 1.2 2001-10-01 12:24:26 urish Exp $ -->
+<XCHELP topic=cmd_ping alias=ping>
 <CENTER><FONT size=32 color=blue><B>/PING</B></FONT></CENTER><BR><BR>
 <PRE>
 <B><U>Syntax:</U></B> /PING [client]
