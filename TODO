@@ -1,7 +1,18 @@
-# $Id: TODO,v 1.2 2001-07-27 15:48:24 uri Exp $
+# $Id: TODO,v 1.3 2001-08-10 22:29:50 uri Exp $
 
 Important:
 * Finish the timer system - amir
+* Finish the intergration of the new -user and -type options to putcmsg 
+  in xchatter core - amir :)
+* Add all ideas/bug fix requests to the TODO document.
+
+Mid-important:
+* Make all extentions supports putcmsg -user and putcmsg -type
+* Make an extention that works in conjuction with userlist, to allow private
+  queries (when you double-click a user, you get a new text buffer, for private
+  chat
+* Make a /IGNORE command, that will take advantage of the new -user/-type
+  options.
 
 Less urgent:
 * Implement a /redirect command, redirects putchat output to various places:
@@ -10,9 +21,24 @@ Less urgent:
   - to the stdbuf (history buffer)
   - to the inputline
   - to the void
-* Add events:
+* Add alias-based events:
     - onglob
     - ondisconnect
     - onconnected
     - ...
-* Add a font choosing option in help.
+* Add a font choosing option in help - DONE !
+* Write help files.
+* Add a /SINFO command, copy the code from the /SINFO plugin
+* Add a logging system, probably based on the eventlog.xcp plugin
+* Remove support for old plugin format (and therefore old global plugin
+  variable binding).
+* Make XChatter function without help.tcl
+  
+Maybe:
+* Code a new, xcplus-header like /PLUGIN command, so a plugin defines a name,
+  version number, load proc, unload proc, ...
+* Implement a /UNLOAD command, make XCPlus extention register as plugins in
+  the /PLUGIN command, to /UNLOAD will work for them.
+* Integrate the plugin system with XChatter plus extention system, to create
+  a simple interface for new plugins, that is similar to XChatter plus extention
+  registration
