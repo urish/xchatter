@@ -1,6 +1,7 @@
-# $Id: text.tcl,v 1.1 2002-03-23 15:36:47 amirs Exp $
+# $Id: text.tcl,v 1.2 2002-03-31 19:15:39 amirs Exp $
 
 namespace eval texttool {
+    namespace import    [namespace parent]::putcmd
     # register tools
     variable font {-family times -size 12}
     variable shape ""
@@ -62,7 +63,7 @@ namespace eval texttool {
 	    if {[string trim $text] == ""} {
 	        .drawing_canvas.canvas delete $shape
 	    } else {
-	        putsock "GCMD DRAW text [.drawing_canvas.canvas coords $shape] [list -text $text] [list -fill [.drawing_canvas.canvas itemcget $shape -fill]] [list -anchor [.drawing_canvas.canvas itemcget $shape -anchor]] [list -font [.drawing_canvas.canvas itemcget $shape -font]]" 0
+	        putcmd "text [.drawing_canvas.canvas coords $shape] [list -text $text] [list -fill [.drawing_canvas.canvas itemcget $shape -fill]] [list -anchor [.drawing_canvas.canvas itemcget $shape -anchor]] [list -font [.drawing_canvas.canvas itemcget $shape -font]]" 0
 	    }
 	    set shape ""
 	}

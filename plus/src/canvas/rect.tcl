@@ -1,9 +1,10 @@
-# $Id: rect.tcl,v 1.4 2001-09-29 00:12:40 urish Exp $
+# $Id: rect.tcl,v 1.5 2002-03-31 19:15:39 amirs Exp $
 
 namespace eval recttool {
     namespace import	[namespace parent]::align_to_grid_x	\
 			[namespace parent]::align_to_grid_y	\
-			[namespace parent]::align_line
+			[namespace parent]::align_line		\
+			[namespace parent]::putcmd		
 
     proc press {x y shift} {
 	variable coords
@@ -72,7 +73,7 @@ namespace eval recttool {
 	if [info exists tempitem] {
 	    unset tempitem
 	}
-	putsock "GCMD DRAW [getdef $x $y]" 0
+	putcmd "[getdef $x $y]" 0
 	unset coords
     }
 }

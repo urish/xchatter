@@ -1,5 +1,5 @@
 EXTENTION canvas VERSION 1.1 BUILD 6
-# $Id: main.tcl,v 1.7 2002-03-25 12:35:11 amirs Exp $
+# $Id: main.tcl,v 1.8 2002-03-31 19:15:39 amirs Exp $
 
     variable last_active_color
     variable linewidth 1 color
@@ -13,7 +13,8 @@ EXTENTION canvas VERSION 1.1 BUILD 6
     
     namespace export	align_to_grid_x \
 			align_to_grid_y \
-			align_line
+			align_line	\
+			putcmd
 
     proc init {} {
 	onevent servercmd DRAW [namespace current]::server_cmd_draw
@@ -247,6 +248,24 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	set linewidth_line [.drawing_canvas.linewbox create line 0 18 30 18 -fill black -width $linewidth]
     }
     
+    proc stripslashes {msg} {
+	set output ""
+	while {[set i [string first "\\" $msg]] > -1} {
+	    append output [string range $msg 0 [expr $i - 1]]
+	    set buf [string index $msg [expr $i + 1]]
+	    set msg [string range $msg [expr $i + 2] end]
+	    switch -glob -- $buf {
+		\\  {append output \\}
+		n   {append output \n}
+	    }
+	}
+	return $output$msg
+    }
+    
+    proc addslashes {string} {
+	return [join [split [join [split $string \\] \\\\] \n] \\n]
+    }
+    
     proc server_cmd_draw {source cargs} {
 	variable canvas_lock
 	foreach i $canvas_lock {
@@ -266,7 +285,7 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	}
 	catch {
 	    foreach i $cargs {
-	        lappend nargs $i
+	        lappend nargs [stripslashes $i]
 	    }
 	    eval ".drawing_canvas.canvas create [join $nargs]"
 	    return 1
@@ -278,6 +297,10 @@ EXTENTION canvas VERSION 1.1 BUILD 6
 	variable canvas_lock
 	set canvas_lock $uargs
 	return 1
+    }
+
+    proc putcmd {args {quiet 1}} {
+	putsock "GCMD DRAW [addslashes $args]" $quiet
     }
 
     #########

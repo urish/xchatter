@@ -1,10 +1,11 @@
-# $Id: polygon.tcl,v 1.4 2001-09-29 00:12:40 urish Exp $
+# $Id: polygon.tcl,v 1.5 2002-03-31 19:15:39 amirs Exp $
 
 # polygons (multi-line based tools)
 namespace eval polygon {
     namespace import	[namespace parent]::align_to_grid_x	\
 			[namespace parent]::align_to_grid_y	\
-			[namespace parent]::align_line
+			[namespace parent]::align_line		\
+			[namespace parent]::putcmd		
 
     proc press {x y shift} {
 	variable coords
@@ -82,7 +83,7 @@ namespace eval polygon {
 	    .drawing_canvas.canvas delete $tempitem
 	    set def [getdef $coords]
 	    eval .drawing_canvas.canvas create $def
-	    putsock "GCMD DRAW $def"
+	    putcmd "$def"
 	}
 	unset coords
 	unset tempitem
