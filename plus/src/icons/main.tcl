@@ -1,5 +1,5 @@
 EXTENTION icons VERSION 1.1 BUILD 1
-# $Id: main.tcl,v 1.3 2002-03-24 17:01:45 urish Exp $
+# $Id: main.tcl,v 1.4 2002-03-26 20:31:38 urish Exp $
 
 <@INCLUDE icons.tcl>
 
@@ -54,4 +54,5 @@ proc user_image {names} {
 
 proc insert_icon {name} {
     insert_char \005$name\005
+    focus .inputbox
 }
