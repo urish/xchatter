@@ -1,7 +1,6 @@
-# $Id: TODO,v 1.5 2001-08-11 12:41:59 amir Exp $
+# $Id: TODO,v 1.6 2001-08-11 13:37:19 uri Exp $
 
 Important:
-* Finish the timer system - amir - DONE
 * Finish the intergration of the new -user and -type options to putcmsg 
   in xchatter core - amir :)
 * Add all ideas/bug fix requests to the TODO document.
@@ -28,11 +27,14 @@ Less urgent:
     - ...
 * Write help files.
 * Add a /SINFO command, copy the code from the /SINFO plugin
-* Add a logging system, probably based on the eventlog.xcp plugin
+* Add a logging system, probably based on the eventlog.xcp plugin.
+  Make it support stripping styles from the log.
 * Remove support for old plugin format (and therefore old global plugin
   variable binding).
+* Added cool new styles to the styles addon - uri.
   
 Maybe:
+* Icons addon (interprets special style strings as icon specs)...
 * Code a new, xcplus-header like /PLUGIN command, so a plugin defines a name,
   version number, load proc, unload proc, ...
 * Implement a /UNLOAD command, make XCPlus extention register as plugins in
@@ -44,3 +46,4 @@ Maybe:
 Already done:
 * Add a font choosing option in help
 * Make XChatter function without help.tcl
+* Finish the timer system - amir.
