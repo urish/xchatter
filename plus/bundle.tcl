@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: bundle.tcl,v 1.1 2002-03-28 22:28:55 urish Exp $
+# $Id: bundle.tcl,v 1.2 2002-03-28 22:34:55 urish Exp $
 
 # bundles all the .xcp files into a single xcplus.xcp file.
 set output [open ../xcplus.xcp w]
@@ -28,13 +28,15 @@ foreach f [glob *.xcp] {
     }
     set restfile [read $fd]
     foreach {start end} $idxlist {
-	lappend data [lrange $restfile $start $end]
+	for {set i $start} {$i <= $end} {incr i} {
+	    lappend data [join [split [lindex $restfile $i] \\] \xff]
+	}
     }
     close $fd
 }
 puts $output "# XChatter plus extension pack; bundled at [clock format [clock seconds]]."
 puts $output "# END HEADER."
-puts $output "[join $data]"
+puts $output "[join [split $data \xff] \\]"
 close $output
 puts "Done."
 
