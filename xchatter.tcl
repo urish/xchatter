@@ -2,7 +2,7 @@
 # the next line restarts using wish8.0 \
 exec wish8.0 "$0" "$@"; exit
 # XChatter's main source file
-# $Id: xchatter.tcl,v 1.3 2001-08-11 12:04:05 uri Exp $
+# $Id: xchatter.tcl,v 1.4 2001-08-11 12:46:35 amir Exp $
 
 set version 0.5
 set numver 50.0
@@ -406,7 +406,7 @@ if [file readable ~/.xchatterrc] {
     set fidx [open ~/.xchatterrc]
     set buf [read $fidx]
     close $fidx
-#    process_command $buf
+    process_command $buf
     incr rcread
 }
 
