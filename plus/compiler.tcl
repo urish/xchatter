@@ -1,5 +1,5 @@
 #! /usr/local/bin/tclsh8.0
-# $Id: compiler.tcl,v 1.5 2002-03-15 13:15:52 urish Exp $
+# $Id: compiler.tcl,v 1.6 2002-03-15 19:57:27 urish Exp $
 
 proc openf {name} {
     global fd
@@ -77,6 +77,16 @@ proc readext {fname basedir} {
     global extensions
     puts -nonewline "  $fname... "
     flush stdout
+    if [file exists $basedir/precompile.tcl] {
+	if ![source $basedir/precompile.tcl] {
+	    if [info exists error] {
+		puts "Error in precompile: $error"
+	    } else {
+		puts "Unknown error in precompile."
+	    }
+	    return 0
+	}
+    }
     set fd [open $fname r]
     set head [split [gets $fd]]
     set data [read $fd]
