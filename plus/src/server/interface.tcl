@@ -17,6 +17,8 @@ proc iface_show {} {
     label $base.label_usercnt	-text 0
     if [info exists server_sock] {
 	set text "Stop server"
+        trace variable server_sock u [namespace current]::server_stopped
+        trace variable clients w [namespace current]::update_client_cnt
     } else {
 	set text "Start server"
     }
@@ -59,7 +61,9 @@ proc iface_show {} {
 }
 
 proc iface_hide {} {
-    destroy .miniserver
+    catch {
+	destroy .miniserver
+    }
 }
 
 proc start_server {} {
@@ -76,9 +80,11 @@ proc start_server {} {
     }
     putcmsg xcplus_server_start p $port
     set server_sock $error
-    .miniserver.startstop configure -text "Stop server"
-    trace variable server_sock u [namespace current]::server_stopped
-    trace variable clients w [namespace current]::update_client_cnt
+    catch {
+	.miniserver.startstop configure -text "Stop server"
+        trace variable server_sock u [namespace current]::server_stopped
+        trace variable clients w [namespace current]::update_client_cnt
+    }
 }
 
 proc server_stopped {args} {
@@ -119,7 +125,7 @@ proc iface_start_stop_server {} {
 proc ucmd_mserver {uargs} {
     variable port
     variable adminpass
-    set uargs [split $uargs ""]
+    set uargs [split $uargs]
     switch -glob -- [string tolower [lindex $uargs 0]] {
 	{[123456789]*} {
 	    set port [lindex $uargs 0]
@@ -142,8 +148,13 @@ proc ucmd_mserver {uargs} {
 	}
 	help {
 	}
+	hide {
+	    iface_hide
+	}
 	default {
-	    iface_show
+	    catch {
+		iface_show
+	    }
 	}	
     }
     return 1
@@ -170,6 +181,7 @@ proc unload {} {
     variable server_sock
     unevent usercmd [namespace current]::ucmd_mserver \
 		    [namespace current]::ucmd_mserver
+    iface_hide
     if [info exists server_sock] {
 	stop_server
     }

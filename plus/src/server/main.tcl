@@ -56,7 +56,7 @@ proc tell_all_but_one {msg idx} {
     variable clients
     foreach i [array names clients i,*] {
 	set iidx [string range $i 2 end]
-	if {$iidx != $idx && $iidx != ""} {
+	if {$iidx != $idx && $iidx != "" && $clients($i) != ""} {
 	    putsock $iidx $msg
 	}
     }
@@ -153,12 +153,14 @@ proc list_clients {idx} {
 	if {$clients(i,$iidx) == ""} {
 	    continue
 	}
-	putsock $idx "LIST $clients(i,$iidx) IP $clients(A,$iidx)"
+	# FD 0 is require for compatibility with minichat. To be removed in
+	# future versions.
+	putsock $idx "LIST $clients(i,$iidx) FD 0 IP $clients(A,$iidx)"
     }
     putsock $idx "LIST END"
 }
 
-proc get_client_by_name {name} {
+proc get_client_by_name {idx name} {
     variable clients
     set lname [string tolower $name]
     if ![info exists clients(n,$lname)] {
@@ -177,7 +179,7 @@ proc client_to_client {type idx arglist} {
 	putsock $idx "PONG @SERVER [join [lrange $arglist 1 end]]"
 	return
     }
-    set oidx [get_client_by_name [lindex $arglist 0]]
+    set oidx [get_client_by_name $idx [lindex $arglist 0]]
     putsock $oidx "$type $name [join [lrange $arglist 1 end]]"
 }
 
@@ -217,7 +219,7 @@ proc client_info {idx arglist} {
 	client_sinfo $idx
 	return
     }
-    set oidx [get_client_by_name [lindex $arglist 0]]
+    set oidx [get_client_by_name $idx [lindex $arglist 0]]
     putsock $idx "INFO $clients(i,$oidx) IP $clients(A,$oidx) IDLE [expr [clock seconds] - $clients(l,$oidx)] CONNECTED $clients(c,$oidx)"
 }
 
@@ -284,7 +286,7 @@ proc incoming_text {idx} {
 	return
     }
     set args [lrange $buf 1 end]
-    switch -glob [string toupper [lindex $buf 0]] {
+    switch -exact -- [string toupper [lindex $buf 0]] {
 	PING - PONG - MSG - CMD {
 	    client_to_client [lindex $buf 0] $idx $args
 	}
@@ -299,7 +301,7 @@ proc incoming_text {idx} {
 	VER - VERSION { client_version $idx }
 	PROTVER { client_protver $idx }
 	ADMIN { client_admin $idx $args }
-	* {
+	default {
 	    putsock $idx "ERROR 103 [lindex $buf 0] invalid command."
 	}
     }
