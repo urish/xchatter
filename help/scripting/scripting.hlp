@@ -1,5 +1,5 @@
-<!-- $Id: scripting.hlp,v 1.1 2001-09-15 13:23:33 urish Exp $ -->
-<XCHELP topic=commands>
+<!-- $Id: scripting.hlp,v 1.2 2001-09-29 00:21:35 urish Exp $ -->
+<XCHELP topic=scripting>
 <CENTER><FONT size=32 color=blue><B>XChatter advanced/scripting commands</B></FONT></CENTER><BR><BR>
 <PRE>
 <LINK topic=cmd_alias>ALIAS</LINK>
