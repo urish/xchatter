@@ -6,6 +6,7 @@ namespace eval fsend {
     proc init {} {
 	onevent usercmd FSEND [namespace current]::ucmd_fsend \
 			FGET [namespace current]::ucmd_fget \
+			FCLOSE [namespace current]::ucmd_fclose \
 			FLIST [namespace current]::ucmd_flist
 	onevent servercmd FSEND [namespace current]::scmd_fsend
 	register_msgs {
@@ -14,11 +15,13 @@ namespace eval fsend {
 	    xcplus_fsend_error_openfile "*** Error: couldn't open '%f'."
 	    xcplus_fsend_error_init "*** Error: Failed initilaizing file transfer."
 	    xcplus_fsend_error_magickey "*** Error: Incoming magickey from %s is WORNG."
+	    xcplus_fsend_error_nosuch "*** Error: No such file transfer exists."
 	    xcplus_fsend_established "*** File transfer with %n of file '%f' established."
 	    xcplus_fsend_completed "*** File transfer with %n of file '%f' completed."
 	    xcplus_fsend_incoming "*** Incoming file transfer '%f' from %n. Write '/fget %x' to receive it."
 	    xcplus_fsend_bigger "*** Warning: incoming file is larger than %n said. closing connection."
 	    xcplus_fsend_inform "*** Sending file '%f' to %n."
+	    xcplus_fsend_closed "*** Closed file transfer with %n of file '%f'."
 	    xcplus_fsend_list_header "Transfer list:"
 	    xcplus_fsend_list_send "%x. Waiting for %n to accept '%f'"
 	    xcplus_fsend_list_send_e "%x. Sending '%f' to %n"
@@ -30,7 +33,8 @@ namespace eval fsend {
     proc destroy {} {
 	unevent usercmd [list [namespace current]::ucmd_fsend \
 			      [namespace current]::ucmd_fget \
-			      [namespace current]::ucmd_flist]
+			      [namespace current]::ucmd_flist \
+			      [namespace current]::ucmd_fclose]
 	unevent servercmd [namespace current]::scmd_fsend
 	namespace delete [namespace current]
     }
@@ -104,7 +108,11 @@ namespace eval fsend {
 	} else {
 	    set num $arg
 	}
-	if {[array names dcc $num,type] == "" || $dcc($num,working) == 1} {
+	if {[array names dcc $num,type] == ""} {
+	    putcmsg xcplus_fsend_error_nosuch
+	    return 1
+	}
+	if {$dcc($num,working) == 1} {
 	    return 1
 	}
 	if {$dcc($num,type) != "GET"} {
@@ -119,6 +127,23 @@ namespace eval fsend {
 	if ![dcc_get $num $file] {
 	    free_dcc $num
 	}
+	return 1
+    }
+        
+    proc ucmd_fclose {uargs} {
+	variable dcc
+	set arg [strtok uargs]
+	if [catch {expr $arg + 1}] {
+	    set num [dcc_search $arg]
+	} else {
+	    set num $arg
+	}
+	if {[array names dcc $num,type] == ""} {
+	    putcmsg xcplus_fsend_error_nosuch
+	    return 1
+	}
+        putcmsg xcplus_fsend_closed n $dcc($num,nick) f $dcc($num,file)
+	free_dcc $num
 	return 1
     }
     
