@@ -1,0 +1,22 @@
+<!-- $Id: whois.hlp,v 1.1 2001-07-31 11:01:22 uri Exp $ -->
+<XCHELP topic=cmd_whois>
+<CENTER><FONT size=32 color=blue><B>/WHOIS, /INFO</B></FONT></CENTER><BR><BR>
+<PRE>
+<B><U>Syntax:</U></B> /WHOIS user
+<B><U>Syntax:</U></B> /INFO user
+
+<B><U>Description:</U></B>
+The /WHOIS command displays information about the specified user.<BR>
+The displayed information is: the hostname/ip of the user, how many seconds he was idle, and the time of signon to server.<BR>
+/INFO is an alias for /WHOIS.<BR>
+/INFO without any arguments is an alias to the <LINK topic=cmd_sinfo>/SINFO</LINK> command.<BR>
+
+<B><U>Possible Errors:</U></B>
+<LINK topic="error_nouser">No such user.</LINK>
+<LINK topic="error_notregistered">You are not registered.</LINK>
+
+<B><U>History:</U></B>
+The /WHOIS command first appeared in XChatter version 0.3.
+The idle time display was improved in XChatter version 0.4.
+</PRE>
+</XCHELP>
