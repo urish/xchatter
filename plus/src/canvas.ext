@@ -1,9 +1,11 @@
 EXTENTION canvas-1.1-3
-# $Id: canvas.ext,v 1.2 2001-07-31 10:21:24 uri Exp $
+# $Id: canvas.ext,v 1.3 2001-08-03 14:13:45 amir Exp $
 
 namespace eval canvas {
     variable last_active_color
     variable linewidth 1 color
+    variable tool 
+    variable last_active_tool
     variable gridsize
     variable canvas_lock "*"
     variable align_angle 22.5
@@ -85,9 +87,33 @@ namespace eval canvas {
     }
     
     proc toolbox_init {} {
-	canvas .drawing_canvas.toolbox
-#	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2
-	foreach i {line multiline polygon multicurve} {
+	variable last_active_tool
+	variable tool
+	frame .drawing_canvas.toolbox -relief raised -border 1 -width 200
+	grid configure .drawing_canvas.toolbox -in .drawing_canvas.topframe -row 1 -column 2 -sticky e
+	set counter 0
+	foreach name { line rectangle frectangle ofrectangle oval foval ofoval } \
+		create {{line 3 25 25 3 -fill black} {rectangle 25 25 4 4 -outline black} {rectangle 25 25 4 4 -outline black -fill gray} {rectangle 25 25 4 4 -fill gray -outline gray} {oval 25 25 4 4 -outline black} {oval 25 25 4 4 -outline gray -outline black -fill gray} {oval 25 25 4 4 -fill gray -outline gray} } \
+	{
+	    canvas .drawing_canvas.toolbox.tool#$counter -height 25 -width 25 -border 2
+	    grid configure .drawing_canvas.toolbox.tool#$counter -column [expr $counter % 2] -row [expr $counter / 2] -sticky n
+	    eval .drawing_canvas.toolbox.tool#$counter create $create 
+	    bind .drawing_canvas.toolbox.tool#$counter <Button-1> "[namespace current]::set_tool %W $name"
+	    incr counter
+	}
+	set last_active_tool .drawing_canvas.toolbox.tool#0
+	set tool line
+	$last_active_tool configure -relief raised 
+    }
+    
+    proc set_tool {widget mytool} {
+	variable last_active_tool
+	variable tool
+	if {$widget != $last_active_tool} {
+	    $last_active_tool configure -relief flat 
+	    set last_active_tool $widget
+	    set tool $mytool
+	    $widget configure -relief raised 
 	}
     }
     
@@ -167,10 +193,46 @@ namespace eval canvas {
 	}
     }
     
+    proc canvas_getcoords {x y} {
+	variable start_coords
+	return "$start_coords(x) $start_coords(y) $x $y"
+#	switch $tool {
+#	}
+    }
+    
+    proc canvas_getdata {x y} {
+	variable tool
+	variable start_coords
+	variable linewidth
+	variable color
+	set coords [canvas_getcoords $x $y]
+	switch $tool {
+	    line { 
+		return "line $coords -fill \"$color(fg)\" -width $linewidth"
+	    }
+	    rectangle {
+		return "rectangle $coords -outline \"$color(fg)\" -width $linewidth"
+	    }
+	    ofrectangle {
+		return "rectangle $coords  -fill \"$color(fg)\" -outline \"$color(fg)\" -width $linewidth"
+	    }
+	    frectangle {
+		return "rectangle $coords  -fill \"$color(bg)\" -outline \"$color(fg)\" -width $linewidth"
+	    }
+	    oval {
+		return "oval $coords -outline \"$color(fg)\" -width $linewidth"
+	    }
+	    ofoval {
+		return "oval $coords  -fill \"$color(fg)\" -outline \"$color(fg)\" -width $linewidth"
+	    }
+	    foval {
+		return "oval $coords  -fill \"$color(bg)\" -outline \"$color(fg)\" -width $linewidth"
+	    }
+	}
+    }
+    
     proc canvas_motion {x y shift} {
 	variable start_coords
-	variable color
-	variable linewidth
 	variable tempitem
 	if ![info exists start_coords] {
 	    return
@@ -185,10 +247,9 @@ namespace eval canvas {
 	    set y [align_to_grid_y $y]
 	}
 	if [info exists tempitem] {
-	    .drawing_canvas.canvas coords $tempitem $start_coords(x) $start_coords(y) $x $y
+	    eval .drawing_canvas.canvas coords $tempitem [canvas_getcoords $x $y]
 	} else {
-	    lappend item line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
-	    set tempitem [eval .drawing_canvas.canvas create $item]
+	    set tempitem [eval .drawing_canvas.canvas create [canvas_getdata $x $y]]
 	}
     }
     
@@ -210,19 +271,12 @@ namespace eval canvas {
 	    set y [align_to_grid_y $y]
 	}
 	if [info exists tempitem] {
-	    .drawing_canvas.canvas coords $start_coords(x) $start_coords(y) $x $y
+	    eval .drawing_canvas.canvas coords $tempitem [canvas_getcoords $x $y]
 	    unset tempitem
 	} else {
-	    .drawing_canvas.canvas create line $start_coords(x) $start_coords(y) $x $y -fill $color(fg) -width $linewidth
+	    eval .drawing_canvas.canvas create [canvas_getdata $x $y]
 	}
-	set args ""
-	if {$color(fg) != "black"} {
-	    lappend args -fill $color(fg)
-	}
-	if {$linewidth != 1} {
-	    lappend args -width $linewidth
-	}
-	putsock "GCMD DRAW line $start_coords(x) $start_coords(y) $x $y $args" 1
+	putsock "GCMD DRAW [canvas_getdata $x $y]" 1
 	unset start_coords
     }
     
