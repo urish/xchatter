@@ -108,7 +108,7 @@ EXTENTION fsend VERSION 1.0 BUILD 1
     proc ucmd_fsend {uargs {menu_nick ""}} {
 	if {$menu_nick == ""} {
 	    set nick [strtok uargs]
-	    set file [strtok uargs]
+	    set file $uargs
 	} else {
 	    set nick $menu_nick
 	    set file ""
