@@ -1,5 +1,5 @@
 # XChatter's online help system
-# $Id: help.tcl,v 1.2 2001-08-11 12:31:43 uri Exp $
+# $Id: help.tcl,v 1.3 2001-08-25 11:36:23 urish Exp $
 
 proc init_help {} {
     global helptext helpfont
@@ -124,10 +124,8 @@ proc help_set_font {base} {
 	return
     }
     set help_original_font $helpfont
-    putchat "Parsing font $helpfont."
     set fspos [lsearch $helpfont "-size"]
     set ffpos [lsearch $helpfont "-family"]
-    putchat "FSPOS $fspos; FFPOS: $ffpos"
     if {$fspos != -1} {
 	set help_font_size [lindex $helpfont [expr $fspos + 1]]
     } else {
@@ -158,6 +156,7 @@ proc help_set_font {base} {
     button $base.buttons.apply -text "Apply" -command "help_set_font_apply $base"
     pack $base.fontopts
     eval $base.family.list insert end $families
+    $base.family.list selection anchor $family
     $base.family.list selection set $family
     $base.family.list see $family
     pack $base.family -in $base.fontopts -side left
