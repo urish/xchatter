@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.6 2001-08-13 11:53:52 uri Exp $
+# $Id: usercmd.tcl,v 1.7 2001-09-02 08:39:20 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -24,6 +24,7 @@ proc usercmd_init {} {
 	CONNECT	user_server
 	S	user_server
 	SERVER	user_server
+	DISCONNECT user_disconnect
 	N	user_nick
 	NICK	user_nick
 	P	user_ping
@@ -215,6 +216,13 @@ proc user_kill {uargs} {
 proc user_die {uargs} {
     putsock "DIE [join $uargs]"
     putcmsg server_die t [join $uargs]"
+    return 1
+}
+
+proc user_disconnect {uargs} {
+    if [disconnect] {
+	putcmsg disconnected
+    }
     return 1
 }
 
