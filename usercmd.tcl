@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.12 2001-10-02 09:38:36 amirs Exp $
+# $Id: usercmd.tcl,v 1.13 2001-10-02 10:04:22 amirs Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -612,6 +612,10 @@ proc user_timer {uargs} {
 		putcmsg timer_error_noname
 		return 1
 	    }
+	    if {[timer_info $name type] != "script" && [timer_info $name type] != ""} {
+		putcmsg timer_error_internal
+		return 1
+	    }
 	    if [rm_timer $name] {
 		putcmsg timer_del_done n $name
 	    } else {
@@ -646,9 +650,13 @@ proc user_timer {uargs} {
 		putcmsg timer_error_badinterval
 		return 1
 	    }
-	    if {$command == "" && [timer_info $name type] == ""} {
+	    set type [timer_info $name type]
+	    if {$command == "" && $type == ""} {
 		putcmsg timer_error_nocmd
 		return 1
+	    }
+	    if {$type == ""} { 
+		set type script
 	    }
 	    if {$count == ""} {
 		set count 0
@@ -657,7 +665,11 @@ proc user_timer {uargs} {
 		putcmsg timer_error_badcount
 		return 1
 	    }
-	    timer $name script $interval $count $command
+	    if {$type != "script" && ($command != "" || $count != [timer_info $name count])} {
+		putcmsg timer_error_internal
+		return 1
+	    }
+	    timer $name $type $interval $count $command
 	}
     }
     return 1

@@ -1,5 +1,5 @@
 # English language messages for XChatter.
-# $Id: english.lang,v 1.6 2001-10-02 09:38:36 amirs Exp $
+# $Id: english.lang,v 1.7 2001-10-02 10:04:22 amirs Exp $
 norm_text_style		normal
 item inputbox		justify left
 # interface.tcl
@@ -88,6 +88,7 @@ text timer_error_nointerval *** Error: no timer interval/execution count specifi
 text timer_error_badinterval *** Error: Invalid timer interval specified. /HELP TIMER for more information.
 text timer_error_badcount *** Error: Invalid timer count specified. /HELP TIMER for more information.
 text timer_error_nocmd  *** Error: no timer command specified. /HELP TIMER for more information.
+text timer_error_internal *** Error: Can not change internal timer. /HELP TIMER for more information.
 text timer_bad_subcmd	*** Invalid subcommand '%t'. /HELP TIMER for more information.
 text help_not_loaded	*** No help system loaded (couldn't find help.tcl).
 # xchatter.tcl:
