@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.7 2001-09-29 00:08:43 urish Exp $
+# $Id: styles.ext,v 1.8 2001-10-07 12:34:28 urish Exp $
 
 namespace eval styles {
     variable stylemap
@@ -19,7 +19,6 @@ namespace eval styles {
 	k	blink
 	b	bold
 	u	underline
-	l	lowered
 	d	fgweak
 	D	bgweak
 	r	raised
