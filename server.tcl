@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.9 2002-03-16 11:36:40 urish Exp $
+# $Id: server.tcl,v 1.10 2002-03-18 20:28:22 urish Exp $
 
 proc server_init {} {
     # register events
@@ -32,6 +32,8 @@ proc server_init {} {
 	!TIME	server_cmd_time_reply
 	BEEP	server_cmd_beep
     }
+    onevent connected "" userlist_connected
+    onevent disconnected "" userlist_disconnected
 }
 
 proc incoming {} {
@@ -88,7 +90,7 @@ proc connect {server port} {
     }
     fileevent $sock readable incoming
     fconfigure $sock -blocking 0 -buffering none
-    process_event connected "" $sock
+    process_event connected "" $sock $server $port
     process_alias onconnect "$server $port"
     return ""
 }
@@ -99,7 +101,7 @@ proc disconnect {} {
 	catch {fileevent $sock readable {}}
 	catch {close $sock}
 	unset sock
-	process_event disconnected
+	process_event disconnected "" $server_inf
         process_alias ondisconnect $server_inf
 	return 1
     } else {
@@ -208,9 +210,9 @@ proc server_list {sargs} {
     }
     if {$slist == "hidden1"} {
 	userlist_empty
-	incr slist
-	return 1
-    } elseif {$slist == "hidden2"} {
+	set slist "hidden2"
+    }
+    if {$slist == "hidden2"} {
 	if {[string toupper $sargs] == "END"} {
 	  unset slist
 	  return 1
@@ -332,4 +334,14 @@ proc server_cmd_beep {source cargs} {
     putcmsg user_beep n $source t [join $cargs]
     process_alias onbeep "$source $cargs"
     return 0
+}
+
+proc userlist_connected {sock server port} {
+    global slist
+    set slist hidden1
+    putsock "LIST"
+}
+
+proc userlist_disconnected {server} {
+    userlist_empty
 }
