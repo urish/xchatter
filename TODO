@@ -1,4 +1,4 @@
-# $Id: TODO,v 1.10 2001-09-02 09:04:41 amirs Exp $
+# $Id: TODO,v 1.11 2002-03-16 11:09:03 urish Exp $
 
 Important:
 * Finish the intergration of the new -user and -type options to putcmsg 
@@ -36,26 +36,8 @@ Less urgent:
 * Write help files.
 * Add a logging system, probably based on the eventlog.xcp plugin.
   Make it support stripping styles from the log.
-* Remove support for old plugin format (and therefore old global plugin
-  variable binding).
 * Added cool new styles to the styles addon - uri.
   
 Maybe:
-* Icons addon (interprets special style strings as icon specs)...
-* Code a new, xcplus-header like /PLUGIN command, so a plugin defines a name,
-  version number, load proc, unload proc, ...
-* Implement a /UNLOAD command, make XCPlus extention register as plugins in
-  the /PLUGIN command, to /UNLOAD will work for them.
-* Integrate the plugin system with XChatter plus extention system, to create
-  a simple interface for new plugins, that is similar to XChatter plus extention
-  registration
 * Add support for creating xcscript timers with COUNT specified - maybe with
   /TIMER CREATE <name> <interval>[:count] command
-
-Already done:
-* Add a font choosing option in help.
-* Make XChatter function without help.tcl
-* Finish the timer system - amir.
-* Add a /SINFO command, copy the code from the /SINFO plugin
-* Recode /AWAY system to use the new timer system.
-* Make INFO/LIST parsing be more protocol-compliant.
