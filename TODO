@@ -1,10 +1,11 @@
-# $Id: TODO,v 1.7 2001-08-11 15:18:18 uri Exp $
+# $Id: TODO,v 1.8 2001-08-13 11:53:51 uri Exp $
 
 Important:
 * Finish the intergration of the new -user and -type options to putcmsg 
   in xchatter core - amir :)
 * Add all ideas/bug fix requests to the TODO document.
 * Finish documenting all commands.
+* Make INFO/LIST parsing be more protocol-compliant.
 
 Mid-important:
 * Make all extentions supports putcmsg -user and putcmsg -type
@@ -35,7 +36,6 @@ Less urgent:
     - onconnected
     - ...
 * Write help files.
-* Add a /SINFO command, copy the code from the /SINFO plugin
 * Add a logging system, probably based on the eventlog.xcp plugin.
   Make it support stripping styles from the log.
 * Remove support for old plugin format (and therefore old global plugin
@@ -58,3 +58,4 @@ Already done:
 * Add a font choosing option in help.
 * Make XChatter function without help.tcl
 * Finish the timer system - amir.
+* Add a /SINFO command, copy the code from the /SINFO plugin

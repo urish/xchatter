@@ -1,5 +1,5 @@
 # XChatter SERVER I/O routines
-# $Id: server.tcl,v 1.3 2001-08-10 11:04:45 uri Exp $
+# $Id: server.tcl,v 1.4 2001-08-13 11:53:52 uri Exp $
 
 proc server_init {} {
     # register events
@@ -19,6 +19,7 @@ proc server_init {} {
 	VERSION	server_ver
 	LIST	server_list
 	INFO	server_info
+	SINFO	server_sinfo
     }
     # command events
     onevent servercmd {
@@ -220,6 +221,27 @@ proc server_info {sargs} {
     set conn [lindex $sargs 7]
     putcmsg -user $user -type info user_info n $user i $ip l [duration $idle] s [clock format $conn]
     return 1
+}
+
+proc server_sinfo {sargs} {
+    set uptime 0
+    set idle 0
+    set clients "?"
+    set unreg "?"
+    while {[llength $sargs]} {
+	set name [strtok sargs]
+	set value [strtok sargs]
+	switch -exact -- $name {
+	    CLIENTS {set clients $value}
+	    UNKNOWN {set unreg $value}
+	    IDLE {set idle $value}
+	    UPTIME {set uptime $value}
+	}
+    }
+    putchat "*** Server information:"
+    putchat "*** $clients clients ($unreg unregistered)."
+    putchat "*** Average idle time: [duration $idle]."
+    putchat "*** Server uptime: [duration $uptime]."
 }
 
 proc server_cmd {sargs} {

@@ -1,5 +1,5 @@
 # XChatter user interface commands
-# $Id: usercmd.tcl,v 1.5 2001-08-11 15:18:19 uri Exp $
+# $Id: usercmd.tcl,v 1.6 2001-08-13 11:53:52 uri Exp $
 
 proc usercmd_init {} {
     # init timers
@@ -35,6 +35,7 @@ proc usercmd_init {} {
 	AWAY	user_away
 	WHOIS	user_info
 	INFO	user_info
+	SINFO	user_sinfo
 	SKIN	user_skin
 	V	user_version
 	VER	user_version
@@ -250,6 +251,11 @@ proc user_nick {uargs} {
 
 proc user_info {uargs} {
     putsock "INFO [lindex $uargs 0]"
+    return 1
+}
+
+proc user_sinfo {uargs} {
+    putsock "SINFO"
     return 1
 }
 
