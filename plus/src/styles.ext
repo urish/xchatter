@@ -1,5 +1,5 @@
 EXTENTION styles-1.1-2
-# $Id: styles.ext,v 1.6 2001-08-25 11:56:34 urish Exp $
+# $Id: styles.ext,v 1.7 2001-09-29 00:08:43 urish Exp $
 
 namespace eval styles {
     variable stylemap
@@ -303,7 +303,9 @@ namespace eval styles {
     
     proc disconnected {} {
 	variable nickmap
-	unset nickmap
+	if [info exists nickmap] {
+	    unset nickmap
+	}
 	return 0
     }
 }
