@@ -1,5 +1,5 @@
 EXTENTION chess-0.9-7
-# $Id: chess.ext,v 1.9 2001-10-05 23:37:57 urish Exp $
+# $Id: chess.ext,v 1.10 2001-10-07 00:44:35 urish Exp $
 
 # File structure:
 # * Variable initialization
@@ -610,7 +610,7 @@ namespace eval chess {
     }
 
     proc is_move_legal {piece type source target player} {
-	if ![can_move $piece $type $source $target $player]} {
+	if ![can_move $piece $type $source $target $player] {
 	    return 0
 	}
 	piece_move $piece $source $target
@@ -678,7 +678,7 @@ namespace eval chess {
 		}
 		king - pawn {
 		    set source [list $h $v]
-		    foreach ho {-1 -1 -1 0  0  1 1 1}
+		    foreach ho {-1 -1 -1 0  0  1 1 1} \
 		    	    vo {-1  0  1 -1 1 -1 0 1} {
 			set target [list [expr $h + $ho] [expr $v + $vo]]
 			if [is_move_legal $board($i) $type $source $target $player] {
